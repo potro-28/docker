@@ -32,12 +32,17 @@ def crear_usuario_ajax(request):
             fecha_nacimiento = datetime.strptime(data['fecha_nacimiento'], "%Y-%m-%d").date()
         else:
             fecha_nacimiento = date(2000, 1, 1)
-
-   
         peso = float(data.get('peso') or 0)
         altura = float(data.get('altura') or 0)
-
+        password = data.get('password') or "123456"
+        user = User.objects.create(
+            username=data['username'],
+            email = data.get('correo','')
+        )
+        user.set_password(password)
+        user.save()
         usuario = Usuario.objects.create(
+            user=user,
             documento=data['documento'],
             nombre_usuario=data['nombre'],
             apellido_usuario=data['apellido'],
@@ -51,7 +56,9 @@ def crear_usuario_ajax(request):
             estado='activo',
             fecha_registro=date.today()
         )
-
+        membresia = Membresia.objects.create(
+            fk_usuario = usuario
+        )
         return JsonResponse({
             'id': usuario.id,
             'nombre': f"{usuario.nombre_usuario} {usuario.apellido_usuario}"
@@ -61,6 +68,7 @@ def crear_usuario_ajax(request):
         return JsonResponse({
             'error': str(e)
         })
+
 #Listar notificaciones 
 def Listar_notificacion(request):
     nombre ={
@@ -103,7 +111,7 @@ class NotificacionCreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Crear notificacion'
-        return super().get_context_data(**kwargs)
+        return context
     
 class NotificacionUpdateView(UpdateView):
     model = Notificacion

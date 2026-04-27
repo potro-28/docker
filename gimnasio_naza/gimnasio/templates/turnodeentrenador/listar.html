@@ -10,8 +10,8 @@
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
             <h5 class="mb-0">Listado de Turnos de Entrenador</h5>
-                        <div class="d-flex gap-2 flex-wrap">
-            <div class="dropdown">
+            <div class="d-flex gap-2 flex-wrap">
+                <div class="dropdown">
                     <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownExportar" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="icon-base ri ri-file-chart-line icon-18px me-1"></i>Exportar
                     </button>
@@ -28,12 +28,11 @@
                         </li>
                     </ul>
                 </div>
-            <a href="{% url 'gimnasio:crear_turnodeentrenador' %}" class="btn btn-primary">
-                <i class="icon-base ri ri-add-line icon-18px me-1"></i>
-                Agregar turno de entrenador
-            </a>
+                <a href="{% url 'gimnasio:crear_turnodeentrenador' %}" class="btn btn-primary">
+                    <i class="icon-base ri ri-add-line icon-18px me-1"></i>Agregar turno de entrenador
+                </a>
+            </div>
         </div>
-
         <div class="card-body">
             <div class="table-responsive">
                 <table id="tabla-turnos" class="table table-bordered table-striped w-100">
@@ -51,7 +50,6 @@
                         {% for turno in object_list %}
                         <tr>
                             <td>{{ turno.id }}</td>
-
                             <td>
                                 {% if turno.administrador %}
                                     {{ turno.administrador.get_full_name|default:turno.administrador.username }}
@@ -59,24 +57,21 @@
                                     Sin administrador
                                 {% endif %}
                             </td>
-
                             <td>{{ turno.fecha_turno_inicio|date:"d/m/Y" }}</td>
                             <td>{{ turno.fecha_turno_final|date:"d/m/Y" }}</td>
                             <td>{{ turno.jornada }}</td>
-
                             <td class="text-nowrap">
                                 <a href="{% url 'gimnasio:editar_turnodeentrenador' turno.id %}"
-                                   class="btn btn-sm btn-text-secondary rounded-pill btn-icon">
+                                    class="btn btn-sm btn-text-secondary rounded-pill btn-icon">
                                     <i class="icon-base ri ri-edit-box-line icon-22px"></i>
                                 </a>
-
                                 <form method="post"
-                                      action="{% url 'gimnasio:eliminar_turnodeentrenador' turno.id %}"
-                                      style="display:inline;">
+                                    action="{% url 'gimnasio:eliminar_turnodeentrenador' turno.id %}"
+                                    style="display:inline;">
                                     {% csrf_token %}
                                     <button type="submit"
-                                            class="btn btn-sm btn-text-secondary rounded-pill btn-icon"
-                                            onclick="return confirm('¿Seguro que deseas eliminar este turno?')">
+                                        class="btn btn-sm btn-text-secondary rounded-pill btn-icon"
+                                        onclick="return confirm('¿Seguro que deseas eliminar este turno?')">
                                         <i class="icon-base ri ri-delete-bin-line icon-22px"></i>
                                     </button>
                                 </form>
@@ -84,9 +79,7 @@
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="6" class="text-center">
-                                No hay turnos de entrenador registrados.
-                            </td>
+                            <td colspan="6" class="text-center">No hay turnos de entrenador registrados.</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -95,6 +88,7 @@
         </div>
     </div>
 </div>
+
 {% endblock %}
 
 {% block js %}
@@ -105,18 +99,18 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-$(function () {
-    $('#tabla-turnos').DataTable({
-        responsive: true,
-        autoWidth: false,
-        language: {
-            url: "{% static 'lib/datatables-1.10.20/spanish.txt' %}"
-        },
-        columnDefs: [
-            { orderable: false, targets: 5 }
-        ]
+    $(function () {
+        $('#tabla-turnos').DataTable({
+            responsive: true,
+            autoWidth: false,
+            language: {
+                url: "{% static 'lib/datatables-1.10.20/spanish.txt' %}"
+            },
+            columnDefs: [
+                { orderable: false, targets: 5 }
+            ]
+        });
     });
-});
 </script>
 
 {% if messages %}
@@ -131,4 +125,5 @@ $(function () {
     {% endfor %}
 </script>
 {% endif %}
+
 {% endblock %}

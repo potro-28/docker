@@ -1,0 +1,153 @@
+{% extends 'body.html' %}
+{% load widget_tweaks %}
+
+{% block contenido %}
+  <style>
+
+  .perfil-container {
+    max-width: 480px;
+    margin: 40px auto;
+  }
+
+  .perfil-card-wrapper {
+    border-radius: 14px;
+    overflow: hidden;
+    background: #111827;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+
+  /* HEADER */
+  .perfil-header {
+    background: linear-gradient(135deg, #111827, #020617);
+    border-bottom: 3px solid #22c55e; /* verde neón */
+    padding: 1rem 1.5rem 3.8rem;
+  }
+
+  .perfil-header-sub {
+    color: rgba(255,255,255,0.4);
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+
+  .perfil-header h5 {
+    color: #22c55e;
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  /* AVATAR */
+  .perfil-avatar-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: -44px;
+  }
+
+  .perfil-avatar {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #22c55e;
+    box-shadow: 0 0 15px rgba(34,197,94,0.6);
+  }
+
+  .perfil-avatar-placeholder {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #22c55e, #15803d);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid #22c55e;
+    color: #020617;
+    font-size: 1.8rem;
+    font-weight: bold;
+  }
+
+  /* DATOS */
+  .text-muted {
+    color: #9ca3af !important;
+  }
+
+  /* GRID */
+  .perfil-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .perfil-card {
+    background: #020617;
+    border-radius: 10px;
+    padding: 12px;
+    border: 1px solid rgba(34,197,94,0.2);
+    transition: 0.3s;
+  }
+
+  .perfil-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(34,197,94,0.2);
+  }
+
+  .perfil-card-label {
+    font-size: 11px;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .perfil-card-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #22c55e;
+  }
+</style>
+<div class="perfil-container">
+  <div class="perfil-card-wrapper">
+<!-- HEADER -->
+<div class="perfil-header">
+  <p class="perfil-header-sub">Bienvenido</p>
+  <h5>Mi Perfil</h5>
+</div>
+
+<!-- AVATAR -->
+<div class="perfil-avatar-wrapper">
+  {% if user.img_usuario %}
+    <img src="{{ user.img_usuario.url }}" class="perfil-avatar">
+  {% else %}
+    <div class="perfil-avatar-placeholder">
+      {{ user.username|first|upper }}
+    </div>
+  {% endif %}
+</div>
+
+<div class="p-3">
+
+  <!-- DATOS -->
+  <div class="text-center mb-3">
+    <p class="fw-bold mb-0">{{ user.usuario.nombre_usuario }}</p>
+    <p class="text-muted mb-0" style="font-size: 12px;">{{ user.usuario.correo_usuario }}</p>
+  </div>
+
+  <div class="perfil-grid">
+    <div class="perfil-card">
+      <div class="perfil-card-label">Usuario</div>
+      <div class="perfil-card-value">{{ user.username }}</div>
+    </div>
+
+    <div class="perfil-card">
+      <div class="perfil-card-label">Nombre</div>
+      <div class="perfil-card-value">{{ user.usuario.nombre_usuario }}</div>
+    </div>
+  </div>
+
+</div>
+
+
+  </div>
+</div>
+
+
+{% endblock %}

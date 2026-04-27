@@ -2,98 +2,163 @@
 {% load widget_tweaks %}
 
 {% block contenido %}
-<form method="post" action=".">
-    <div class="card card-default">
+<style>
+  .swal2-container {
+    z-index: 20000 !important;
+}
+</style>
+<form method="post">
+    <div class="card">
 
         <div class="card-header">
-            <h3 class="card-title">
-                <i class="fas fa-search"></i>
-                {{ titulo }}
-            </h3>
+            <h3> <i class="fas fa-plus"></i>  {{ titulo }}</h3>
+            
         </div>
 
         <div class="card-body">
             {% csrf_token %}
 
-            {% if form.errors %}
-            <div class="alert alert-danger">
-                <strong>Error:</strong> Verifica los campos.
-            </div>
-            {% endif %}
-
             {% for field in form.visible_fields %}
-            <div class="form-group mb-3">
+            <div class="mb-3">
                 <label>{{ field.label }}</label>
 
                 {% if field.name == 'fk_imc' %}
                 <div class="d-flex">
                     {{ field|add_class:'form-control' }}
 
-                    <button type="button" class="btn btn-success ms-2"
-                        data-bs-toggle="modal"
-                        data-bs-target="#modalMasa_corporal">
+                    <button type="button" class="btn btn-success ms-2" onclick="abrirWizard()">
                         +
                     </button>
                 </div>
                 {% else %}
                     {{ field|add_class:'form-control' }}
                 {% endif %}
-
-                {% for error in field.errors %}
-                    <div class="text-danger">{{ error }}</div>
-                {% endfor %}
             </div>
             {% endfor %}
 
         </div>
 
         <div class="card-footer">
-            <button type="submit" class="btn btn-primary">
-                Guardar
-            </button>
-
-            <a href="{% url 'gimnasio:listar_rutinas' %}" class="btn btn-danger">
-                Cancelar
-            </a>
+            <button class="btn btn-primary">Guardar Rutina</button>
         </div>
 
     </div>
 </form>
 
-<!-- MODAL -->
-<div class="modal fade" id="modalMasa_corporal" tabindex="-1">
-  <div class="modal-dialog">
+<!-- ================= WIZARD ================= -->
+<div class="modal fade" id="modalWizard">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
 
-      <div class="modal-header">
-        <h5>Crear Masa Corporal</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      <div class="modal-header text-white" style="background-color: #267ca7;"> <h5>Wizard Completo</h5>
+        <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
 
       <div class="modal-body">
 
-        <input type="number" id="peso_cliente" class="form-control mb-2" placeholder="Peso cliente">
-        
-        <input type="date" id="fecha_control" class="form-control mb-2">
+    <!-- PASO 1 -->
+    <div id="paso1">
+        <h6 class="mb-3">Usuario</h6>
 
-        <input type="number" id="altura_cliente" class="form-control mb-2" placeholder="Altura cliente">
-        
-        <!-- 🔥 SELECT CORREGIDO -->
-        <select id="fk_Nutricion" class="form-control">
-            <option value="">Seleccione usuario</option>
-            {% for nutricion in nutriciones %}
-            <option value="{{ nutricion.id }}">
-                {{ nutricion.fk_Usuario.nombre_usuario }} {{ nutricion.fk_Usuario.apellido_usuario }}
-            </option>
-            {% endfor %}
-        </select>
+        <div class="row">
+            <div class="col-md-6 mb-2">
+                <input id="username" class="form-control" placeholder="Username">
+            </div>
+            <div class="col-md-6 mb-2">
+                <input id="password" type="password" class="form-control" placeholder="Password">
+            </div>
 
-      </div>
+            <div class="col-md-4 mb-2">
+                <input id="documento" class="form-control" placeholder="Documento">
+            </div>
+            <div class="col-md-4 mb-2">
+                <input id="nombre" class="form-control" placeholder="Nombre">
+            </div>
+            <div class="col-md-4 mb-2">
+                <input id="apellido" class="form-control" placeholder="Apellido">
+            </div>
+
+            <div class="col-md-4 mb-2">
+                <input id="correo" class="form-control" placeholder="Correo">
+            </div>
+            <div class="col-md-4 mb-2">
+                <input id="telefono" class="form-control" placeholder="Teléfono">
+            </div>
+            <div class="col-md-4 mb-2">
+                <input id="fecha_nacimiento" type="date" class="form-control">
+            </div>
+
+            <div class="col-md-4 mb-2">
+                <input id="peso_usuario" class="form-control" placeholder="Peso usuario">
+            </div>
+            <div class="col-md-4 mb-2">
+                <input id="altura_usuario" class="form-control" placeholder="Altura usuario">
+            </div>
+            <div class="col-md-4 mb-2">
+                <select id="genero" class="form-control">
+                    <option value="">Género</option>
+                    <option value="M">Masculino</option>
+                    <option value="F">Femenino</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- PASO 2 -->
+    <div id="paso2" style="display:none;">
+        <h6 class="mb-3">Nutrición</h6>
+
+        <div class="row">
+            <div class="col-md-4 mb-2">
+                <select id="nivel_actividad" class="form-control">
+                    <option value="">Nivel actividad</option>
+                    <option value="bajo">Bajo</option>
+                    <option value="medio">Medio</option>
+                    <option value="alto">Alto</option>
+                </select>
+            </div>
+
+            <div class="col-md-4 mb-2">
+                <select id="tipo_objetivo" class="form-control">
+                    <option value="">Objetivo</option>
+                    <option value="perder_peso">Perder peso</option>
+                    <option value="mantener">Mantener</option>
+                    <option value="ganar_masa">Ganar masa</option>
+                </select>
+            </div>
+
+            <div class="col-md-4 mb-2">
+                <select id="tipo_dieta" class="form-control">
+                    <option value="">Dieta</option>
+                    <option value="keto">Keto</option>
+                    <option value="balanceada">Balanceada</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- PASO 3 -->
+    <div id="paso3" style="display:none;">
+        <h6 class="mb-3">Masa Corporal</h6>
+
+        <div class="row">
+            <div class="col-md-4 mb-2">
+                <input id="peso_cliente" class="form-control" placeholder="Peso">
+            </div>
+            <div class="col-md-4 mb-2">
+                <input id="altura_cliente" class="form-control" placeholder="Altura">
+            </div>
+            <div class="col-md-4 mb-2">
+                <input id="fecha_control" type="date" class="form-control">
+            </div>
+        </div>
+    </div>
+
+</div>
 
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary" onclick="crear_Masa_corporal()">
-            Guardar
-        </button>
+        <button class="btn btn-secondary" onclick="prevPaso()">Anterior</button>
+        <button class="btn btn-primary" onclick="nextPaso()" id="Siguiente">Siguiente</button>
       </div>
 
     </div>
@@ -104,21 +169,69 @@
 
 {% block js %}
 <script>
-function crear_Masa_corporal() {
+const siguientebtn = document.getElementById("Siguiente");
+let paso = 1;
 
-    let data = {
-        peso_cliente: document.getElementById("peso_cliente").value,
-        altura_cliente: document.getElementById("altura_cliente").value,
-        fecha_control: document.getElementById("fecha_control").value,
-        fk_Nutricion: document.getElementById("fk_Nutricion").value
-    };
+function mostrarPaso(){
+    for(let i=1;i<=3;i++){
+        document.getElementById('paso'+i).style.display = (i === paso) ? 'block' : 'none';
+    }
+    if(paso === 3){
+      siguientebtn.textContent = "Guardar"
+    }else{
+      siguientebtn.textContent = "Siguiente"
+}
+}
 
-    if (!data.peso_cliente || !data.altura_cliente || !data.fecha_control || !data.fk_Nutricion) {
-        Swal.fire("Error", "Todos los campos son obligatorios", "error");
+function abrirWizard(){
+    paso = 1;
+    mostrarPaso();
+    new bootstrap.Modal(document.getElementById('modalWizard')).show();
+}
+
+function nextPaso(){
+    if(paso === 3){
+        console.log("Guardar todo");
+        guardarTodo();
         return;
     }
+    paso++;
+    console.log(paso)
+    mostrarPaso();
+}
 
-    fetch("{% url 'gimnasio:crear_masa_corporal_ajax' %}", {
+function prevPaso(){
+    if(paso > 1){
+        paso--;
+        mostrarPaso();
+    }
+}
+
+function guardarTodo(){
+
+    let data = {
+        username: username.value,
+        password: password.value,
+        documento: documento.value,
+        nombre: nombre.value,
+        apellido: apellido.value,
+        correo: correo.value,
+        telefono: telefono.value,
+        fecha_nacimiento: fecha_nacimiento.value,
+        peso_usuario: parseFloat(peso_usuario.value),
+        altura_usuario: parseFloat(altura_usuario.value),
+        genero: genero.value,
+
+        nivel_actividad: nivel_actividad.value,
+        tipo_objetivo: tipo_objetivo.value,
+        tipo_dieta: tipo_dieta.value,
+
+        peso_cliente: parseFloat(peso_cliente.value),
+        altura_cliente: parseFloat(altura_cliente.value),
+        fecha_control: fecha_control.value
+    };
+
+    fetch("{% url 'gimnasio:wizard_crear_todo' %}", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -126,23 +239,24 @@ function crear_Masa_corporal() {
         },
         body: JSON.stringify(data)
     })
-    .then(response => response.json())
-    .then(data => {
+    .then(res => res.json())
+    .then(res => {
+
+        if(res.error){
+            Swal.fire("Error", res.error, "error");
+            return;
+        }
 
         let select = document.getElementById("id_fk_imc");
-
-        let option = new Option(data.nombre, data.id);
-        option.selected = true;
+        let option = new Option(res.nombre, res.id, true, true);
         select.add(option);
 
-        let modal = bootstrap.Modal.getInstance(document.getElementById('modalMasa_corporal'));
-        modal.hide();
+        bootstrap.Modal.getInstance(document.getElementById('modalWizard')).hide();
 
-        Swal.fire("Correcto", "Masa corporal creada", "success");
+        Swal.fire("Correcto", "Creado correctamente", "success");
     })
-    .catch(error => {
-        console.error(error);
-        Swal.fire("Error", "Ocurrió un error", "error");
+    .catch(()=>{
+        Swal.fire("Error", "Error en la petición", "error");
     });
 }
 </script>

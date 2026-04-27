@@ -7,7 +7,7 @@
     <div class="card">
         <div class="card-header">
             <h5 class="card-title mb-0">
-                <i class="ri-search-line me-2"></i>
+                <i class="fas fa-plus"></i>
                 {{ titulo }}
             </h5>
         </div>
@@ -35,18 +35,15 @@
                 <div class="row">
                     {% for field in form.visible_fields %}
                         {% if field.name == 'imagen' %}
-                            <!-- Campo imagen con preview -->
                             <div class="col-md-12 mb-3">
                                 <label class="form-label">{{ field.label }}:</label>
                                 <div class="d-flex align-items-center gap-3">
-                                    <!-- Preview de imagen -->
                                     <div id="preview-container" style="width:120px; height:120px; border:2px dashed #ccc; border-radius:10px; overflow:hidden; display:flex; align-items:center; justify-content:center; background:#f8f9fa;">
                                         <img id="preview-img" src="#" alt="Preview" style="display:none; width:100%; height:100%; object-fit:cover;">
                                         <span id="preview-placeholder" class="text-muted" style="font-size:12px; text-align:center;">
                                             <i class="ri-image-line" style="font-size:30px;"></i><br>Sin imagen
                                         </span>
                                     </div>
-                                    <!-- Input file estilizado -->
                                     <div>
                                         {% render_field field class="form-control" id="id_imagen" %}
                                         <small class="text-muted">Formatos: JPG, PNG, WEBP</small>
@@ -58,7 +55,6 @@
                             </div>
 
                         {% elif field.name == 'categoria' %}
-                            <!-- Campo categoría con botón + -->
                             <div class="col-md-6 mb-3">
                                 <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}:</label>
                                 <div class="d-flex">
@@ -73,7 +69,6 @@
                             </div>
 
                         {% else %}
-                            <!-- Campos normales -->
                             <div class="col-md-6 mb-3">
                                 <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}:</label>
                                 {% render_field field class="form-control" %}
@@ -120,7 +115,7 @@
                 <div class="mb-3">
                     <label class="form-label">Nombre Categoría:</label>
                     <select id="nombre_categoria" class="form-control">
-                        <option value=""disabled selected >-- Selecciona --</option>
+                        <option value="" disabled selected>-- Selecciona --</option>
                         <option value="maquinas">Máquinas</option>
                         <option value="mancuernas">Mancuernas</option>
                         <option value="discos">Discos</option>
@@ -194,7 +189,7 @@
 
             // Agregar nueva categoría al select del formulario
             let select = document.getElementById("id_categoria");
-            let option = new Option(data.nombre_categoria, data.id, true, true);
+            let option = new Option(data.nombre, data.id, true, true); // ← CORRECCIÓN
             select.add(option);
 
             // Cerrar modal

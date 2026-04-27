@@ -1,0 +1,297 @@
+{% extends 'body.html' %}
+{% load static %}
+
+{% block contenido %}
+<div class="container-fluid py-4">
+
+    <!-- Bienvenida -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card card-welcome text-white shadow-lg">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2 class="mb-2">
+                            <i class="fas fa-user-circle"></i>
+                            Bienvenido, {{ nombre_usuario }} {{ apellido_usuario }}
+                        </h2>
+                        <p class="mb-0 opacity-75">Tu dashboard personal del gimnasio</p>
+                    </div>
+                    <div class="icon-xl">
+                        <i class="fas fa-dumbbell"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Perfil -->
+    <div class="row g-3 mb-4">
+        <div class="col-lg-4 col-md-6">
+            <div class="card card-info border-primary">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="label">Documento</span>
+                        <h5>{{ documento }}</h5>
+                    </div>
+                    <i class="fas fa-id-card icon"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+            <div class="card card-info border-success">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="label">Correo</span>
+                        <h6>{{ correo }}</h6>
+                    </div>
+                    <i class="fas fa-envelope icon"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+            <div class="card card-info border-info">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="label">Teléfono</span>
+                        <h5>{{ telefono }}</h5>
+                    </div>
+                    <i class="fas fa-phone icon"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Accesos -->
+    <h4 class="mb-3"><i class="fas fa-compass"></i> Accesos Rápidos</h4>
+
+    <div class="row g-3">
+        <!-- Card reusable -->
+        <div class="col-lg-3 col-md-6">
+            <div class="card card-menu text-center">
+                <div class="card-body">
+                    <i class="fas fa-clipboard-check icon-menu text-primary"></i>
+                    <h6>Asistencia</h6>
+                    <p>Registra y consulta tu asistencia</p>
+                    <a href="#" class="btn btn-sm btn-primary">Acceder</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6">
+            <div class="card card-menu text-center">
+                <div class="card-body">
+                    <i class="fas fa-credit-card icon-menu text-success"></i>
+                    <h6>Membresía</h6>
+                    <p>Gestiona tu membresía</p>
+                    <a href="#" class="btn btn-sm btn-success">Acceder</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6">
+            <div class="card card-menu text-center">
+                <div class="card-body">
+                    <i class="fas fa-list-check icon-menu text-warning"></i>
+                    <h6>Rutinas</h6>
+                    <p>Planes de entrenamiento</p>
+                    <a href="#" class="btn btn-sm btn-warning">Acceder</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6">
+            <div class="card card-menu text-center">
+                <div class="card-body">
+                    <i class="fas fa-apple-alt icon-menu text-danger"></i>
+                    <h6>Nutrición</h6>
+                    <p>Consejos nutricionales</p>
+                    <a href="#" class="btn btn-sm btn-danger">Acceder</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas -->
+    <h4 class="mt-5 mb-3"><i class="fas fa-chart-bar"></i> Estadísticas</h4>
+
+    <div class="row g-3">
+        <div class="col-lg-3 col-md-6">
+            <div class="card stat-card">
+                <div class="card-body d-flex justify-content-between">
+                    <div>
+                        <small>Visitas</small>
+                        <h4>12</h4>
+                    </div>
+                    <i class="fas fa-calendar-check stat-icon"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6">
+            <div class="card stat-card">
+                <div class="card-body d-flex justify-content-between">
+                    <div>
+                        <small>Membresía</small>
+                        <h4>Premium</h4>
+                    </div>
+                    <i class="fas fa-check-circle stat-icon text-success"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card progreso-card mt-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="mb-0">
+                    <i class="fas fa-clock"></i> Progreso de Membresía
+                </h6>
+                <span class="porcentaje-text" id="porcentaje">0%</span>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-bar-custom" id="barra-progreso"></div>
+            </div>
+
+            <small class="text-muted d-block mt-2">
+                Vigencia de tu membresía
+            </small>
+        </div>
+    </div>
+</div>
+
+<style>
+/* ----------- GENERAL ----------- */
+.label {
+    font-size: 12px;
+    color: #888;
+    text-transform: uppercase;
+}
+
+.icon {
+    font-size: 28px;
+    opacity: 0.4;
+}
+
+.icon-xl {
+    font-size: 50px;
+    opacity: 0.6;
+}
+
+/* ----------- BIENVENIDA ----------- */
+.card-welcome {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 12px;
+}
+
+/* ----------- PERFIL ----------- */
+.card-info {
+    border-left: 4px solid;
+    border-radius: 10px;
+}
+
+/* ----------- MENÚ ----------- */
+.card-menu {
+    border-radius: 12px;
+    transition: 0.3s;
+}
+
+.card-menu:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.icon-menu {
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+/* ----------- STATS ----------- */
+.stat-card {
+    border-radius: 10px;
+}
+
+.stat-icon {
+    font-size: 30px;
+    opacity: 0.3;
+}
+/* ----------- PROGRESO ----------- */
+
+.progreso-card {
+    border-radius: 12px;
+}
+
+.progress-container {
+    width: 100%;
+    height: 12px;
+    background: #e9ecef;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-bar-custom {
+    height: 100%;
+    width: 0%;
+    border-radius: 10px;
+    transition: width 0.5s ease, background 0.5s ease;
+}
+
+/* Colores dinámicos (los puedes usar con JS) */
+.progress-bar-custom.bajo {
+    background: #dc3545; /* rojo */
+}
+
+.progress-bar-custom.medio {
+    background: #ffc107; /* amarillo */
+}
+
+.progress-bar-custom.alto {
+    background: #28a745; /* verde */
+}
+
+.porcentaje-text {
+    font-weight: bold;
+    font-size: 14px;
+}
+</style>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+    let restantes = Number("{{ dias_restantes|default:0 }}");
+    let totales = Number("{{ dias_totales|default:0 }}");
+
+    console.log("Restantes:", restantes, "Totales:", totales);
+
+    let porcentaje = 0;
+
+    if (totales > 0){
+        porcentaje = ((totales - restantes) / totales) * 100;
+    }
+
+    if (restantes <= 0 && totales > 0) {
+        porcentaje = 100;
+    }
+
+    porcentaje = Math.max(0, Math.min(100, porcentaje));
+
+    const barraProgreso = document.getElementById('barra-progreso');
+    const porcentajeText = document.getElementById('porcentaje');
+
+    barraProgreso.style.width = porcentaje + '%';
+
+    barraProgreso.classList.remove('bajo', 'medio', 'alto');
+
+    if (porcentaje < 30) {
+        barraProgreso.classList.add('bajo');
+    } else if (porcentaje < 70) {
+        barraProgreso.classList.add('medio');
+    } else {
+        barraProgreso.classList.add('alto');
+    }
+
+    porcentajeText.textContent = porcentaje.toFixed(0) + '%';
+
+});
+</script>
+{% endblock contenido %}

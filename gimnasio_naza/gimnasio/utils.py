@@ -255,59 +255,81 @@ def obtener_formulario_google(form_id):
     return result
 
 def agregar_preguntas_a_formulario(form_id, formset):
-    """
-    Agrega preguntas al formulario de Google Forms.
-    """
     service = get_google_forms_service()
-    
-    requests = []
+
+    form_actual = service.forms().get(formId=form_id).execute()
+    index = len(form_actual.get("items", []))
+
+    requests = []  #Lista para acumular todas las preguntas
+
     for form in formset:
         if form.cleaned_data and not form.cleaned_data.get('DELETE', False):
-            pregunta = form.cleaned_data['pregunta']
-            tipo = form.cleaned_data['tipo']
-            opciones = form.cleaned_data.get('opciones')
+
+            pregunta = form.cleaned_data.get('pregunta')
+            tipo = form.cleaned_data.get('tipo')
+            opciones = form.cleaned_data.get('opciones', '')
             requerida = form.cleaned_data.get('requerida', False)
-            
-            # Mapear tipos de Django a tipos de Google Forms
-            tipo_mapping = {
-                'short_answer': 'SHORT_ANSWER',
-                'paragraph': 'PARAGRAPH',
-                'multiple_choice': 'RADIO',
-                'check_boxes': 'CHECKBOX',
-                'dropdown': 'DROP_DOWN',
-                'date': 'DATE',
-                'time': 'TIME',
-            }
-            
-            item = {
-                'title': pregunta,
-                'questionItem': {
-                    'question': {
-                        'required': requerida,
+
+            if not pregunta:  
+                continue
+
+            if isinstance(opciones, str):
+                opciones = [op.strip() for op in opciones.split(',') if op.strip()]
+
+            question = {}
+
+            if tipo == 'short_answer':
+                question = {"textQuestion": {}}
+            elif tipo == 'paragraph':
+                question = {"textQuestion": {"paragraph": True}}
+            elif tipo == 'multiple_choice':
+                question = {
+                    "choiceQuestion": {
+                        "type": "RADIO",
+                        "options": [{"value": op} for op in opciones]
                     }
                 }
-            }
-            
-            if tipo in ['multiple_choice', 'check_boxes', 'dropdown']:
-                if opciones:
-                    choices = [{'value': op} for op in opciones]
-                    item['questionItem']['question']['choiceQuestion'] = {
-                        'type': tipo_mapping[tipo],
-                        'options': choices
+            elif tipo == 'check_boxes':
+                question = {
+                    "choiceQuestion": {
+                        "type": "CHECKBOX",
+                        "options": [{"value": op} for op in opciones]
                     }
-                else:
-                    # Si no hay opciones, usar texto
-                    item['questionItem']['question']['textQuestion'] = {}
-            else:
-                item['questionItem']['question']['textQuestion'] = {}
-            
+                }
+            elif tipo == 'dropdown':
+                question = {
+                    "choiceQuestion": {
+                        "type": "DROP_DOWN",
+                        "options": [{"value": op} for op in opciones]
+                    }
+                }
+            elif tipo == 'linear_scale':
+                question = {"scaleQuestion": {"low": 1, "high": 5}}
+            elif tipo == 'date':
+                question = {"dateQuestion": {}}
+            elif tipo == 'time':
+                question = {"timeQuestion": {}}
+
             requests.append({
-                'createItem': {
-                    'item': item,
-                    'location': {'index': 0}
+                "createItem": {
+                    "item": {
+                        "title": pregunta,
+                        "questionItem": {
+                            "question": {
+                                "required": requerida,
+                                **question
+                            }
+                        }
+                    },
+                    "location": {"index": index}
                 }
             })
+
+            index += 1
+
     
     if requests:
-        body = {'requests': requests}
-        service.forms().batchUpdate(formId=form_id, body=body).execute()
+        service.forms().batchUpdate(
+            formId=form_id,
+            body={"requests": requests}
+        ).execute()

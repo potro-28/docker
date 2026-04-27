@@ -149,3 +149,15 @@ class UsuarioRolUpdateView(UpdateView):
     def form_valid(self, form):
         messages.success(self.request, "Rol asignado correctamente")
         return super().form_valid(form)
+    
+from django.views import View
+from django.shortcuts import render
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+class PerfilView(LoginRequiredMixin, View):
+    template_name = "Usuarios/perfil.html"
+
+    def get(self, request):
+        return render(request, self.template_name, {
+            'user': request.user
+        })

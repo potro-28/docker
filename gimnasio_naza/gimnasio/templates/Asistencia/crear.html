@@ -9,7 +9,7 @@
 
     <div class="card-header">
         <h3 class="card-title">
-            <i class="fas fa-search"></i>
+            <i class="fas fa-plus"></i>
             {{ titulo }}
         </h3>
     </div>
@@ -96,26 +96,21 @@
 {% block js %}
 
 <script>
-function crearUsuario() {
+function crearMembresia() {
 
     let data = {
-        documento: document.getElementById("documento").value,
-        nombre: document.getElementById("nombre").value,
-        apellido: document.getElementById("apellido").value,
-        correo: document.getElementById("correo").value,
-        telefono: document.getElementById("telefono").value,
-        fecha_nacimiento: document.getElementById("fecha_nacimiento").value,
-        peso: document.getElementById("peso").value,
-        altura: document.getElementById("altura").value,
-        genero: document.getElementById("genero").value
+        fecha_inicio: document.getElementById("fecha_inicio").value,
+        fecha_fin: document.getElementById("fecha_fin").value,
+        estado: document.getElementById("estado").value,
+        codigo_qr: document.getElementById("codigo_qr").value
     };
 
-    if (!data.documento || !data.nombre || !data.apellido || !data.correo) {
+    if (!data.fecha_inicio || !data.fecha_fin|| !data.estado || !data.codigo_qr) {
         Swal.fire("Error", "Todos los campos son obligatorios", "error");
         return;
     }
 
-    fetch("{% url 'gimnasio:crear_usuario_ajax' %}", {
+    fetch("{% url 'gimnasio:crear_membresia_ajax' %}", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -126,15 +121,15 @@ function crearUsuario() {
     .then(response => response.json())
     .then(data => {
 
-        let select = document.getElementById("id_fk_Usuario");
+        let select = document.getElementById("fk_membresia");
 
         let option = new Option(data.nombre, data.id, true, true);
         select.add(option);
 
-        let modal = bootstrap.Modal.getInstance(document.getElementById('modalUsuario'));
+        let modal = bootstrap.Modal.getInstance(document.getElementById('modalMembresia'));
         modal.hide();
 
-        Swal.fire("Correcto", "usuaio creado", "success");
+        Swal.fire("Correcto", "membresia creada", "success");
     });
 }
 </script>

@@ -7,7 +7,7 @@
 
         <div class="card-header">
             <h3 class="card-title">
-                <i class="fas fa-search"></i>
+                <i class="fas fa-plus"></i>
                 {{ titulo }}
             </h3>
         </div>
@@ -161,11 +161,22 @@ function crearNutricion() {
     .then(response => response.json())
     .then(data => {
 
-        let select = document.getElementById("id_fk_Nutricion");
-        let option = new Option(data.nombre, data.id, true, true);
-        select.add(option);
+        // 🔥 ACTUALIZA TODOS LOS SELECTS POSIBLES
+        let select1 = document.getElementById("id_fk_Nutricion");
+        let select2 = document.getElementById("fk_Nutricion");
 
-        document.querySelector("#modalNutricion .btn-close").click();
+        if (select1) {
+            let option = new Option(data.nombre, data.id, true, true);
+            select1.add(option);
+        }
+
+        if (select2) {
+            let option = new Option(data.nombre, data.id, true, true);
+            select2.add(option);
+        }
+
+        // cerrar modal
+        bootstrap.Modal.getInstance(document.getElementById('modalNutricion')).hide();
 
         Swal.fire("Correcto", "Nutrición creada", "success");
     });

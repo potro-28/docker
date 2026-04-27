@@ -2,174 +2,222 @@
 {% load static %}
 
 {% block contenido %}
-<div class="row mb-4">
-    <div class="col-xl-4 col-sm-6 col-12">
-        <div class="card h-100 shadow-sm" style="border-radius: 15px; border: none;">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="mb-0 text-primary fw-bold">Estado de Membresias</h5>
-                    <span class="badge bg-primary-subtle text-primary rounded-pill">Total: {{ total_membresias }}</span>
-                </div>
-                <div style="position: relative; height: 230px; width: 100%;">
-                    <canvas id="membresiaChart"></canvas>
+<div class="container-xxl flex-grow-1 container-p-y">
+
+    <!-- ===================== GRAFICO ===================== -->
+    <div class="row mb-4">
+        <div class="col-12 col-md-6 col-xl-4">
+            <div class="card h-100 shadow-sm border-0 rounded-4">
+                <div class="card-body">
+
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <h6 class="mb-0 text-primary fw-bold">Estado de Membresías</h6>
+                        <span class="badge bg-primary-subtle text-primary rounded-pill">
+                            Total: {{ total_membresias }}
+                        </span>
+                    </div>
+
+                    <div style="position: relative; height: 220px;">
+                        <canvas id="membresiaChart"></canvas>
+                    </div>
+
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<link rel="stylesheet" href="{% static 'lib/datatables-1.10.20/css/dataTables.bootstrap4.min.css' %}">
-<link rel="stylesheet" href="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/css/responsive.bootstrap4.min.css' %}">
-<div class="container-xxl flex-grow-1 container-p-y">
+    <!-- ===================== TABLA ===================== -->
     <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <h5 class="mb-0">Listado de Membresias</h5>
-               <div class="d-flex gap-2 flex-wrap">            
+
+        <!-- HEADER -->
+        <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+
+            <h5 class="mb-0">Listado de Membresías</h5>
+
+            <div class="d-flex flex-wrap gap-2">
+
+                <!-- Dropdown Exportar -->
                 <div class="dropdown">
-                    <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownExportar" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="icon-base ri ri-file-chart-line icon-18px me-1"></i>Exportar
+                    <button class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="ri ri-file-chart-line me-1"></i> Exportar
                     </button>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownExportar">
+                    <ul class="dropdown-menu">
                         <li>
                             <a class="dropdown-item" href="{% url 'gimnasio:exportar_membresia_excel' %}">
-                                <i class="ri ri-file-excel-2-line me-2 text-success"></i>Exportar a Excel
+                                <i class="ri ri-file-excel-2-line me-2 text-success"></i> Excel
                             </a>
                         </li>
                         <li>
                             <a class="dropdown-item" href="{% url 'gimnasio:exportar_membresia_pdf' %}">
-                                <i class="ri ri-file-pdf-line me-2 text-danger"></i>Exportar a PDF
+                                <i class="ri ri-file-pdf-line me-2 text-danger"></i> PDF
                             </a>
                         </li>
                     </ul>
-            <a href="{{ crear_url }}" class="btn btn-primary">
-                <i class="icon-base ri ri-add-line icon-18px me-1"></i>Agregar membresias
-            </a>
+                </div>
+
+                <!-- Botón Agregar -->
+                <a href="{{ crear_url }}" class="btn btn-primary">
+                    <i class="ri ri-add-line me-1"></i> Agregar
+                </a>
+
+            </div>
         </div>
 
+        <!-- BODY -->
         <div class="card-body">
             <div class="table-responsive">
-                <table id="tabla-membresia" class="table table-hover table-borderless w-100">
-                    <thead class="table-light">
+                <table id="tabla-membresia" class="table table-hover align-middle w-100">
+
+                    <thead class="table-light text-nowrap">
                         <tr>
                             <th>ID</th>
-                            <th>Fecha Inicio</th>
-                            <th>Fecha Fin</th>
+                            <th>Inicio</th>
+                            <th>Fin</th>
                             <th>Usuario</th>
                             <th>Estado</th>
-                            <th>Codigo QR</th>
+                            <th>QR</th>
                             <th>Documento</th>
-                            <th>Acciones</th>
+                            <th class="text-center">Acciones</th>
                         </tr>
                     </thead>
+
                     <tbody>
                         {% for membresia in object_list %}
                         <tr>
                             <td><strong>#{{ membresia.id }}</strong></td>
+
                             <td>{{ membresia.fecha_inicio|date:"d M Y" }}</td>
                             <td>{{ membresia.fecha_fin|date:"d M Y" }}</td>
                             <td>{{ membresia.fk_usuario.nombre_usuario }} {{ membresia.fk_usuario.apellido_usuario }}</td>
+                            
                             {% if membresia.estado == 'activo' %}
                                 <td> <span class="badge bg-success ">{{ membresia.estado}}</span></td>
                             {% else %}
                                 <td> <span class="badge bg-danger">{{ membresia.estado}}</span></td>
                             {% endif %}
-                            <td>{{ membresia.codigo_qr}}</td>
+                            <td>{{ membresia.qr_code}}</td>
                             <td>{{ membresia.fk_usuario.documento }}</td>
                             <td class="text-nowrap">
-                                 
+                                {{ membresia.fk_usuario.nombre_usuario }} {{ membresia.fk_usuario.apellido_usuario }}
+                            </td>
+
+                            <td>
+                                {% if membresia.estado == 'activo' %}
+                                    <span class="badge bg-success">{{ membresia.estado }}</span>
+                                {% else %}
+                                    <span class="badge bg-danger">{{ membresia.estado }}</span>
+                                {% endif %}
+                            </td>
+
+                            <td class="text-truncate" style="max-width:120px;">
+                                {{ membresia.codigo_qr }}
+                            </td>
+
+                            <td>{{ membresia.fk_usuario.documento }}</td>
+
+                            <td class="text-center text-nowrap">
                                 <a href="{% url 'gimnasio:editar_membresia' membresia.id %}"
-                                    class="btn btn-sm btn-text-secondary rounded-pill btn-icon item-edit">
-                                    <i class="icon-base ri ri-edit-box-line icon-22px"></i>
+                                   class="btn btn-sm btn-icon text-primary">
+                                    <i class="ri ri-edit-box-line"></i>
                                 </a>
-                                <a href="{% url 'gimnasio:eliminar_membresia' membresia.id %}" 
-                                    class="btn btn-sm btn-text-secondary rounded-pill btn-icon item-trash">
-                                        <i class="icon-base ri ri-delete-bin-line icon-22px"></i>
+
+                                <a href="{% url 'gimnasio:eliminar_membresia' membresia.id %}"
+                                   class="btn btn-sm btn-icon text-danger">
+                                    <i class="ri ri-delete-bin-line"></i>
                                 </a>
                             </td>
                         </tr>
+
                         {% empty %}
                         <tr>
-                            <td colspan="6" class="text-center py-4 text-muted">No hay membresias registradas actualmente.</td>
+                            <td colspan="8" class="text-center py-4 text-muted">
+                                No hay membresías registradas.
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
+
                 </table>
             </div>
         </div>
-    </div>
-</div>
-{% endblock contenido %}
 
+    </div>
+
+</div>
+{% endblock %}
+
+<!-- ===================== CSS ===================== -->
+{% block css %}
+<link rel="stylesheet" href="{% static 'lib/datatables-1.10.20/css/dataTables.bootstrap4.min.css' %}">
+<link rel="stylesheet" href="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/css/responsive.bootstrap4.min.css' %}">
+{% endblock %}
+
+<!-- ===================== JS ===================== -->
 {% block js %}
+
 <script src="{% static 'lib/datatables-1.10.20/js/jquery.dataTables.min.js' %}"></script>
 <script src="{% static 'lib/datatables-1.10.20/js/dataTables.bootstrap4.min.js' %}"></script>
 <script src="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/js/dataTables.responsive.min.js' %}"></script>
 <script src="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/js/responsive.bootstrap4.min.js' %}"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-    // Inicializacion de DataTable
-    $(document).ready(function () {
-        $('#tabla-membresia').DataTable({
-            responsive: true,
-            autoWidth: false,
-            language: {
-                url: "{% static 'lib/datatables-1.10.20/spanish.txt' %}"
-            },
-            columnDefs: [
-                { orderable: false, targets: 5 } // La columna de acciones es la 5 (empezando de 0)
-            ]
-        });
+/* ===================== DATATABLE ===================== */
+$(function () {
+    $('#tabla-membresia').DataTable({
+        responsive: true,
+        autoWidth: false,
+        language: {
+            url: "{% static 'lib/datatables-1.10.20/spanish.txt' %}"
+        },
+        columnDefs: [
+            { orderable: false, targets: 7 }
+        ]
     });
+});
 
-    // Inicialización del Grafico Dinamico
-    const chartLabels = {{ chart_labels|safe }};
-    const chartData = {{ chart_data|safe }};
+/* ===================== GRAFICO ===================== */
+(function () {
+    const ctx = document.getElementById('membresiaChart');
 
-    const ctx = document.getElementById('membresiaChart').getContext('2d');
+    if (!ctx) return;
+
     new Chart(ctx, {
         type: 'doughnut',
         data: {
-            labels: chartLabels,
+            labels: {{ chart_labels|safe }},
             datasets: [{
-                data: chartData,
-                backgroundColor: [
-                    '#10b981', // Verde (Activas)
-                    '#ff4d4f', // Rojo (Vencidas)
-                ],
-                borderWidth: 0,
-                hoverOffset: 8
+                data: {{ chart_data|safe }},
+                backgroundColor: ['#10b981', '#ff4d4f'],
+                borderWidth: 0
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            cutout: '75%',
+            cutout: '70%',
             plugins: {
                 legend: {
-                    position: 'right',
-                    labels: {
-                        usePointStyle: true,
-                        boxWidth: 8,
-                        font: { family: 'Poppins', size: 12 }
-                    }
+                    position: 'bottom'
                 }
             }
         }
     });
+})();
 
-    // Notificaciones SweetAlert
-    {% if messages %}
-        {% for message in messages %}
-            Swal.fire({
-                title: "Notificación",
-                text: "{{ message }}",
-                icon: "{% if message.tags == 'error' %}error{% else %}success{% endif %}",
-                confirmButtonText: "Entendido",
-                confirmButtonColor: '#5b73e8'
-            });
-        {% endfor %}
-    {% endif %}
+/* ===================== ALERTAS ===================== */
+{% if messages %}
+    {% for message in messages %}
+        Swal.fire({
+            title: "Notificación",
+            text: "{{ message }}",
+            icon: "{% if message.tags == 'error' %}error{% else %}success{% endif %}",
+            confirmButtonColor: '#5b73e8'
+        });
+    {% endfor %}
+{% endif %}
 </script>
-{% endblock js %}
+
+{% endblock %}

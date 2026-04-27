@@ -4,16 +4,21 @@ from django.utils import timezone
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from gimnasio.models import *
-from gimnasio.forms import ElementoForm
-from django.http import HttpResponse,JsonResponse
+from django.views.decorators.http import require_POST
+from django.http import HttpResponse, JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from gimnasio.models import *
+from gimnasio.forms import ElementoForm
+
+
+# ==============================
+# CREAR CATEGORÍA AJAX
+# ==============================
+
+@require_POST
 @csrf_exempt
 def crear_categoria_ajax(request):
-    import json
-    from datetime import date
-
     data = json.loads(request.body)
 
     categoria = Categoria.objects.create(
@@ -25,6 +30,7 @@ def crear_categoria_ajax(request):
         'id': categoria.id,
         'nombre': categoria.nombre_categoria
     })
+
 
 # ==============================
 # LISTAR ELEMENTOS
@@ -43,12 +49,13 @@ class ElementoListView(ListView):
 
 
 # ==============================
-# LISTAR imagenes de elementos
+# LISTAR IMÁGENES DE ELEMENTOS
 # ==============================
 
 def listar_imagenes_elementos(request):
     imagenes = Elemento.objects.filter(imagen__isnull=False)
     return render(request, 'listar_elementos.html', {'imagenes': imagenes})
+
 
 # ==============================
 # REGISTRAR ELEMENTO
@@ -63,12 +70,12 @@ class ElementoCreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Registrar Elemento'
-        context['list_url'] = reverse_lazy('gimnasio:listar_elementos')  # ← corregido: 'listar_elemento' → 'listar_elementos'
+        context['list_url'] = reverse_lazy('gimnasio:listar_elementos')
         return context
 
 
 # ==============================
-# MODIFICAR ESTADO
+# MODIFICAR ELEMENTO
 # ==============================
 
 class ElementoUpdateView(UpdateView):
@@ -101,7 +108,7 @@ class ElementoDeleteView(DeleteView):
 
 
 # ==============================
-# CREAR imagen de elemento
+# CREAR IMAGEN DE ELEMENTO
 # ==============================
 
 def crear_imagen_elemento(request):
@@ -109,7 +116,7 @@ def crear_imagen_elemento(request):
         form = ElementoForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            return redirect('listar_elementos')
+            return redirect('gimnasio:listar_elementos')
     else:
         form = ElementoForm()
     return render(request, 'crear_elemento.html', {'form': form})

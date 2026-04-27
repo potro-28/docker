@@ -254,90 +254,54 @@
     
 </div>
 
+<div class="grid-5-stats stagger-4">
 
-<div class="row mt-3">
-
-    <div class="col-md-3">
-        <div class="card indicador h-100">
-            <div class="card-body text-center">
-                <h6> <i class="fa-solid fa-users"></i> Usuarios registrados</h6>
-                <h3>{{ total_usuarios }}</h3>
-                <p>Usuarios</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-3">
-        <div class="card indicador h-100">
-            <div class="card-body text-center">
-                <h6> <i class="fa-brands fa-rockrms"></i>    Membresías activas</h6>
-                <h3>{{ membresias_activas }}</h3>
-                <p>Membresías</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-3">
-        <div class="card indicador h-100">
-            <div class="card-body text-center">
-                <h6> <i class="fa-solid fa-gears"></i> Elementos en mantenimiento</h6>
-                <h3>{{ elementos_mantenimiento }}</h3>
-                <p>Mantenimientos</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-3">
-        <div class="card indicador h-100">
-            <div class="card-body text-center">
-                <h6><i class="fa-brands fa-elementor"></i> Elementos registrados</h6>
-                <h3>{{ total_elementos }}</h3>
-                <p>Elementos</p>
-            </div>
-        </div>
-    </div>
+<div class="card-dash stat-box">
+<div class="stat-box-icon" style="background:linear-gradient(#267ca7)">
+<i class="fa-solid fa-users"></i>
+</div>
+<h6>  Usuarios registrados</h6>
+<h3>{{ total_usuarios }}</h3>
+<p>Usuarios</p>
 </div>
 
-<div class="row mt-3">
+<div class="card-dash stat-box">
+<div class="stat-box-icon" style="background:linear-gradient(135deg,#ff4d4f,#ff7875)">
+<i class="fa-brands fa-rockrms"></i>
+</div>
+<h6>  Membresías activas </h6>
+<h3>{{ membresias_activas }}</h3>
+<p>Membresías</p>
+</div>
 
-    
-    <div class="col-md-3">
-        <div class="card indicador h-100">
-            <div class="card-body text-center">
-                <h6>
-                    <i class="fa-solid fa-square-poll-vertical"></i> Encuestas
-                </h6>
-                <h3>{{ total_encuestas }}</h3>
-                <p>Encuestas registradas</p>
-            </div>
-        </div>
-    </div>
+<div class="card-dash stat-box">
+<div class="stat-box-icon" style="background:linear-gradient(#ffc107, #ffcf33)">
+<i class="fa-brands fa-elementor"></i>
+</div>
+<h6> Elementos registrados </h6>
+<h3>{{ total_elementos }}</h3>
+<p>Elementos</p>
+</div>
 
+<div class="card-dash stat-box">
+<div class="stat-box-icon" style="background:linear-gradient(#00cfd5, #00e4eb)">
+<i class="fa-solid fa-square-poll-vertical"></i>
+</div>
+<h6> Encuestas registradas </h6>
+<h3>{{ total_encuestas }}</h3>
+<p>Encuestas</p>
+</div>
 
-    <div class="col-md-3">
-        <div class="card indicador h-100">
-            <div class="card-body text-center">
-                <h6>
-                    <i class="fa-solid fa-bell"></i> Notificaciones
-                </h6>
-                <h3>{{ total_notificaciones }}</h3>
-                <p>Notificaciones</p>
-            </div>
-        </div>
-    </div>
+<div class="card-dash stat-box">
+<div class="stat-box-icon" style="background:linear-gradient(#5b73e8, #8b9df3)">
+<i class="fa-solid fa-bell"></i>
+</div>
+<h6> Notificaciones registradas </h6>
+<h3>{{ total_notificaciones }}</h3>
+<p>Notificaciones</p>
+</div>
 
-    
-    <div class="col-md-3">
-        <div class="card indicador h-100">
-            <div class="card-body text-center">
-                <h6>
-                    <i class="fa-solid fa-gavel"></i> Sanciones
-                </h6>
-                <h3>{{ total_sanciones }}</h3>
-                <p>Sanciones registradas</p>
-            </div>
-        </div>
-    </div>
+</div>
 
     <div class="col-md-3"></div>
 

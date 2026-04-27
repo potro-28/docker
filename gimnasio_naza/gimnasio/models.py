@@ -2,6 +2,9 @@ from django.db import models
 from datetime import *
 from decimal import Decimal  
 from django.contrib.auth.models import User
+import qrcode
+from io import BytesIO
+from django.core.files import File
 # Create your models here.
 #---------------------------------MODELO USUARIO-----------------------------------------       
 
@@ -19,8 +22,8 @@ class Usuario(models.Model):
     foto = models.ImageField(upload_to='usuarios/', null=True, blank=True)
 
     ROL_CHOICES = [
-        ('cliente', 'Cliente'),
-        ('admin', 'Administrador'),
+        ('Cliente', 'Cliente'),
+        ('Administrador', 'Administrador'),
     ]
     rol = models.CharField(max_length=30, choices=ROL_CHOICES,null=True, blank=True)
 
@@ -42,6 +45,7 @@ class Usuario(models.Model):
         db_table = 'usuario'
     def __str__(self):
         return self.user.username
+    
 #-----------------------------MODELO MEMBRESIA---------------------------------------------------
 class Membresia(models.Model):
     
@@ -52,9 +56,27 @@ class Membresia(models.Model):
         ('inactivo', 'Inactivo'),
     ]
     estado = models.CharField(max_length=30, choices=ESTADO_CHOICES)
-    codigo_qr = models.TextField(max_length=30,null=False)
+    qr_code = models.ImageField(upload_to='qrs_membresias/', blank=True, null=True)
     fk_usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
 
+
+    def save(self, *args, **kwargs):
+        datos_qr = self.fk_usuario.documento 
+        qr = qrcode.QRCode(version=1, box_size=10, border=5)
+        qr.add_data(datos_qr)
+        qr.make(fit=True)
+        img = qr.make_image(fill_color="black", back_color="white")
+        buffer = BytesIO()
+        img.save(buffer, format='PNG')
+        
+        nombre_archivo = f'qr_{datos_qr}.png'
+        self.qr_code.save(f'qr_{nombre_archivo}.png', File(buffer), save=False)
+        super().save(*args, **kwargs)
+    
+    @property
+    def es_valida(self):
+        return self.esta_activa and self.fecha_vencimiento >= timezone.now().date()
+    
     def __str__(self):
         return str(self.fk_usuario.documento)+ ("/")+(self.fk_usuario.nombre_usuario)
 
@@ -103,13 +125,12 @@ class Categoria(models.Model):
         verbose_name_plural = "Categorias"
 
         
-#------ELEMENTO------------------------
 
 class Elemento(models.Model):
     serial = models.CharField(max_length=45, unique=True)
     marca = models.CharField(max_length=45)
     nombre_elemento = models.CharField(max_length=45)
-    
+
     TIPO_CHOICES = [
         ('maquina', 'Máquina'),
         ('disco', 'Disco'),
@@ -117,48 +138,46 @@ class Elemento(models.Model):
         ('barra', 'Barras'),
         ('otro', 'Otro'),
     ]
+
     peso_elemento = models.DecimalField(max_digits=10, decimal_places=2)
+
     ESTADO_CHOICES = [
         ('activo', 'Activo'),
         ('inactivo', 'Inactivo'),
     ]
+
     estado = models.CharField(max_length=20, choices=ESTADO_CHOICES)
     fecha_ingreso = models.DateField()
-    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
-    imagen = models.ImageField(upload_to='elementos', null=True, blank=True)
+    categoria = models.ForeignKey('Categoria', on_delete=models.CASCADE)
+
+    cantidad = models.IntegerField(default=1)  # ✅ agregado
+    imagen = models.ImageField(upload_to='elementos/', null=True, blank=True)
 
     def __str__(self):
         return self.nombre_elemento
-    
-    class Meta:
-        verbose_name = 'Elemento'
-        verbose_name_plural = 'Elementos'
-        db_table = 'elementos'
-#---------------------------------------MANTENIMIENTO------------------------
+
+
 class Mantenimiento(models.Model):
     fecha_programada = models.DateField()
+
     TIPO_CHOICES = [
         ('preventivo', 'Preventivo'),
         ('correctivo', 'Correctivo'),
     ]
     tipo_mantenimiento = models.CharField(max_length=20, choices=TIPO_CHOICES)
+
     ESTADO_CHOICES = [
         ('pendiente', 'Pendiente'),
         ('en_proceso', 'En proceso'),
         ('completado', 'Completado'),
     ]
-    
     estado = models.CharField(max_length=20, choices=ESTADO_CHOICES)
-    elemento = models.ForeignKey(Elemento, on_delete=models.CASCADE)
+
+    nombre_elemento = models.ForeignKey(Elemento, on_delete=models.CASCADE)
     descripcion = models.TextField()
+
     def __str__(self):
-        return str(self.id)
-    
-    class Meta:
-        verbose_name = 'Mantenimiento'
-        verbose_name_plural = 'Mantenimientos'
-        db_table = 'mantenimiento'
-        
+        return str(self.id) 
 #---------------------------------MODELO NOTIFCACIONES-----------------------------------------
 TIPO_NOTIFICACION = [
     ('MEMBRESIA', 'Membresía'),
@@ -318,7 +337,7 @@ class Nutricion(models.Model):
     fk_Usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
 
     def __str__(self):
-        return str(self.id) 
+        return str(self.fk_Usuario.nombre_usuario)
     
     class Meta:
         db_table = "Nutricion"
@@ -421,7 +440,7 @@ class Rutina(models.Model):
 class Certificacion_interna(models.Model):
     descripcion_certificacion=models.CharField(max_length=500)
     fecha_certificacion=models.DateField(auto_now=False, auto_now_add=False)
-    fk_Asistencia=models.ForeignKey(Asistencia, on_delete=models.CASCADE, verbose_name='Asistencia')
+    fk_membresia=models.ForeignKey(Membresia, on_delete=models.CASCADE, verbose_name='Membresía')
     descargado = models.BooleanField(default=False)
     def __str__(self):
         return str(self.id) 

@@ -3,10 +3,8 @@ from django.http import HttpResponse, JsonResponse
 from django.views.generic import ListView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.contrib import messages
-from django.utils import timezone
-from datetime import date, datetime
+from django.utils import timezone as Time
 import json
-
 from gimnasio.models import *
 from gimnasio.forms import EncuestaForm, PreguntaFormSet
 from gimnasio.utils import (
@@ -15,7 +13,6 @@ from gimnasio.utils import (
     agregar_preguntas_a_formulario, 
     validar_credenciales_google_forms
 )
-
 from django.core.mail import send_mail
 from django.conf import settings
 
@@ -37,9 +34,16 @@ def enviar_encuesta(request, pk):
             message = f"Hola {usuario.nombre_usuario}, por favor llena esta encuesta: {form_link}"
             
             send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [usuario.correo_usuario])
+
+            
+            encuesta.fecha_envio = Time.now()
+            encuesta.save()
+
             messages.success(request, f"Enviada a {usuario.nombre_usuario}")
+
         except Exception as e:
             messages.error(request, f"Error: {str(e)}")
+
     return redirect('gimnasio:listar_encuestas')
 
 # --- FUNCIONES DE ENVÍO MASIVO ---
@@ -61,7 +65,7 @@ def enviar_encuesta_usuarios(request):
                 if usuario.correo_usuario:
                     send_mail(f"Encuesta: {encuesta.nombre}", f"Link: {form_link}", settings.DEFAULT_FROM_EMAIL, [usuario.correo_usuario])
             
-            encuesta.fecha_envio = timezone.now()
+            encuesta.fecha_envio = Time.now()
             encuesta.save()
             messages.success(request, "Correos enviados exitosamente.")
         except Exception as e:
@@ -171,3 +175,9 @@ class EncuestaDeleteView(DeleteView):
     model = Encuesta
     template_name = 'Encuesta/eliminar.html'
     success_url = reverse_lazy('gimnasio:listar_encuestas')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo'] = 'Eliminar encuesta'
+        context['listar_url'] = reverse_lazy('gimnasio:listar_encuestas')
+        return context

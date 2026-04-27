@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'login',
     'gimnasio',
     'qr_code',
+    'usuarios',
 ]
 
 
@@ -75,7 +76,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'gimnasio_db',
         'USER': 'root',
-        'PASSWORD': 'F4b14n89',
+        'PASSWORD': '123456789',
         'HOST': 'localhost',
         'PORT' : '3306',
     }
@@ -136,6 +137,6 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'XXXXX@gmail.com'  # Reemplaza con tu email
-EMAIL_HOST_PASSWORD = 'XXXXXXXX'  # Reemplaza con tu contraseña de aplicación
+EMAIL_HOST_USER = 'lauravanessareyes1@gmail.com'  # Reemplaza con tu email
+EMAIL_HOST_PASSWORD = 'jeaz zucb olvw faow'  # Reemplaza con tu contraseña de aplicación
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

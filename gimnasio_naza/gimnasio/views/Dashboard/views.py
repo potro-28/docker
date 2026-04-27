@@ -11,20 +11,26 @@ from django.urls import reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models.functions import ExtractMonth
 from django.db.models import Count
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 # Importamos SOLO los modelos que vamos a usar explícitamente, evitando colisiones
 from gimnasio.models import Usuario, Asistencia, Membresia, Elemento, Soporte_PQRS, Rutina
 
-class DashboardView(TemplateView):
+class DashboardView(LoginRequiredMixin, TemplateView):
     template_name = 'Dashboard/dashboard.html'
 
-    # @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
-        # if request.method == 'GET':
-        #     return redirect('gimnasio:listar_categorias')
-        return super().dispatch(request, *args, **kwargs)
+        user = request.user
 
+        if user.is_superuser:
+            return super().dispatch(request, *args, **kwargs)
+
+        if hasattr(user, 'usuario') and user.usuario.rol == 'Administrador':
+            return super().dispatch(request, *args, **kwargs)
+
+        return redirect('usuarios:dashboard_usuario')
+    
     def get_context_data(self, **kwargs):
         # Llamamos al contexto original
         context = super().get_context_data(**kwargs)

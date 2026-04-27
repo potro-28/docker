@@ -43,6 +43,7 @@ urlpatterns = [
     path('asignar_rol/<int:pk>/', UsuarioRolUpdateView.as_view(), name='asignar_rol_usuario'),
     path('exportar_usuarios_pdf/', ExportarUsuariosPDF.as_view(), name='exportar_usuarios_pdf'),
     path('exportar_usuarios_excel/', ExportarUsuariosExcel.as_view(), name='exportar_usuarios_excel'),
+    path('perfil_usuario/', PerfilView.as_view(), name='perfil_usuario'),
 #==============================mantenimiento==============================#
     path('crear_mantenimiento/', MantenimientoCreateView.as_view(), name='crear_mantenimiento'),
     path('listar_mantenimiento/', MantenimientoListView.as_view(), name='listar_mantenimiento'),
@@ -51,6 +52,8 @@ urlpatterns = [
     path('exportar_mantenimiento_pdf/', ExportarmantenimientoPDF.as_view(), name='exportar_mantenimiento_pdf'),
     path('exportar_mantenimiento_excel/', ExportarMantenimientoExcel.as_view(), name='exportar_mantenimiento_excel'),   
     path('crear_elemento_ajax/', crear_elemento_ajax, name='crear_elemento_ajax'),
+    path('crear_categoria_ajax/', crear_categoria_ajax, name='crear_categoria_ajax'),
+
 #==============================asistencia==============================#
     path('listar_asistencia/', AsistenciaListView.as_view(), name='listar_asistencia'),
     path('crear_asistencia/', AsistenciaCreateView.as_view(), name='crear_asistencia'),
@@ -59,6 +62,7 @@ urlpatterns = [
     path('registrar_asistencia_qr/',QR_register.as_view(), name='registrarQr'),
     path('exportar_asistencia_pdf', ExportarAsistenciaPDF.as_view(), name='exportar_asistencia_pdf'),
     path('exportar_asistencia_excel', ExportarAsistenciaExcel.as_view(), name='exportar_asistencia_excel'),
+    path('crear-membresia-ajax/', crear_membresia_ajax, name='crear_membresia_ajax'),
     #Membresias
     path('listar_membresia/', MembresiaListView.as_view(), name='listar_membresia'),
     path('crear_membresia/', MembresiaCreateView.as_view(), name='crear_membresia'),
@@ -114,12 +118,13 @@ urlpatterns = [
     path('crear-usuario-ajax/', crear_usuario_ajax, name='crear_usuario_ajax'),
     
     
+    
     #Rutina
     path('listar_rutinas/', rutinaListView.as_view(), name='listar_rutinas'),
     path('crear_rutinas/', RutinaCreateView.as_view(), name='crear_rutina'),
     path('editar_rutinas/<int:pk>/', RutinaUpdateView.as_view(), name='editar_rutina'),
     path('eliminar_rutinas/<int:pk>/', RutinaDeleteView.as_view(), name='eliminar_rutina'),
-    path('crear_masa_corporal_ajax/', crear_masa_corporal_ajax, name='crear_masa_corporal_ajax'),
+    path('wizard/crear-todo/', wizard_crear_todo, name='wizard_crear_todo'),
     
     path('listar_masa_corporal_clas/', Masa_corporalListView.as_view(), name='listar_masa_corporal_clas'),
     path('crear_masa_corporal/', Masa_corporalCreateView.as_view(), name='crear_masa_corporal'),

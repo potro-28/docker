@@ -1,9 +1,7 @@
-
 {% extends 'home.html' %}
 {% load static %}
 {% block body %}
   <body>
-    
     
     {% include 'header.html' %}
         <div class="main-container">
@@ -21,7 +19,6 @@
       document.getElementById('menuToggle').addEventListener('click', function () {
         if (window.innerWidth > 768) {
           document.body.classList.toggle('sidebar-collapsed')
-          // Al contraer en desktop, asegurarnos de que el menú en acordeón se cierre
           document.querySelectorAll('.has-submenu').forEach((item) => item.classList.remove('open'))
         } else {
           document.getElementById('sidebar').classList.toggle('mobile-active')
@@ -45,35 +42,123 @@
           }
         })
       })
-    
     </script>
-    <script src="{% static 'assets/vendor/libs/jquery/jquery.js' %}"></script>
 
+    <script src="{% static 'assets/vendor/libs/jquery/jquery.js' %}"></script>
     <script src="{% static 'assets/vendor/libs/popper/popper.js'%}"></script>
     <script src="{% static 'assets/vendor/js/bootstrap.js'%}"></script>
     <script src="{% static 'assets/vendor/libs/node-waves/node-waves.js'%}"></script>
-
     <script src="{% static 'assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js'%}"></script>
-
     <script src="{% static 'assets/vendor/js/menu.js'%}"></script>
-
-    <!-- endbuild -->
-    
-    <!-- Vendors JS -->
     <script src="{% static 'assets/vendor/libs/apex-charts/apexcharts.js'%}"></script>
-
-    <!-- Main JS -->
-
     <script src="{% static 'assets/js/main.js'%}"></script>
-
-    <!-- Page JS -->
     <script src="{% static 'assets/js/dashboards-analytics.js'%}"></script>
     <script async="async" defer="defer" src="https://buttons.github.io/buttons.js"></script>
     <script src="{% static 'lib/sweetalert2/sweetalert2.all.min.js'%}"></script>
 
+    <!-- ===== BUSCADOR DE MÓDULOS ===== -->
+    <style>
+        .search-container {
+          max-width: 200px !important;  /* reemplaza el que ya tienes */
+          width: 200px !important;
+        }
+
+        #input-buscar {
+          width: 100% !important;
+          padding: 5px 10px !important;
+          font-size: 0.82rem !important;
+        }  
+        .resultados-dropdown {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            right: 0;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            z-index: 9999;
+            overflow: hidden;
+            min-width: 220px;
+        }
+        .resultado-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 16px;
+            color: #333;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: background 0.15s;
+        }
+        .resultado-item:hover {
+            background: #f0f4ff;
+            color: #011e5c;
+        }
+    </style>
+
+    <script>
+        const modulos = [
+            { nombre: "Asistencia",          url: "{% url 'gimnasio:listar_asistencia' %}",       icono: "fa-solid fa-calendar-check" },
+            { nombre: "Membresía",           url: "{% url 'gimnasio:listar_membresia' %}",         icono: "fa-solid fa-crown" },
+            { nombre: "Notificaciones",      url: "{% url 'gimnasio:listar_notificacion' %}",    icono: "fa-solid fa-bell" },
+            { nombre: "Usuarios",            url: "{% url 'gimnasio:listar_usuario' %}",          icono: "fa-solid fa-users" },
+            { nombre: "Registro Visitantes", url: "{% url 'gimnasio:listar_registrovisitante' %}", icono: "fa-solid fa-person-walking" },            { nombre: "Nutrición",           url: "{% url 'gimnasio:listar_nutriciones' %}",         icono: "fa-solid fa-utensils" },
+            { nombre: "Rutinas", url: "{% url 'gimnasio:listar_rutinas' %}", icono: "fa-solid fa-dumbbell" },            { nombre: "Masa Corporal",       url: "{% url 'gimnasio:listar_masa_corporal_clas' %}",     icono: "fa-solid fa-weight-scale" },
+            { nombre: "Certificaciones",     url: "{% url 'gimnasio:listar_certificacioninterna' %}",   icono: "fa-solid fa-award" },
+            { nombre: "Elementos", url: "{% url 'gimnasio:listar_elementos' %}", icono: "fa-solid fa-cogs" },            { nombre: "Mantenimiento",       url: "{% url 'gimnasio:listar_mantenimiento' %}",     icono: "fa-solid fa-wrench" },
+            { nombre: "Reportes",            url: "{% url 'gimnasio:listar_Reportes_estadisticas' %}",                 icono: "fa-solid fa-chart-line" },
+            { nombre: "Categorías",          url: "{% url 'gimnasio:listar_categorias' %}",        icono: "fa-solid fa-tags" },
+            { nombre: "Turnos Entrenadores",   url: "{% url 'gimnasio:listar_turnodeentrenador' %}", icono: "fa-solid fa-calendar-days" },
+            { nombre: "Encuestas",           url: "{% url 'gimnasio:listar_encuestas' %}",         icono: "fa-solid fa-poll" },
+            { nombre: "Soporte PQRS",         url: "{% url 'gimnasio:listar_Soporte_PQRS' %}",           icono: "fa-solid fa-headset" },
+            { nombre: "Sanciones",            url: "{% url 'gimnasio:listar_sanciones_clas' %}",         icono: "fa-solid fa-gavel" },
+        ];
+
+        const inputBuscar  = document.getElementById("input-buscar");
+        const resultadosEl = document.getElementById("resultados-buscar");
+
+        inputBuscar.addEventListener("input", function () {
+            const query = this.value.trim().toLowerCase();
+            resultadosEl.innerHTML = "";
+
+            if (query.length === 0) {
+                resultadosEl.classList.add("d-none");
+                return;
+            }
+
+            const filtrados = modulos.filter(m => m.nombre.toLowerCase().includes(query));
+
+            if (filtrados.length === 0) {
+                resultadosEl.innerHTML = `<div class="resultado-item text-muted">Sin resultados</div>`;
+            } else {
+                filtrados.forEach(m => {
+                    resultadosEl.innerHTML += `
+                        <a href="${m.url}" class="resultado-item">
+                            <i class="${m.icono} me-2"></i>${m.nombre}
+                        </a>`;
+                });
+            }
+
+            resultadosEl.classList.remove("d-none");
+        });
+
+        // Cerrar al hacer clic fuera
+        document.addEventListener("click", function (e) {
+            if (!inputBuscar.contains(e.target) && !resultadosEl.contains(e.target)) {
+                resultadosEl.classList.add("d-none");
+            }
+        });
+
+        // Navegar con Enter al primer resultado
+        inputBuscar.addEventListener("keydown", function (e) {
+            if (e.key === "Enter") {
+                const primero = resultadosEl.querySelector("a");
+                if (primero) primero.click();
+            }
+        });
+    </script>
+    <!-- ===== FIN BUSCADOR ===== -->
+
     {% block js %}{% endblock %}
-    
-    
 
   </body>
 {% endblock body %}
