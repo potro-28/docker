@@ -4,23 +4,35 @@
 {% block contenido %}
 <div class="container-xxl flex-grow-1 container-p-y">
 
-    <!-- ===================== GRAFICO ===================== -->
-    <div class="row mb-4">
-        <div class="col-12 col-md-6 col-xl-4">
+    <!-- ===================== GRAFICAS LADO A LADO ===================== -->
+    <div class="row mb-4 g-3">
+        <!-- GRÁFICA DE BARRAS (izquierda) -->
+        <div class="col-12 col-md-8">
             <div class="card h-100 shadow-sm border-0 rounded-4">
                 <div class="card-body">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <h6 class="mb-0 text-primary fw-bold">Estadísticas de Membresías</h6>
+                    </div>
+                    <div style="position: relative; height: 220px; width: 100%;">
+                        <canvas id="chartActivity"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
 
+        <!-- GRÁFICA DONUT (derecha) -->
+        <div class="col-12 col-md-4">
+            <div class="card h-100 shadow-sm border-0 rounded-4">
+                <div class="card-body">
                     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                         <h6 class="mb-0 text-primary fw-bold">Estado de Membresías</h6>
                         <span class="badge bg-primary-subtle text-primary rounded-pill">
                             Total: {{ total_membresias }}
                         </span>
                     </div>
-
                     <div style="position: relative; height: 220px;">
                         <canvas id="membresiaChart"></canvas>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -28,14 +40,10 @@
 
     <!-- ===================== TABLA ===================== -->
     <div class="card">
-
         <!-- HEADER -->
         <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
-
             <h5 class="mb-0">Listado de Membresías</h5>
-
             <div class="d-flex flex-wrap gap-2">
-
                 <!-- Dropdown Exportar -->
                 <div class="dropdown">
                     <button class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
@@ -54,12 +62,10 @@
                         </li>
                     </ul>
                 </div>
-
                 <!-- Botón Agregar -->
                 <a href="{{ crear_url }}" class="btn btn-primary">
                     <i class="ri ri-add-line me-1"></i> Agregar
                 </a>
-
             </div>
         </div>
 
@@ -67,7 +73,6 @@
         <div class="card-body">
             <div class="table-responsive">
                 <table id="tabla-membresia" class="table table-hover align-middle w-100">
-
                     <thead class="table-light text-nowrap">
                         <tr>
                             <th>ID</th>
@@ -80,27 +85,13 @@
                             <th class="text-center">Acciones</th>
                         </tr>
                     </thead>
-
                     <tbody>
                         {% for membresia in object_list %}
                         <tr>
                             <td><strong>#{{ membresia.id }}</strong></td>
-
                             <td>{{ membresia.fecha_inicio|date:"d M Y" }}</td>
                             <td>{{ membresia.fecha_fin|date:"d M Y" }}</td>
                             <td>{{ membresia.fk_usuario.nombre_usuario }} {{ membresia.fk_usuario.apellido_usuario }}</td>
-                            
-                            {% if membresia.estado == 'activo' %}
-                                <td> <span class="badge bg-success ">{{ membresia.estado}}</span></td>
-                            {% else %}
-                                <td> <span class="badge bg-danger">{{ membresia.estado}}</span></td>
-                            {% endif %}
-                            <td>{{ membresia.qr_code}}</td>
-                            <td>{{ membresia.fk_usuario.documento }}</td>
-                            <td class="text-nowrap">
-                                {{ membresia.fk_usuario.nombre_usuario }} {{ membresia.fk_usuario.apellido_usuario }}
-                            </td>
-
                             <td>
                                 {% if membresia.estado == 'activo' %}
                                     <span class="badge bg-success">{{ membresia.estado }}</span>
@@ -108,26 +99,21 @@
                                     <span class="badge bg-danger">{{ membresia.estado }}</span>
                                 {% endif %}
                             </td>
-
                             <td class="text-truncate" style="max-width:120px;">
-                                {{ membresia.codigo_qr }}
+                                {{ membresia.qr_code }}
                             </td>
-
                             <td>{{ membresia.fk_usuario.documento }}</td>
-
                             <td class="text-center text-nowrap">
                                 <a href="{% url 'gimnasio:editar_membresia' membresia.id %}"
-                                   class="btn btn-sm btn-icon text-primary">
-                                    <i class="ri ri-edit-box-line"></i>
+                                   class="btn btn-sm btn-text-secondary rounded-pill btn-icon item-edit">
+                                    <i class="icon-base ri ri-edit-box-line icon-22px"></i>
                                 </a>
-
                                 <a href="{% url 'gimnasio:eliminar_membresia' membresia.id %}"
-                                   class="btn btn-sm btn-icon text-danger">
-                                    <i class="ri ri-delete-bin-line"></i>
+                                   class="btn btn-sm btn-text-secondary rounded-pill btn-icon item-edit">
+                                    <i class="icon-base ri ri-delete-bin-line icon-22px"></i>                                
                                 </a>
                             </td>
                         </tr>
-
                         {% empty %}
                         <tr>
                             <td colspan="8" class="text-center py-4 text-muted">
@@ -136,11 +122,9 @@
                         </tr>
                         {% endfor %}
                     </tbody>
-
                 </table>
             </div>
         </div>
-
     </div>
 
 </div>
@@ -154,7 +138,6 @@
 
 <!-- ===================== JS ===================== -->
 {% block js %}
-
 <script src="{% static 'lib/datatables-1.10.20/js/jquery.dataTables.min.js' %}"></script>
 <script src="{% static 'lib/datatables-1.10.20/js/dataTables.bootstrap4.min.js' %}"></script>
 <script src="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/js/dataTables.responsive.min.js' %}"></script>
@@ -178,10 +161,9 @@ $(function () {
     });
 });
 
-/* ===================== GRAFICO ===================== */
+/* ===================== GRAFICO DONUT ===================== */
 (function () {
     const ctx = document.getElementById('membresiaChart');
-
     if (!ctx) return;
 
     new Chart(ctx, {
@@ -207,6 +189,44 @@ $(function () {
     });
 })();
 
+/* ===================== GRAFICO DE BARRAS - AZUL #267ca7 ===================== */
+(function () {
+    const ctxActivity = document.getElementById('chartActivity');
+    if (!ctxActivity) return;
+
+    new Chart(ctxActivity, {
+        type: 'bar',
+        data: {
+            labels: {{ chart_labels_mensual|safe }},
+            datasets: [{
+                label: 'Membresías Activas',
+                data: {{ chart_data_mensual|safe }},
+                backgroundColor: 'rgba(38, 124, 167, 0.8)',    // 🔵 AZUL #267ca7
+                borderColor: '#267ca7',                         // 🔵 BORDE AZUL #267ca7
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1,
+                        precision: 0
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+})();
+
 /* ===================== ALERTAS ===================== */
 {% if messages %}
     {% for message in messages %}
@@ -219,5 +239,4 @@ $(function () {
     {% endfor %}
 {% endif %}
 </script>
-
 {% endblock %}

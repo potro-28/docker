@@ -59,7 +59,7 @@
     <!-- ===== BUSCADOR DE MÓDULOS ===== -->
     <style>
         .search-container {
-          max-width: 200px !important;  /* reemplaza el que ya tienes */
+          max-width: 200px !important;
           width: 200px !important;
         }
 
@@ -101,16 +101,19 @@
             { nombre: "Membresía",           url: "{% url 'gimnasio:listar_membresia' %}",         icono: "fa-solid fa-crown" },
             { nombre: "Notificaciones",      url: "{% url 'gimnasio:listar_notificacion' %}",    icono: "fa-solid fa-bell" },
             { nombre: "Usuarios",            url: "{% url 'gimnasio:listar_usuario' %}",          icono: "fa-solid fa-users" },
-            { nombre: "Registro Visitantes", url: "{% url 'gimnasio:listar_registrovisitante' %}", icono: "fa-solid fa-person-walking" },            { nombre: "Nutrición",           url: "{% url 'gimnasio:listar_nutriciones' %}",         icono: "fa-solid fa-utensils" },
-            { nombre: "Rutinas", url: "{% url 'gimnasio:listar_rutinas' %}", icono: "fa-solid fa-dumbbell" },            { nombre: "Masa Corporal",       url: "{% url 'gimnasio:listar_masa_corporal_clas' %}",     icono: "fa-solid fa-weight-scale" },
+            { nombre: "Registro Visitantes", url: "{% url 'gimnasio:listar_registrovisitante' %}", icono: "fa-solid fa-person-walking" },
+            { nombre: "Nutrición",           url: "{% url 'gimnasio:listar_nutriciones' %}",         icono: "fa-solid fa-utensils" },
+            { nombre: "Rutinas",             url: "{% url 'gimnasio:listar_rutinas' %}", icono: "fa-solid fa-dumbbell" },
+            { nombre: "Masa Corporal",       url: "{% url 'gimnasio:listar_masa_corporal_clas' %}",     icono: "fa-solid fa-weight-scale" },
             { nombre: "Certificaciones",     url: "{% url 'gimnasio:listar_certificacioninterna' %}",   icono: "fa-solid fa-award" },
-            { nombre: "Elementos", url: "{% url 'gimnasio:listar_elementos' %}", icono: "fa-solid fa-cogs" },            { nombre: "Mantenimiento",       url: "{% url 'gimnasio:listar_mantenimiento' %}",     icono: "fa-solid fa-wrench" },
-            { nombre: "Reportes",            url: "{% url 'gimnasio:listar_Reportes_estadisticas' %}",                 icono: "fa-solid fa-chart-line" },
+            { nombre: "Elementos",           url: "{% url 'gimnasio:listar_elementos' %}", icono: "fa-solid fa-cogs" },
+            { nombre: "Mantenimiento",       url: "{% url 'gimnasio:listar_mantenimiento' %}",     icono: "fa-solid fa-wrench" },
+            { nombre: "Reportes",            url: "{% url 'gimnasio:listar_Reportes_estadisticas' %}",  icono: "fa-solid fa-chart-line" },
             { nombre: "Categorías",          url: "{% url 'gimnasio:listar_categorias' %}",        icono: "fa-solid fa-tags" },
-            { nombre: "Turnos Entrenadores",   url: "{% url 'gimnasio:listar_turnodeentrenador' %}", icono: "fa-solid fa-calendar-days" },
+            { nombre: "Turnos Entrenadores", url: "{% url 'gimnasio:listar_turnodeentrenador' %}", icono: "fa-solid fa-calendar-days" },
             { nombre: "Encuestas",           url: "{% url 'gimnasio:listar_encuestas' %}",         icono: "fa-solid fa-poll" },
-            { nombre: "Soporte PQRS",         url: "{% url 'gimnasio:listar_Soporte_PQRS' %}",           icono: "fa-solid fa-headset" },
-            { nombre: "Sanciones",            url: "{% url 'gimnasio:listar_sanciones_clas' %}",         icono: "fa-solid fa-gavel" },
+            { nombre: "Soporte PQRS",        url: "{% url 'gimnasio:listar_Soporte_PQRS' %}",      icono: "fa-solid fa-headset" },
+            { nombre: "Sanciones",           url: "{% url 'gimnasio:listar_sanciones_clas' %}",    icono: "fa-solid fa-gavel" },
         ];
 
         const inputBuscar  = document.getElementById("input-buscar");
@@ -157,6 +160,404 @@
         });
     </script>
     <!-- ===== FIN BUSCADOR ===== -->
+
+    <!-- ===== WIDGET DE ACCESIBILIDAD ===== -->
+    <style>
+      /* ── Botón flotante ── */
+      #acc-btn {
+        position: fixed;
+        bottom: 88px;
+        right: 28px;
+        z-index: 10000;
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: #011e5c;
+        color: #fff;
+        border: none;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        transition: background 0.2s, transform 0.2s;
+      }
+      #acc-btn:hover { background: #0233a0; transform: scale(1.08); }
+
+      /* ── Panel ── */
+      #acc-panel {
+        position: fixed;
+        bottom: 150px;
+        right: 28px;
+        z-index: 9999;
+        width: 270px;
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+        padding: 18px 16px 14px;
+        display: none;
+        font-family: inherit;
+      }
+      #acc-panel.open { display: block; animation: accFadeUp 0.2s ease; }
+
+      @keyframes accFadeUp {
+        from { opacity: 0; transform: translateY(12px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+
+      #acc-panel h6 {
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: #888;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin: 0 0 12px;
+      }
+
+      /* ── Botones de opción ── */
+      .acc-row {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+      .acc-opt {
+        flex: 1;
+        border: 1.5px solid #e0e0e0;
+        border-radius: 10px;
+        background: #f8f9fa;
+        color: #333;
+        font-size: 0.78rem;
+        padding: 8px 4px;
+        cursor: pointer;
+        text-align: center;
+        transition: border-color 0.15s, background 0.15s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+      }
+      .acc-opt i { font-size: 1rem; }
+      .acc-opt:hover { border-color: #011e5c; background: #eef1fb; }
+      .acc-opt.active { border-color: #011e5c; background: #011e5c; color: #fff; }
+
+      /* ── Slider tamaño fuente ── */
+      .acc-slider-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+      .acc-slider-row label {
+        font-size: 0.78rem;
+        color: #555;
+        white-space: nowrap;
+        min-width: 80px;
+      }
+      .acc-slider-row input[type=range] {
+        flex: 1;
+        accent-color: #011e5c;
+      }
+      #acc-font-val {
+        font-size: 0.78rem;
+        color: #011e5c;
+        font-weight: 700;
+        min-width: 30px;
+        text-align: right;
+      }
+
+      /* ── Reset ── */
+      #acc-reset {
+        width: 100%;
+        margin-top: 6px;
+        border: none;
+        background: #f0f4ff;
+        color: #011e5c;
+        border-radius: 8px;
+        padding: 7px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+      #acc-reset:hover { background: #dce4ff; }
+
+      /* ── Modos aplicados al body ── */
+      body.acc-contrast-high { filter: contrast(1.6) grayscale(0.1) !important; }
+
+      /* Modo oscuro real — colores de Gym Nazareth */
+      body.acc-dark-mode {
+        background-color: #0d0d1a !important;
+        color: #e0e0f0 !important;
+      }
+      body.acc-dark-mode .layout-wrapper,
+      body.acc-dark-mode .main-container,
+      body.acc-dark-mode .content-area {
+        background-color: #0d0d1a !important;
+      }
+      /* Header */
+      body.acc-dark-mode .navbar,
+      body.acc-dark-mode header,
+      body.acc-dark-mode .layout-navbar {
+        background-color: #0a2a3a !important;
+        border-bottom: 1px solid #0ea5c9 !important;
+      }
+      body.acc-dark-mode .navbar *,
+      body.acc-dark-mode header * {
+        color: #e0f7ff !important;
+      }
+      /* Sidebar */
+      body.acc-dark-mode #sidebar,
+      body.acc-dark-mode .menu,
+      body.acc-dark-mode aside,
+      body.acc-dark-mode .layout-menu {
+        background-color: #111827 !important;
+        border-right: 1px solid #1e3a4a !important;
+      }
+      body.acc-dark-mode #sidebar *,
+      body.acc-dark-mode .layout-menu * {
+        color: #c9d6e3 !important;
+      }
+      body.acc-dark-mode .menu-item.active > a,
+      body.acc-dark-mode .nav-link.active {
+        background-color: #0ea5c9 !important;
+        color: #fff !important;
+        border-radius: 8px !important;
+      }
+      /* Cards y tablas */
+      body.acc-dark-mode .card,
+      body.acc-dark-mode .table-responsive,
+      body.acc-dark-mode table {
+        background-color: #1a1f2e !important;
+        color: #e0e0f0 !important;
+        border-color: #2a3550 !important;
+      }
+      body.acc-dark-mode .card-header,
+      body.acc-dark-mode thead,
+      body.acc-dark-mode th {
+        background-color: #0ea5c9 !important;
+        color: #fff !important;
+      }
+      body.acc-dark-mode tbody tr:hover {
+        background-color: #1e2d45 !important;
+      }
+      body.acc-dark-mode td, body.acc-dark-mode tr {
+        border-color: #2a3550 !important;
+        color: #c9d6e3 !important;
+      }
+      /* Botones */
+      body.acc-dark-mode .btn-primary {
+        background-color: #0ea5c9 !important;
+        border-color: #0ea5c9 !important;
+      }
+      body.acc-dark-mode .btn-secondary {
+        background-color: #2a3550 !important;
+        border-color: #3a4a6a !important;
+        color: #c9d6e3 !important;
+      }
+      /* Inputs */
+      body.acc-dark-mode input,
+      body.acc-dark-mode select,
+      body.acc-dark-mode textarea {
+        background-color: #1a2030 !important;
+        color: #e0e0f0 !important;
+        border-color: #2a3550 !important;
+      }
+      /* Dropdowns */
+      body.acc-dark-mode .dropdown-menu,
+      body.acc-dark-mode .resultados-dropdown {
+        background-color: #1a1f2e !important;
+        border-color: #2a3550 !important;
+      }
+      body.acc-dark-mode .dropdown-item,
+      body.acc-dark-mode .resultado-item {
+        color: #c9d6e3 !important;
+      }
+      body.acc-dark-mode .dropdown-item:hover,
+      body.acc-dark-mode .resultado-item:hover {
+        background-color: #0ea5c9 !important;
+        color: #fff !important;
+      }
+      /* Footer */
+      body.acc-dark-mode footer,
+      body.acc-dark-mode .footer {
+        background-color: #080d18 !important;
+        color: #8899aa !important;
+        border-top: 1px solid #1e3a4a !important;
+      }
+      /* Panel accesibilidad en modo oscuro */
+      body.acc-dark-mode #acc-panel {
+        background-color: #1a1f2e !important;
+        color: #e0e0f0 !important;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.6) !important;
+      }
+      body.acc-dark-mode #acc-panel h6 { color: #0ea5c9 !important; }
+      body.acc-dark-mode .acc-opt {
+        background-color: #111827 !important;
+        border-color: #2a3550 !important;
+        color: #c9d6e3 !important;
+      }
+      body.acc-dark-mode .acc-opt:hover {
+        border-color: #0ea5c9 !important;
+        background-color: #0a2a3a !important;
+      }
+      body.acc-dark-mode .acc-opt.active {
+        background-color: #0ea5c9 !important;
+        border-color: #0ea5c9 !important;
+        color: #fff !important;
+      }
+      body.acc-dark-mode #acc-reset {
+        background-color: #0a2a3a !important;
+        color: #0ea5c9 !important;
+      }
+
+      body.acc-grayscale { filter: grayscale(1) !important; }
+      body.acc-dyslexia * {
+        font-family: 'Arial', sans-serif !important;
+        letter-spacing: 0.06em !important;
+        word-spacing: 0.18em !important;
+        line-height: 1.7 !important;
+      }
+      body.acc-focus-mode *:focus {
+        outline: 3px solid #f5a623 !important;
+        outline-offset: 3px !important;
+      }
+      body.acc-big-cursor,
+      body.acc-big-cursor * {
+        cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M4 2l20 14-8 2 5 10-3 1.5-5-10-6 5z' fill='%23011e5c' stroke='white' stroke-width='2'/%3E%3C/svg%3E") 0 0, auto !important;
+      }
+    </style>
+
+    <!-- Botón flotante -->
+    <button id="acc-btn" title="Opciones de accesibilidad" aria-label="Abrir menú de accesibilidad">
+      <i class="fa-solid fa-universal-access"></i>
+    </button>
+
+    <!-- Panel -->
+    <div id="acc-panel" role="dialog" aria-label="Opciones de accesibilidad">
+      <h6><i class="fa-solid fa-universal-access me-1"></i> Accesibilidad</h6>
+
+      <div class="acc-row">
+        <button class="acc-opt" data-acc="contrast" title="Alto contraste">
+          <i class="fa-solid fa-circle-half-stroke"></i>
+          <span>Contraste</span>
+        </button>
+        <button class="acc-opt" data-acc="dark" title="Modo oscuro">
+          <i class="fa-solid fa-moon"></i>
+          <span>Oscuro</span>
+        </button>
+        <button class="acc-opt" data-acc="grayscale" title="Escala de grises">
+          <i class="fa-solid fa-droplet-slash"></i>
+          <span>Grises</span>
+        </button>
+      </div>
+
+      <div class="acc-row">
+        <button class="acc-opt" data-acc="dyslexia" title="Fuente para dislexia">
+          <i class="fa-solid fa-font"></i>
+          <span>Dislexia</span>
+        </button>
+        <button class="acc-opt" data-acc="focus" title="Resaltar foco">
+          <i class="fa-solid fa-crosshairs"></i>
+          <span>Foco</span>
+        </button>
+        <button class="acc-opt" data-acc="cursor" title="Cursor grande">
+          <i class="fa-solid fa-arrow-pointer"></i>
+          <span>Cursor</span>
+        </button>
+      </div>
+
+      <!-- Slider tamaño de fuente -->
+      <div class="acc-slider-row">
+        <label for="acc-font-range"><i class="fa-solid fa-text-height me-1"></i>Fuente</label>
+        <input type="range" id="acc-font-range" min="80" max="130" value="100" step="5">
+        <span id="acc-font-val">100%</span>
+      </div>
+
+      <button id="acc-reset"><i class="fa-solid fa-rotate-left me-1"></i>Restablecer todo</button>
+    </div>
+
+    <script>
+    (function () {
+      const btn    = document.getElementById('acc-btn');
+      const panel  = document.getElementById('acc-panel');
+      const opts   = document.querySelectorAll('.acc-opt');
+      const slider = document.getElementById('acc-font-range');
+      const fontVal= document.getElementById('acc-font-val');
+      const reset  = document.getElementById('acc-reset');
+
+      const classMap = {
+        contrast : 'acc-contrast-high',
+        dark     : 'acc-dark-mode',
+        grayscale: 'acc-grayscale',
+        dyslexia : 'acc-dyslexia',
+        focus    : 'acc-focus-mode',
+        cursor   : 'acc-big-cursor',
+      };
+
+      // Cargar preferencias guardadas
+      function loadPrefs() {
+        Object.keys(classMap).forEach(key => {
+          if (localStorage.getItem('acc_' + key) === '1') {
+            document.body.classList.add(classMap[key]);
+            document.querySelector(`[data-acc="${key}"]`)?.classList.add('active');
+          }
+        });
+        const fs = localStorage.getItem('acc_fontsize') || '100';
+        document.documentElement.style.fontSize = fs + '%';
+        slider.value = fs;
+        fontVal.textContent = fs + '%';
+      }
+
+      // Toggle panel
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        panel.classList.toggle('open');
+      });
+
+      // Cerrar al clic fuera
+      document.addEventListener('click', (e) => {
+        if (!panel.contains(e.target) && e.target !== btn) {
+          panel.classList.remove('open');
+        }
+      });
+
+      // Botones de opción
+      opts.forEach(opt => {
+        opt.addEventListener('click', () => {
+          const key = opt.dataset.acc;
+          const cls = classMap[key];
+          const isActive = opt.classList.toggle('active');
+          document.body.classList.toggle(cls, isActive);
+          localStorage.setItem('acc_' + key, isActive ? '1' : '0');
+        });
+      });
+
+      // Slider fuente
+      slider.addEventListener('input', function () {
+        const val = this.value;
+        document.documentElement.style.fontSize = val + '%';
+        fontVal.textContent = val + '%';
+        localStorage.setItem('acc_fontsize', val);
+      });
+
+      // Reset
+      reset.addEventListener('click', () => {
+        Object.keys(classMap).forEach(key => {
+          document.body.classList.remove(classMap[key]);
+          document.querySelector(`[data-acc="${key}"]`)?.classList.remove('active');
+          localStorage.removeItem('acc_' + key);
+        });
+        document.documentElement.style.fontSize = '100%';
+        slider.value = 100;
+        fontVal.textContent = '100%';
+        localStorage.removeItem('acc_fontsize');
+      });
+
+      loadPrefs();
+    })();
+    </script>
+    <!-- ===== FIN WIDGET ACCESIBILIDAD ===== -->
 
     {% block js %}{% endblock %}
 
