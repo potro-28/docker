@@ -77,7 +77,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'gimnasio_db',
         'USER': 'root',
-        'PASSWORD': '123456789',
+        'PASSWORD': 'F4b14n89',
         'HOST': 'localhost',
         'PORT' : '3306',
     }
@@ -139,11 +139,11 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'gymnazareth@gmail.com'  
-EMAIL_HOST_PASSWORD = 'czpx vqmw bcqu etzo'
+EMAIL_HOST_PASSWORD = 'sfjd ythn hbcx dgwb'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 class TuAppConfig(AppConfig):
-    name = 'tu_app'
+    name = 'gimnasio'
 
     def ready(self):
         import gimnasio.signals           

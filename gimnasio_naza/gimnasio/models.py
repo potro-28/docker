@@ -75,7 +75,20 @@ class Membresia(models.Model):
     
     @property
     def es_valida(self):
-        return self.esta_activa and self.fecha_vencimiento >= timezone.now().date()
+        """Verifica si la membresía es válida (activa y no vencida)"""
+        if not self.fecha_fin:
+            return self.estado == 'activo'
+        from django.utils import timezone
+        return self.estado == 'activo' and self.fecha_fin >= timezone.now().date()
+    
+    @property
+    def dias_para_vencer(self):
+        """Retorna los días restantes para que venza la membresía"""
+        if not self.fecha_fin:
+            return None
+        from django.utils import timezone
+        dias = (self.fecha_fin - timezone.now().date()).days
+        return dias if dias >= 0 else 0
     
     def __str__(self):
         return str(self.fk_usuario.documento)+ ("/")+(self.fk_usuario.nombre_usuario)
@@ -198,14 +211,18 @@ class Notificacion(models.Model):
     canal_notificacion = models.CharField(max_length=120, choices=CANAL_NOTIFICACION, verbose_name='Canal de Notificacion')
     estado_notificacion = models.CharField(max_length=120, choices=ESTADO_NOTFIFICACION, verbose_name='Estado de Notificacion')
     fk_usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    fecha_creacion = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de Creación')
+    fecha_envio = models.DateTimeField(null=True, blank=True, verbose_name='Fecha de Envío')
+    descripcion = models.TextField(null=True, blank=True, verbose_name='Descripción')
     
     def __str__(self):
-        return str(self.id)
+        return f"{self.get_tipo_notificacion_display()} - {self.fk_usuario.nombre_usuario} ({self.fecha_creacion.strftime('%d/%m/%Y')})"
       
     class Meta:
         verbose_name = 'Notificacion'
         verbose_name_plural = 'Notificaciones'
         db_table = 'notificaciones'
+        ordering = ['-fecha_creacion']
 #--------------------------------Modulo de Gestión de Encuestas----------------------------
 class Encuesta(models.Model):
     ESTADO_CHOICES = [

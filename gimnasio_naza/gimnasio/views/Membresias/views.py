@@ -10,6 +10,8 @@ from django.http import HttpResponse,JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from datetime import date, datetime
+from django.core.mail import send_mail
+from django.http import HttpResponse, HttpResponseRedirect
 
 def crear_usuario_ajax(request):
 
@@ -133,5 +135,18 @@ class MembresiaDeleteView(DeleteView):
         return context
     
 
-
+def send_email(request):
+    subject = request.POST.get("subject", "")
+    message = request.POST.get("message", "")
+    from_email = request.POST.get("from_email", "")
+    if subject and message and from_email:
+        try:
+            send_mail(subject, message, from_email, ["admin@example.com"])
+        except ValueError:
+            return HttpResponse("Invalid header found.")
+        return HttpResponseRedirect("/contact/thanks/")
+    else:
+        # In reality we'd use a form class
+        # to get proper validation errors.
+        return HttpResponse("Make sure all fields are entered and valid.")
 

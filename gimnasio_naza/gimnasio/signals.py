@@ -1,12 +1,18 @@
 from django.db.models.signals import post_migrate, post_save
-from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
-from django.contrib.auth.models import Group, Permission, User
-from gimnasio.models import Usuario, Membresia
-from django.core.mail import send_mail
+from django.contrib.auth.models import Group, Permission
+from datetime import datetime, timedelta
+from gimnasio.models import Usuario, Membresia, Notificacion, Mantenimiento
+from gimnasio.utilities.notificaciones import NotificacionManager
+import logging
+
+logger = logging.getLogger(__name__)
 
 @receiver(post_migrate)
 def create_grupos(sender, **kwargs):
+    """
+    Crea los grupos de usuarios (Administrador y Cliente) después de las migraciones.
+    """
     grupos = ['Administrador', 'Cliente']
     for grupo in grupos:
         g, created = Group.objects.get_or_create(name=grupo)
@@ -26,8 +32,7 @@ def asignar_grupo_por_rol(sender, instance, **kwargs):
     """
     Asigna un grupo al usuario según el rol y sincroniza los permisos.
     """
-    print(f"Guardando usuario '{instance.user.username}' con rol '{instance.rol}'")
-    if instance.user:
+    if instance.user and instance.rol:
         grupo, _ = Group.objects.get_or_create(name=instance.rol)
         if grupo.name == 'Administrador':
             grupo.permissions.set(Permission.objects.all())
@@ -39,32 +44,56 @@ def asignar_grupo_por_rol(sender, instance, **kwargs):
                 'delete_usuario',
             ]))
         grupo.save()
-        print(f"Asignando grupo '{grupo.name}' al usuario '{instance.user.username}'")
-        print(f"Permisos asignados al grupo '{grupo.name}': {[perm.codename for perm in grupo.permissions.all()]}")
         instance.user.groups.set([grupo])
 
 @receiver(post_save, sender=Usuario)
-def enviar_bienvenida(sender, instance, created,**kwargs ):
-    if created: 
-        send_mail(
-            '¡Bienvenido a nuestra plataforma!',
-            f'Hola {instance.user}, gracias por registrarte',
-            [instance.correo_usuario],
-            fail_silently=False,
-        )
+def enviar_correo_bienvenida(sender, instance, created, **kwargs):
+    """
+    Envía un correo de bienvenida cuando se crea una nueva cuenta.
+    """
+    if created:
+        try:
+            NotificacionManager.enviar_bienvenida(instance)
+            logger.info(f"✓ Correo de bienvenida enviado a {instance.nombre_usuario}")
+        except Exception as e:
+            logger.error(f"Error enviando correo de bienvenida: {e}")
 
-@receiver(pre_save, sender=Membresia)
-def Membresia_vencida (sender, instance, **kwargs):
-    if instance.pk:
-        
-        estado = Membresia.get(pk = instance.pk) 
-        if estado == 'inactivo':
-            membresia_vencida_notificacion(instance)
+@receiver(post_save, sender=Membresia)
+def notificar_cambio_membresia(sender, instance, created, **kwargs):
+    """
+    Envía notificación cuando cambia el estado de una membresía o se crea una nueva.
+    """
+    usuario = instance.fk_usuario
+    
+    if created:
+        # Nueva membresía creada
+        try:
+            NotificacionManager.enviar_confirmacion_membresia(instance)
+            logger.info(f"✓ Confirmación de membresía enviada a {usuario.nombre_usuario}")
+        except Exception as e:
+            logger.error(f"Error notificando nueva membresía: {e}")
+    
+    else:
+        # Cambio de estado de membresía
+        try:
+            if instance.estado == 'inactivo':
+                NotificacionManager.enviar_notificacion_vencida(instance)
+                logger.info(f"✓ Notificación de vencimiento enviada a {usuario.nombre_usuario}")
+        except Exception as e:
+            logger.error(f"Error notificando cambio de membresía: {e}")
 
-@receiver(post_save, sender=Usuario)
-def membresia_vencida_notificacion(instance,Usuario,**kwargs):
-            send_mail(
-            f'Hola {instance.user}, su membresia ha cambiado a estado INACTIVO, acercarse a la alcaldia a remitir el pago',
-            [instance.correo_usuario],
-            fail_silently=False,
-        )
+@receiver(post_save, sender=Mantenimiento)
+def notificar_mantenimiento(sender, instance, created, **kwargs):
+    """
+    Notifica a los usuarios cuando hay un mantenimiento programado.
+    """
+    if created:
+        try:
+            # Notificar a todos los usuarios activos
+            usuarios = Usuario.objects.filter(estado='activo')
+            
+            if usuarios.exists():
+                NotificacionManager.enviar_notificacion_mantenimiento(usuarios, instance)
+                logger.info(f"✓ Notificaciones de mantenimiento enviadas a {usuarios.count()} usuarios")
+        except Exception as e:
+            logger.error(f"Error notificando mantenimiento: {e}")
