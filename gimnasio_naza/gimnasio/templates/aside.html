@@ -4,15 +4,22 @@
   <div class="user-panel">
     <div class="profile-img-wrapper">
       <a href="{% url 'gimnasio:perfil_usuario' %}" class="profile-link">
-      <img src="{% static 'img/img_usuario.png' %}" alt="Usuario" />
+        {% if request.user.usuario.foto %}
+          <img src="{{ request.user.usuario.foto.url }}" alt="Usuario" />
+        {% else %}
+          <img src="{% static 'img/img_usuario.png' %}" alt="Usuario" />
+        {% endif %}
       </a>
     </div>
-    <h3>Administrador</h3>
+    <h3>{{ request.user.usuario.rol|default:"Usuario"|capfirst }}</h3>
     <h3>{{ request.user.username }}</h3>
     <div class="badge-plan">Gym Nazareth</div>
   </div>
 
   <ul class="nav-menu">
+
+    {% if request.user.usuario.rol == "Administrador" or request.user.is_superuser %}
+    <!-- 🔒 SOLO ADMINISTRADORES -->
 
     <li class="{% if request.resolver_match.url_name == 'listar_asistencia' %}active{% endif %}">
       <a href="{% url 'gimnasio:listar_asistencia' %}">
@@ -46,27 +53,6 @@
       <a href="{% url 'gimnasio:listar_registrovisitante' %}">
         <div class="icon-circle"><i class="fas fa-walking"></i></div>
         <span>Registro Visitantes</span>
-      </a>
-    </li>
-
-    <li class="{% if request.resolver_match.url_name == 'listar_nutriciones' %}active{% endif %}">
-      <a href="{% url 'gimnasio:listar_nutriciones' %}">
-        <div class="icon-circle"><i class="fas fa-utensils"></i></div>
-        <span>Nutrición</span>
-      </a>
-    </li>
-
-    <li class="{% if request.resolver_match.url_name == 'listar_rutinas' %}active{% endif %}">
-      <a href="{% url 'gimnasio:listar_rutinas' %}">
-        <div class="icon-circle"><i class="fas fa-dumbbell"></i></div>
-        <span>Rutinas</span>
-      </a>
-    </li>
-
-    <li class="{% if request.resolver_match.url_name == 'listar_masa_corporal_clas' %}active{% endif %}">
-      <a href="{% url 'gimnasio:listar_masa_corporal_clas' %}">
-        <div class="icon-circle"><i class="fas fa-weight"></i></div>
-        <span>Masa Corporal</span>
       </a>
     </li>
 
@@ -112,6 +98,52 @@
       </a>
     </li>
 
+    <li class="{% if request.resolver_match.url_name == 'listar_nutriciones' %}active{% endif %}">
+      <a href="{% url 'gimnasio:listar_nutriciones' %}">
+        <div class="icon-circle"><i class="fas fa-utensils"></i></div>
+        <span>Nutrición</span>
+      </a>
+    </li>
+
+    <li class="{% if request.resolver_match.url_name == 'listar_rutinas' %}active{% endif %}">
+      <a href="{% url 'gimnasio:listar_rutinas' %}">
+        <div class="icon-circle"><i class="fas fa-dumbbell"></i></div>
+        <span>Rutinas</span>
+      </a>
+    </li>
+
+    <li class="{% if request.resolver_match.url_name == 'listar_Soporte_PQRS' %}active{% endif %}">
+      <a href="{% url 'gimnasio:listar_Soporte_PQRS' %}">
+        <div class="icon-circle"><i class="fas fa-headset"></i></div>
+        <span>Soporte PQRS</span>
+      </a>
+    </li>
+
+    <!-- 🔒 FIN SOLO ADMINISTRADORES -->
+    {% else %}
+    <!-- ✅ SOLO USUARIOS NORMALES -->
+
+    <li class="{% if request.resolver_match.url_name == 'listar_nutriciones' %}active{% endif %}">
+      <a href="{% url 'gimnasio:listar_nutriciones' %}">
+        <div class="icon-circle"><i class="fas fa-utensils"></i></div>
+        <span>Nutrición</span>
+      </a>
+    </li>
+
+    <li class="{% if request.resolver_match.url_name == 'listar_rutinas' %}active{% endif %}">
+      <a href="{% url 'gimnasio:listar_rutinas' %}">
+        <div class="icon-circle"><i class="fas fa-dumbbell"></i></div>
+        <span>Rutinas</span>
+      </a>
+    </li>
+
+    <li class="{% if request.resolver_match.url_name == 'listar_masa_corporal_clas' %}active{% endif %}">
+      <a href="{% url 'gimnasio:listar_masa_corporal_clas' %}">
+        <div class="icon-circle"><i class="fas fa-weight"></i></div>
+        <span>Masa Corporal</span>
+      </a>
+    </li>
+
     <li class="{% if request.resolver_match.url_name == 'listar_encuestas' %}active{% endif %}">
       <a href="{% url 'gimnasio:listar_encuestas' %}">
         <div class="icon-circle"><i class="fas fa-question-circle"></i></div>
@@ -132,6 +164,23 @@
         <span>Sanciones</span>
       </a>
     </li>
+
+    <li class="{% if request.resolver_match.url_name == 'listar_certificacioninterna' %}active{% endif %}">
+      <a href="{% url 'gimnasio:listar_certificacioninterna' %}">
+        <div class="icon-circle"><i class="fas fa-medal"></i></div>
+        <span>Certificaciones</span>
+      </a>
+    </li>
+
+    <li class="{% if request.resolver_match.url_name == 'listar_Reportes_estadisticas' %}active{% endif %}">
+      <a href="{% url 'gimnasio:listar_Reportes_estadisticas' %}">
+        <div class="icon-circle"><i class="fas fa-chart-bar"></i></div>
+        <span>Reportes</span>
+      </a>
+    </li>
+
+    <!-- ✅ FIN USUARIOS NORMALES -->
+    {% endif %}
 
   </ul>
 </aside>

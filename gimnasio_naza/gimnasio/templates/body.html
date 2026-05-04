@@ -96,25 +96,39 @@
     </style>
 
     <script>
-        const modulos = [
+        const rolDjango   = "{{ user.usuario.rol|default:'Cliente' }}";
+        const esSuperuser = {{ user.is_superuser|yesno:"true,false" }};
+        const esAdmin      = rolDjango === "Administrador" || esSuperuser;
+
+        const modulosTodos = [
+            { nombre: "Nutrición",           url: "{% url 'gimnasio:listar_nutriciones' %}",         icono: "fa-solid fa-utensils" },
+            { nombre: "Rutinas",             url: "{% url 'gimnasio:listar_rutinas' %}", icono: "fa-solid fa-dumbbell" },
+            { nombre: "Masa Corporal",       url: "{% url 'gimnasio:listar_masa_corporal_clas' %}",     icono: "fa-solid fa-weight-scale" },
+            { nombre: "Encuestas",           url: "{% url 'gimnasio:listar_encuestas' %}",         icono: "fa-solid fa-poll" },
+            { nombre: "Soporte PQRS",        url: "{% url 'gimnasio:listar_Soporte_PQRS' %}",      icono: "fa-solid fa-headset" },
+            { nombre: "Sanciones",           url: "{% url 'gimnasio:listar_sanciones_clas' %}",    icono: "fa-solid fa-gavel" },
+            { nombre: "Certificaciones",     url: "{% url 'gimnasio:listar_certificacioninterna' %}",   icono: "fa-solid fa-award" },
+            { nombre: "Reportes",            url: "{% url 'gimnasio:listar_Reportes_estadisticas' %}",  icono: "fa-solid fa-chart-line" },
+        ];
+
+        const modulosAdmin = [
             { nombre: "Asistencia",          url: "{% url 'gimnasio:listar_asistencia' %}",       icono: "fa-solid fa-calendar-check" },
             { nombre: "Membresía",           url: "{% url 'gimnasio:listar_membresia' %}",         icono: "fa-solid fa-crown" },
             { nombre: "Notificaciones",      url: "{% url 'gimnasio:listar_notificacion' %}",    icono: "fa-solid fa-bell" },
             { nombre: "Usuarios",            url: "{% url 'gimnasio:listar_usuario' %}",          icono: "fa-solid fa-users" },
             { nombre: "Registro Visitantes", url: "{% url 'gimnasio:listar_registrovisitante' %}", icono: "fa-solid fa-person-walking" },
-            { nombre: "Nutrición",           url: "{% url 'gimnasio:listar_nutriciones' %}",         icono: "fa-solid fa-utensils" },
-            { nombre: "Rutinas",             url: "{% url 'gimnasio:listar_rutinas' %}", icono: "fa-solid fa-dumbbell" },
-            { nombre: "Masa Corporal",       url: "{% url 'gimnasio:listar_masa_corporal_clas' %}",     icono: "fa-solid fa-weight-scale" },
-            { nombre: "Certificaciones",     url: "{% url 'gimnasio:listar_certificacioninterna' %}",   icono: "fa-solid fa-award" },
             { nombre: "Elementos",           url: "{% url 'gimnasio:listar_elementos' %}", icono: "fa-solid fa-cogs" },
             { nombre: "Mantenimiento",       url: "{% url 'gimnasio:listar_mantenimiento' %}",     icono: "fa-solid fa-wrench" },
-            { nombre: "Reportes",            url: "{% url 'gimnasio:listar_Reportes_estadisticas' %}",  icono: "fa-solid fa-chart-line" },
             { nombre: "Categorías",          url: "{% url 'gimnasio:listar_categorias' %}",        icono: "fa-solid fa-tags" },
             { nombre: "Turnos Entrenadores", url: "{% url 'gimnasio:listar_turnodeentrenador' %}", icono: "fa-solid fa-calendar-days" },
-            { nombre: "Encuestas",           url: "{% url 'gimnasio:listar_encuestas' %}",         icono: "fa-solid fa-poll" },
-            { nombre: "Soporte PQRS",        url: "{% url 'gimnasio:listar_Soporte_PQRS' %}",      icono: "fa-solid fa-headset" },
-            { nombre: "Sanciones",           url: "{% url 'gimnasio:listar_sanciones_clas' %}",    icono: "fa-solid fa-gavel" },
         ];
+
+        let modulos;
+        if (esAdmin) {
+            modulos = [...modulosTodos, ...modulosAdmin];
+        } else {
+            modulos = [...modulosTodos];
+        }
 
         const inputBuscar  = document.getElementById("input-buscar");
         const resultadosEl = document.getElementById("resultados-buscar");

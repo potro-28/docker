@@ -366,10 +366,9 @@
   (function () {
 
     // ── Detección de rol segura desde Django ──────────────────────────────
-    const rolDjango   = "{{ user.usuario.rol|default:'cliente' }}"; // "admin" | "entrenador" | "cliente"
+    const rolDjango   = "{{ user.usuario.rol|default:'Cliente' }}";
     const esSuperuser = {{ user.is_superuser|yesno:"true,false" }};
-    const esAdmin      = rolDjango === "admin"      || esSuperuser;
-    const esEntrenador = rolDjango === "entrenador" && !esAdmin;
+    const esAdmin      = rolDjango === "Administrador"      || esSuperuser;
 
     // ── Módulos visibles para TODOS (clientes, entrenadores y admins) ─────
     // ⚠️ Sincronizado con sidebar.html — sección "TODOS LOS USUARIOS"
@@ -380,6 +379,8 @@
       { nombre: "Encuestas",     url: "{% url 'gimnasio:listar_encuestas' %}",          icono: "fa-solid fa-poll" },
       { nombre: "Soporte PQRS",  url: "{% url 'gimnasio:listar_Soporte_PQRS' %}",      icono: "fa-solid fa-headset" },
       { nombre: "Sanciones",     url: "{% url 'gimnasio:listar_sanciones_clas' %}",    icono: "fa-solid fa-gavel" },
+      { nombre: "Certificaciones",     url: "{% url 'gimnasio:listar_certificacioninterna' %}", icono: "fa-solid fa-award" },
+      { nombre: "Reportes",            url: "{% url 'gimnasio:listar_Reportes_estadisticas' %}", icono: "fa-solid fa-chart-line" },
     ];
 
     // ── Módulos SOLO para administradores ─────────────────────────────────
@@ -390,10 +391,8 @@
       { nombre: "Notificaciones",      url: "{% url 'gimnasio:listar_notificacion' %}",         icono: "fa-solid fa-bell" },
       { nombre: "Usuarios",            url: "{% url 'gimnasio:listar_usuario' %}",              icono: "fa-solid fa-users" },
       { nombre: "Registro Visitantes", url: "{% url 'gimnasio:listar_registrovisitante' %}",    icono: "fa-solid fa-person-walking" },
-      { nombre: "Certificaciones",     url: "{% url 'gimnasio:listar_certificacioninterna' %}", icono: "fa-solid fa-award" },
       { nombre: "Elementos",           url: "{% url 'gimnasio:listar_elementos' %}",            icono: "fa-solid fa-cogs" },
       { nombre: "Mantenimiento",       url: "{% url 'gimnasio:listar_mantenimiento' %}",        icono: "fa-solid fa-wrench" },
-      { nombre: "Reportes",            url: "{% url 'gimnasio:listar_Reportes_estadisticas' %}", icono: "fa-solid fa-chart-line" },
       { nombre: "Categorías",          url: "{% url 'gimnasio:listar_categorias' %}",           icono: "fa-solid fa-tags" },
       { nombre: "Turnos Entrenadores", url: "{% url 'gimnasio:listar_turnodeentrenador' %}",    icono: "fa-solid fa-calendar-days" },
     ];
@@ -402,16 +401,11 @@
     let modulos;
 
     if (esAdmin) {
-      // Admin ve módulos generales (sin badge) + exclusivos de admin (badge rojo)
       modulos = [
         ...modulosTodos,
         ...modulosAdmin.map(m => ({ ...m, tipoRol: "admin" })),
       ];
-    } else if (esEntrenador) {
-      // Entrenador ve solo módulos generales (sin badge especial)
-      modulos = [...modulosTodos];
     } else {
-      // Cliente ve solo módulos generales (sin badge especial)
       modulos = [...modulosTodos];
     }
 
