@@ -31,7 +31,7 @@ def wizard_crear_todo(request):
                 username=data['username'],
                 password=data['password']
             )
-
+            print(user)
             usuario = Usuario.objects.create(
                 user=user,
                 documento=data['documento'],
@@ -43,23 +43,24 @@ def wizard_crear_todo(request):
                 peso_usuario=data['peso_usuario'],
                 altura_usuario=data['altura_usuario'],
                 genero_usuario=data['genero'],
-                estado='activo'
+                estado='activo',
+                rol='cliente'
             )
-
+            print(usuario)
             nutricion = Nutricion.objects.create(
                 nivel_actividad=data['nivel_actividad'],
                 tipo_objetivo=data['tipo_objetivo'],
                 tipo_dieta=data['tipo_dieta'],
                 fk_Usuario=usuario
             )
-
+            print(nutricion)
             masa = Masa_corporal.objects.create(
                 peso_cliente=data['peso_cliente'],
                 altura_cliente=data['altura_cliente'],
                 fecha_control=fecha_control,
                 fk_Nutricion=nutricion
             )
-
+            print(masa)
         return JsonResponse({
             "id": masa.id,
             "nombre": f"IMC {masa.id}"

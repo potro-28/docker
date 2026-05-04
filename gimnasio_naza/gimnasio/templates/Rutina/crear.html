@@ -36,7 +36,6 @@
         </div>
     </div>
 </form>
-
 <!-- ================= MODAL ================= -->
 <div class="modal fade" id="modalWizard">
   <div class="modal-dialog modal-lg">
@@ -220,9 +219,7 @@ peso_usuario.addEventListener("input",()=>{
 (peso_usuario.value<30||peso_usuario.value>200) ? mostrarError("peso_usuario","Valor inválido") : limpiarError("peso_usuario");
 });
 
-altura_usuario.addEventListener("input",()=>{
-(altura_usuario.value<100||altura_usuario.value>250) ? mostrarError("altura_usuario","Valor inválido") : limpiarError("altura_usuario");
-});
+
 
 genero.addEventListener("change",()=>{
 !genero.value ? mostrarError("genero","Selecciona uno") : limpiarError("genero");
@@ -240,9 +237,7 @@ peso_cliente.addEventListener("input",()=>{
 (peso_cliente.value<30||peso_cliente.value>200) ? mostrarError("peso_cliente","Valor inválido") : limpiarError("peso_cliente");
 });
 
-altura_cliente.addEventListener("input",()=>{
-(altura_cliente.value<100||altura_cliente.value>250) ? mostrarError("altura_cliente","Valor inválido") : limpiarError("altura_cliente");
-});
+
 
 fecha_control.addEventListener("change",()=>{
 !fecha_control.value ? mostrarError("fecha_control","Obligatorio") : limpiarError("fecha_control");
@@ -310,7 +305,7 @@ fecha_control:fecha_control.value
 
 Swal.fire({title:"Guardando...",didOpen:()=>Swal.showLoading()});
 
-fetch("/wizard/crear/",{
+fetch("/gimnasio/wizard/crear-todo/",{
 method:"POST",
 headers:{
 "Content-Type":"application/json",
@@ -320,6 +315,7 @@ body:JSON.stringify(data)
 })
 .then(r=>r.json())
 .then(r=>{
+
 if(r.error){ Swal.fire("Error",r.error,"error"); return; }
 
 Swal.fire("Correcto","Guardado exitoso","success");
