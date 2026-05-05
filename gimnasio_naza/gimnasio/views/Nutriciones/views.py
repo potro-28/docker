@@ -14,15 +14,12 @@ from gimnasio.models import *
 from gimnasio.forms import NutricionForm
 import json
 
-@csrf_exempt
-def crear_usuario_ajax(request):
 
+def crear_usuario_ajax_nutricion(request):
     if request.method != "POST":
         return JsonResponse({'error': 'Método no permitido'}, status=405)
-
     try:
         data = json.loads(request.body)
-
     
         if not data.get('documento') or not data.get('nombre') or not data.get('apellido') or not data.get('correo'):
             return JsonResponse({'error': 'Faltan campos obligatorios'})

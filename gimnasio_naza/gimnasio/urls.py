@@ -120,6 +120,11 @@ urlpatterns = [
     path('crear-nutricion-ajax/', crear_nutricion_ajax, name='crear_nutricion_ajax'),
 
     # ── Rutinas ─────────────────────────────────────────────────────────────────
+    path('crear-usuario-ajax/', crear_usuario_ajax_nutricion, name='crear_usuario_ajax'),
+    
+    
+    
+    #Rutina
     path('listar_rutinas/', rutinaListView.as_view(), name='listar_rutinas'),
     path('crear_rutinas/', RutinaCreateView.as_view(), name='crear_rutina'),
     path('editar_rutinas/<int:pk>/', RutinaUpdateView.as_view(), name='editar_rutina'),
