@@ -55,6 +55,8 @@ urlpatterns = [
     path('crear_categoria_ajax/', crear_categoria_ajax, name='crear_categoria_ajax'),
 
 #==============================asistencia==============================#
+
+    path('wizard-asistencia/', wizard_asistencia, name='wizard_asistencia'),
     path('listar_asistencia/', AsistenciaListView.as_view(), name='listar_asistencia'),
     path('crear_asistencia/', AsistenciaCreateView.as_view(), name='crear_asistencia'),
     path('editar_asistencia/<int:pk>/', AsistenciaUpdateView.as_view(), name='editar_asistencia'),

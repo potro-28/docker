@@ -13,7 +13,7 @@
         </div>
 
         <div class="card-body">
-            {% csrf_token %}
+            {% csrf_token %} 
 
             
             {% if form.errors %}
@@ -38,7 +38,6 @@
                 </div>
             {% endfor %}
         </div>
-
         <div class="card-footer">
             <button type="submit" class="btn btn-primary">
                 <i class="fas fa-save"></i> Guardar registro

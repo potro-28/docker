@@ -233,7 +233,7 @@ class AsistenciaForm(forms.ModelForm):
                 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['fecha_asistencia'].initial = datetime.now().date()
+        self.fields['fecha_asistencia'].initial = datetime.now().strftime('%Y-%m-%d')
         self.fields['hora_ingreso'].initial = datetime.now().strftime('%H:%M') 
     class Meta:
  
@@ -248,7 +248,6 @@ class AsistenciaForm(forms.ModelForm):
             'fecha_asistencia': forms.DateInput(attrs={
                 'class': 'form-control',
                 'type': 'date',
-                'value': datetime.now().strftime('%d-%m-%Y'),     
             }),        
         }
     def clean(self):
@@ -272,10 +271,12 @@ class AsistenciaForm(forms.ModelForm):
 
 
 class MembresiaForm(ModelForm):
+    
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['fecha_inicio'].initial = datetime.now().date()
-       
+        hoy = datetime.now().date()
+        self.fields['fecha_inicio'].initial = hoy.strftime('%Y-%m-%d')
+        self.fields['fecha_fin'].initial = (hoy + timedelta(days=30)).strftime('%Y-%m-%d')
     class Meta:
         model = Membresia
         fields = '__all__'
@@ -283,13 +284,11 @@ class MembresiaForm(ModelForm):
             
             'fecha_inicio': forms.DateInput(attrs={
                 'class': 'form-control',
-                'type': 'date',
-                'value': datetime.now().strftime('%d-%m-%Y'),     
+                'type': 'date',    
             }),  
                 'fecha_fin': forms.DateInput(attrs={
                 'class': 'form-control',
                 'type': 'date',
-                'value': datetime.now().strftime('%d-%m-%Y'),     
             }),  
         }
         
@@ -302,7 +301,7 @@ class MembresiaForm(ModelForm):
         if fecha_inicio > forms.fields.datetime.date.today():
             self.add_error('fecha_inicio','La fecha de inicio no puede ser futura')
         if fecha_inicio < forms.fields.datetime.date.today():
-           self.add_error('fecha_inicio','La fecha de inicio no puede ser anterior al día de hoy')
+            self.add_error('fecha_inicio','La fecha de inicio no puede ser anterior al día de hoy')
         if fecha_fin > forms.fields.datetime.date.today() + forms.fields.datetime.timedelta(days=30):
             self.add_error('fecha_fin','La fecha de finalización no puede ser mayor a un mes')
         if fecha_fin < forms.fields.datetime.date.today() + forms.fields.datetime.timedelta(days=30):
