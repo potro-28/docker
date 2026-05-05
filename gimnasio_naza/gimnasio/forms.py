@@ -8,6 +8,8 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from django.shortcuts import render
 from django.db.models import Count
+from django.forms import BaseInlineFormSet
+
 class ElementoForm(forms.ModelForm):
     class Meta:
         model = Elemento
@@ -363,7 +365,6 @@ class EncuestaForm(forms.ModelForm):
         required=False,
         label="Seleccionar Miembros"
     )
-    
     class Meta:
         model = Encuesta
         fields = ['nombre', 'estado', 'fk_usuario', 'miembros']
@@ -383,23 +384,27 @@ class EncuestaForm(forms.ModelForm):
 
     def clean_nombre(self):
         nombre = self.cleaned_data.get('nombre')
+
         if not nombre:
             raise forms.ValidationError("El nombre es obligatorio")
 
+        nombre = nombre.strip()
+
         if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$', nombre):
-            raise forms.ValidationError(
-                'El nombre solo puede contener letras'
-            )
-        existe = Encuesta.objects.filter(nombre=nombre)
+            raise forms.ValidationError("El nombre solo puede contener letras")
+
+        existe = Encuesta.objects.filter(nombre__iexact=nombre)
 
         if self.instance.pk:
             existe = existe.exclude(pk=self.instance.pk)
-        if existe.exists():
-            raise forms.ValidationError(
-                'Ya existe una encuesta con ese nombre'
-            )
-        return nombre
 
+        if existe.exists():
+            raise forms.ValidationError("Ya existe una encuesta con ese nombre")
+        
+        if len(set(nombre.replace(" ", "").lower())) == 1:
+            raise forms.ValidationError("El nombre no puede contener solo letras repetidas")
+
+        return nombre
 class PreguntaForm(forms.ModelForm):
     opciones = forms.CharField(
         required=False,
@@ -418,7 +423,22 @@ class PreguntaForm(forms.ModelForm):
             'tipo': forms.Select(attrs={'class': 'form-control'}),
             'requerida': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
-    
+    def clean_pregunta(self):
+        pregunta = self.cleaned_data.get('pregunta')
+
+        if not pregunta:
+            raise forms.ValidationError("La pregunta es obligatoria")
+
+        pregunta = pregunta.strip()
+
+        #Solo números (incluye espacios)
+        if pregunta.replace(" ", "").isdigit():
+            raise forms.ValidationError("La pregunta no puede contener solo números")
+        
+        if not re.search(r'[a-zA-ZáéíóúÁÉÍÓÚñÑ]', pregunta):
+            raise forms.ValidationError("La pregunta debe contener al menos una letra")
+
+        return pregunta
     # forms.py
     def clean_opciones(self):
         opciones = self.cleaned_data.get('opciones')
@@ -430,17 +450,38 @@ class PreguntaForm(forms.ModelForm):
             # Convierte el texto "1,2" en una lista de Python ['1', '2'] para el JSONField
             return [op.strip() for op in opciones.split(',') if op.strip()]
         return None
+    
+class BasePreguntaFormSet(BaseInlineFormSet):
+    def clean(self):
+        super().clean()
 
+        if any(self.errors):
+            return
+
+        total = 0
+
+        for form in self.forms:
+            if form.cleaned_data and not form.cleaned_data.get('DELETE', False):
+                pregunta = form.cleaned_data.get('pregunta')
+
+                if not pregunta:
+                    raise forms.ValidationError("No puede haber preguntas vacías")
+
+                total += 1
+
+        if total == 0:
+            raise forms.ValidationError("Debe agregar al menos una pregunta")
+        
 PreguntaFormSet = inlineformset_factory(
     Encuesta, 
     Pregunta, 
     form=PreguntaForm, 
-    extra=1,        # ✅ Solo 1 pregunta inicial
+    formset=BasePreguntaFormSet,
+    extra=1,        #Solo 1 pregunta inicial
     can_delete=True,
-    max_num=20,     # ✅ Permite hasta 20 preguntas
+    max_num=20,     #Permite hasta 20 preguntas
     validate_max=False
 )
-
 class Soporte_PQRSForm(ModelForm):
     class Meta:
         model = Soporte_PQRS

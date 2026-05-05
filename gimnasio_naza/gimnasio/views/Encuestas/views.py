@@ -16,6 +16,7 @@ from gimnasio.utils import (
 from django.core.mail import send_mail
 from django.conf import settings
 
+
 # --- ENVÍO INDIVIDUAL (Resuelve el NameError en urls.py) ---
 def enviar_encuesta(request, pk):
     """ Envía la encuesta a un usuario específico desde el listado """
@@ -24,6 +25,10 @@ def enviar_encuesta(request, pk):
         try:
             encuesta = Encuesta.objects.get(pk=pk)
             usuario = Usuario.objects.get(pk=usuario_id)
+            
+            if encuesta.estado != 'activa':
+                messages.error(request, "No se puede enviar una encuesta inactiva.")
+                return redirect('gimnasio:listar_encuestas')
             
             if not encuesta.form_id:
                 messages.error(request, "Falta el formulario de Google.")
@@ -42,7 +47,7 @@ def enviar_encuesta(request, pk):
             messages.success(request, f"Enviada a {usuario.nombre_usuario}")
 
         except Exception as e:
-            messages.error(request, f"Error: {str(e)}")
+            messages.error(request, "Selecciona un usuario antes de enviar la encuesta")
 
     return redirect('gimnasio:listar_encuestas')
 
@@ -58,6 +63,11 @@ def enviar_encuesta_usuarios(request):
         
         try:
             encuesta = Encuesta.objects.get(id=encuesta_id)
+            
+            if encuesta.estado != 'activa':
+                messages.error(request, "No se puede enviar una encuesta inactiva.")
+                return redirect('gimnasio:listar_encuestas')
+            
             usuarios = Usuario.objects.filter(id__in=usuarios_ids)
             form_link = f"https://docs.google.com/forms/d/{encuesta.form_id}/viewform"
             

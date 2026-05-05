@@ -4765,6 +4765,7 @@ textarea.form-control-lg {
 }
 
 .card {
+
   --bs-card-spacer-y: 1.25rem;
   --bs-card-spacer-x: 1.25rem;
   --bs-card-title-spacer-y: 0.5rem;
@@ -4795,7 +4796,10 @@ textarea.form-control-lg {
   background-clip: border-box;
   border: var(--bs-card-border-width) solid var(--bs-card-border-color);
   border-radius: var(--bs-card-border-radius);
+  padding-top: 20px;
+
 }
+
 .card > hr {
   margin-right: 0;
   margin-left: 0;
