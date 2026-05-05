@@ -115,7 +115,7 @@ urlpatterns = [
     path('crear_nutricion/', NutricionCreateView.as_view(), name='crear_nutricion'),
     path('editar_nutricion/<int:pk>/', NutricionUpdateView.as_view(), name='editar_nutricion'),
     path('eliminar_nutricion/<int:pk>/', NutricionDeleteView.as_view(), name='eliminar_nutricion'),
-    path('crear-usuario-ajax/', crear_usuario_ajax, name='crear_usuario_ajax'),
+    path('crear-usuario-ajax/', crear_usuario_ajax_nutricion, name='crear_usuario_ajax'),
     
     
     

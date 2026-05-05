@@ -322,7 +322,7 @@ function crearUsuario() {
         apellido: apellido.value,
         correo: correo.value,
         password: password.value,
-        nombreUsuario: nombreUsuario.value,
+        username: nombreUsuario.value,
         telefono: telefono.value,
         fecha_nacimiento: fecha_nacimiento.value,
         peso: peso.value,
@@ -330,7 +330,7 @@ function crearUsuario() {
         genero: genero.value
     };
 
-    fetch("{% url 'gimnasio:crear_usuario_ajax' %}", {
+    fetch("/gimnasio/crear-usuario-ajax/", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -340,7 +340,6 @@ function crearUsuario() {
     })
     .then(res => res.json())
     .then(data => {
-
         if (data.error) {
             return Swal.fire("Error", data.error, "error");
         }
