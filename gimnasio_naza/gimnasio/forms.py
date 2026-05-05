@@ -10,6 +10,7 @@ from django.shortcuts import render
 from django.db.models import Count
 from django.forms import BaseInlineFormSet
 
+from .models import Usuario
 class ElementoForm(forms.ModelForm):
     class Meta:
         model = Elemento
@@ -153,19 +154,39 @@ class UsuarioForm(forms.ModelForm):
         return apellido
 
     def clean_fecha_nacimiento(self):
+
+        fecha_nacimiento = forms.DateField(
+        widget=forms.DateInput(
+            attrs={'type': 'date'},
+            format='%Y-%m-%d'
+        ),
+        input_formats=['%Y-%m-%d']
+    )
+
+    class Meta:
+        model = Usuario
+        fields = '__all__'
+
+    def clean_fecha_nacimiento(self):
         fecha_nacimiento = self.cleaned_data.get('fecha_nacimiento')
+
         if fecha_nacimiento is None:
             raise forms.ValidationError("Por favor ingresa una fecha de nacimiento.")
+
         hoy = date.today()
+
         if fecha_nacimiento >= hoy:
             raise forms.ValidationError("La fecha de nacimiento no puede ser hoy ni una fecha futura.")
+
         if fecha_nacimiento.year < 1900:
             raise forms.ValidationError("La fecha de nacimiento debe ser posterior al año 1900.")
+
         edad_minima = hoy.replace(year=hoy.year - 5)
+
         if fecha_nacimiento > edad_minima:
             raise forms.ValidationError("La fecha de nacimiento no es válida, verifica el año ingresado.")
-        return fecha_nacimiento
 
+        return fecha_nacimiento    
     def clean_telefono_usuario(self):
         telefono = self.cleaned_data.get('telefono_usuario')
         if telefono:

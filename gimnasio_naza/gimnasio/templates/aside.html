@@ -12,6 +12,7 @@
       </a>
     </div>
     <h3>{{ user.get_full_name|default:user.username }}</h3>
+    <h3>{{ request.user.username }}</h3>
     <div class="badge-plan">Gym Nazareth</div>
   </div>
 

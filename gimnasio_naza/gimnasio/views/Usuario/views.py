@@ -84,6 +84,7 @@ class UsuarioUpdateView(UpdateView):
         context['titulo'] = 'Editar Usuario'
         usuario = self.object
         user = usuario.user
+        print(usuario.documento)
         if self.request.POST:
             context['user_form'] = UserForm(self.request.POST,instance=user)
         else:

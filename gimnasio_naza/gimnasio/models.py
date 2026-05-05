@@ -33,12 +33,11 @@ class Usuario(models.Model):
         ('visitante', 'Visitante'),
     ]
     estado = models.CharField(max_length=30, choices=ESTADO_CHOICES)
-    fecha_registro = models.DateField()
 
     def __str__(self):
         return str(self.documento)+("/")+(self.nombre_usuario) 
 
-    fecha_registro = models.DateField(default=datetime.now)
+    fecha_registro = models.DateField(default=date.today)
     class Meta:
         verbose_name = 'Usuario'
         verbose_name_plural = 'Usuarios'
@@ -284,7 +283,7 @@ class Reportes_estadisticas(models.Model):
     ]
     tipo_reporte = models.CharField(max_length=20,choices=TIPO_REPORTE_CHOICES,default='membresia')
     descripcion = models.TextField()
-    fecha_generacion = models.DateField(default=datetime.now)
+    fecha_generacion = models.DateField(default=date.today)
     fk_usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -306,7 +305,7 @@ class Soporte_PQRS(models.Model):
     ]
     tipo = models.CharField(max_length=20,choices=TIPO_PQRS_CHOICES,default='peticion')
     descripcion = models.TextField()
-    fecha_ingreso = models.DateField(default=datetime.now)
+    fecha_ingreso = models.DateField(default=date.today)
     ESTADO_CHOICES = [
     ('pendiente', 'pendiente'),
     ('en_proceso', 'en_proceso'),
@@ -365,7 +364,7 @@ class Nutricion(models.Model):
 #------------REGISTRO DE VISITANTES----------------
     
 class Registrovisitantestemporales(models.Model):
-    fecha_registro = models.DateField(default=datetime.now)
+    fecha_registro = models.DateField(default=date.today)
     fk_usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
 
     def _str_(self):
@@ -392,8 +391,8 @@ class Turnosentrenadores(models.Model):
         related_name='turnos_entrenador'
     )
 
-    fecha_turno_inicio = models.DateField(default=datetime.now)
-    fecha_turno_final = models.DateField(default=datetime.now)
+    fecha_turno_inicio = models.DateField(default=date.today)
+    fecha_turno_final = models.DateField(default=date.today)
     jornada = models.CharField(max_length=10, choices=JORNADA_CHOICES)
 
     def __str__(self):
