@@ -9,7 +9,7 @@
 <div class="container-xxl flex-grow-1 container-p-y">
     <div class="card">
 <a href="{% url 'gimnasio:crear_encuesta' %}" class="btn btn-primary ms-auto">
-    <i class="icon-base ri ri-add-line icon-18px me-1"></i>Agregar encuesta
+    <i class="icon-base ri ri-add-line icon-18px me-1 "></i>Agregar encuesta
 </a>
 
         <div class="card-body">
@@ -152,7 +152,7 @@
         {% for message in messages %}
             Swal.fire({
                 title: "Correcto",
-                text: "{{ message }}",
+                text: "{{ message|safe }}",
                 icon: "success",
                 confirmButtonText: "OK"
             });
