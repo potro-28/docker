@@ -1,7 +1,6 @@
 {% load static %}
 <header class="topbar">
   <style>
-    /* ==================== TOPBAR ==================== */
     .topbar {
       background-color: #267ca7;
       height: 70px;
@@ -17,7 +16,6 @@
       left: 0;
       width: 100%;
     }
-    
     .topbar-left {
       display: flex;
       align-items: center;
@@ -26,7 +24,6 @@
       transition: var(--transition);
       flex-shrink: 0;
     }
-    
     .logo-link {
       display: flex;
       align-items: center;
@@ -34,14 +31,12 @@
       text-decoration: none;
       margin-left: 20px;
     }
-    
     .logo-img {
       width: 100px;
       height: 100px;
       object-fit: contain;
       border-radius: 50%;
     }
-    
     .logo-text {
       color: white;
       font-weight: bold;
@@ -49,8 +44,6 @@
       line-height: 1.2;
       letter-spacing: 0.5px;
     }
-    
-    /* ==================== LAYOUT PRINCIPAL ==================== */
     .main-container {
       display: flex;
       flex-grow: 1;
@@ -58,8 +51,6 @@
       margin-top: 70px;
       height: calc(100vh - 70px);
     }
-    
-    /* ==================== SIDEBAR ==================== */
     .sidebar {
       height: 100%;
       overflow-y: auto;
@@ -67,8 +58,6 @@
       position: relative;
       top: auto;
     }
-    
-    /* ==================== TOPBAR RIGHT ==================== */
     .topbar-right {
       display: flex;
       align-items: center;
@@ -76,19 +65,15 @@
       flex-grow: 1;
       justify-content: flex-end;
     }
-    
     .top-icons {
       display: flex;
       align-items: center;
       gap: 20px;
       position: relative;
     }
-    
     .top-icons .dropdown {
       position: relative;
     }
-    
-    /* ==================== AVATAR ==================== */
     .avatar-img {
       width: 38px !important;
       height: 38px !important;
@@ -97,7 +82,6 @@
       display: block !important;
       flex-shrink: 0 !important;
     }
-    
     .user-trigger {
       display: flex !important;
       align-items: center !important;
@@ -108,12 +92,9 @@
       overflow: hidden !important;
       cursor: pointer;
     }
-    
     .user-trigger::after {
       display: none;
     }
-    
-    /* ==================== DROPDOWN USUARIO ==================== */
     .top-icons .dropdown-menu.user-dropdown {
       position: absolute !important;
       top: calc(100% + 10px) !important;
@@ -127,7 +108,6 @@
       box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
       overflow: hidden;
     }
-    
     .user-dropdown-header {
       display: flex;
       align-items: center;
@@ -135,51 +115,122 @@
       padding: 15px;
       background: #f8f9fa;
     }
-    
     .user-dropdown-avatar {
       width: 45px;
       height: 45px;
       border-radius: 50%;
       object-fit: cover;
     }
-    
-    /* ==================== BODY ==================== */
     body {
       overflow: hidden;
     }
-    
-    /* ==================== MOBILE ==================== */
+    .search-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 25px;
+      padding: 6px 14px;
+      gap: 8px;
+      max-width: 240px;
+      width: 240px;
+      transition: background 0.2s;
+    }
+    .search-container:focus-within {
+      background: rgba(255, 255, 255, 0.28);
+    }
+    .search-container i {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+    #input-buscar {
+      background: transparent !important;
+      border: none !important;
+      outline: none !important;
+      color: white !important;
+      font-size: 0.85rem !important;
+      width: 100% !important;
+      padding: 0 !important;
+    }
+    #input-buscar::placeholder {
+      color: rgba(255, 255, 255, 0.65);
+    }
+    #resultados-buscar {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      right: 0;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+      z-index: 9999;
+      overflow: hidden;
+      min-width: 260px;
+    }
+    .resultado-item {
+      display: flex;
+      align-items: center;
+      padding: 10px 16px;
+      color: #333;
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: background 0.15s;
+      gap: 10px;
+    }
+    .resultado-item:hover {
+      background: #e8f4fb;
+      color: #267ca7;
+    }
+    .resultado-item i {
+      color: #267ca7;
+      width: 16px;
+      text-align: center;
+    }
+    .resultado-badge {
+      margin-left: auto;
+      font-size: 0.68rem;
+      padding: 2px 7px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+    .badge-admin {
+      background: #fde8e8;
+      color: #c0392b;
+    }
+    .badge-entrenador {
+      background: #fef6e4;
+      color: #d97706;
+    }
+    .badge-todos {
+      background: #e8f4fb;
+      color: #267ca7;
+    }
     @media (max-width: 768px) {
       .topbar-left {
         width: auto !important;
         flex: 1;
         gap: 10px;
       }
-    
       .logo-link {
         margin-left: 5px !important;
         gap: 8px;
       }
-    
       .logo-img {
         width: 40px !important;
         height: 40px !important;
       }
-    
       .logo-text {
         font-size: 14px !important;
         line-height: 1.1;
       }
-    
       .topbar-right {
         gap: 10px !important;
         flex-shrink: 0;
       }
-    
       .search-container {
         display: none !important;
       }
-    
       .sidebar {
         position: fixed !important;
         top: 70px !important;
@@ -187,68 +238,76 @@
         left: -100%;
         z-index: 999;
       }
-    
       .sidebar.mobile-active {
         left: 0;
       }
     }
   </style>
-  <!-- IZQUIERDA -->
+
+  <!-- ===== IZQUIERDA ===== -->
   <div class="topbar-left">
     <i class="fas fa-bars menu-toggle" id="menuToggle"></i>
-
     <a href="{% url 'gimnasio:dashboard' %}" class="logo-link">
       <img src="{% static 'assets/img/avatars/logo.png' %}" class="logo-img" />
       <span class="logo-text">GYM<br />NAZARETH</span>
     </a>
   </div>
 
-  <!-- DERECHA -->
+  <!-- ===== DERECHA ===== -->
   <div class="topbar-right">
-    <!-- Backup -->
-    <div class="btn-group">
-      <button class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"><i class="fa-solid fa-database"></i></button>
-      <ul class="dropdown-menu dropdown-menu-end">
-        <li>
-          <a class="dropdown-item" href="{% url 'gimnasio:backup' %}"><i class="fa-solid fa-folder-open me-2"></i>Ir a Backup</a>
-        </li>
-        <li>
-          <form action="{% url 'gimnasio:backup' %}" method="post">
-            {% csrf_token %}
-            <input type="hidden" name="accion" value="backup_completo" />
-            <button type="submit" class="dropdown-item"><i class="fa-solid fa-download me-2"></i>Backup completo</button>
-          </form>
-        </li>
-      </ul>
-    </div>
+    <!-- Backup (solo admin) -->
+    {% if user.usuario.rol == 'Administrador' or user.usuario.rol == 'admin' or user.is_superuser %}
+      <div class="btn-group">
+        <button class="btn btn-primary dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown"><i class="fa-solid fa-database"></i></button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li>
+            <a class="dropdown-item waves-effect" href="/gimnasio/backup/"><i class="fa-solid fa-folder-open me-2"></i>Ir a Backup</a>
+          </li>
+          <li>
+            <form action="/gimnasio/backup/" method="post">
+              <input type="hidden" name="csrfmiddlewaretoken" value="hHcaLDE4remKUHhPb55NMCqRDdDm0mapUWMH04rnTNUE4f3O0pdXJZfxm6Vf6fYW" />
+              <input type="hidden" name="accion" value="backup_completo" />
+              <button type="submit" class="dropdown-item waves-effect"><i class="fa-solid fa-download me-2"></i>Backup completo</button>
+            </form>
+          </li>
+        </ul>
+      </div>
+    {% endif %}
 
-    <!-- Buscador -->
+    <!-- ===== BUSCADOR ===== -->
     <div class="search-container d-none d-lg-flex">
       <i class="fa-solid fa-magnifying-glass"></i>
-      <input type="text" placeholder="Buscar" />
+      <input type="text" id="input-buscar" placeholder="Buscar módulo..." autocomplete="off" />
+      <div id="resultados-buscar" class="d-none"></div>
     </div>
 
-    <!-- Usuario -->
+    <!-- ===== USUARIO ===== -->
     <div class="top-icons">
-      <i class="fas fa-bell icon-btn"></i>
+      <a href="{% url 'gimnasio:listar_notificacion' %}" style="color:white;"><i class="fas fa-bell icon-btn"></i></a>
 
       <div class="dropdown">
         <a class="user-trigger dropdown-toggle" data-bs-toggle="dropdown">
           <span class="username-topbar d-none d-md-inline">{{ user.username }}</span>
-          <img src="{% static 'assets/img/avatars/1.png' %}" class="avatar-img" />
+          {% if user.usuario.foto %}
+            <img src="{{ user.usuario.foto.url }}" class="avatar-img" />
+          {% else %}
+            <img src="{% static 'assets/img/avatars/1.png' %}" class="avatar-img" />
+          {% endif %}
         </a>
 
         <div class="dropdown-menu dropdown-menu-end user-dropdown">
           <div class="user-dropdown-header">
-            <img src="{% static 'assets/img/avatars/1.png' %}" class="user-dropdown-avatar" />
+            {% if user.usuario.foto %}
+              <img src="{{ user.usuario.foto.url }}" class="user-dropdown-avatar" />
+            {% else %}
+              <img src="{% static 'assets/img/avatars/1.png' %}" class="user-dropdown-avatar" />
+            {% endif %}
             <div>
-              <span class="small text-muted">Administrador</span>
+              <span class="small text-muted">{{ user.usuario.rol|default:'Usuario'|capfirst }}</span>
               <h6 class="m-0">{{ user.username }}</h6>
             </div>
           </div>
-
           <div class="dropdown-divider"></div>
-
           <div class="px-3 py-2">
             <form method="post" action="{% url 'login:logout' %}">
               {% csrf_token %}
@@ -259,4 +318,133 @@
       </div>
     </div>
   </div>
+
+  <!-- ===== VARIABLES DJANGO PARA EL SCRIPT ===== -->
+  <script>
+    var _rolDjango   = "{{ user.usuario.rol|default:'Cliente' }}";
+    var _esSuperuser = {{ user.is_superuser|yesno:"true,false" }};
+  </script>
+
+  <!-- ===== SCRIPT BUSCADOR (sin sintaxis ES6+ que confunda al linter) ===== -->
+  <script>
+  (function () {
+    var esAdmin = (_rolDjango === "Administrador" || _rolDjango === "admin" || _esSuperuser);
+
+    var modulosTodos = [
+      { nombre: "Nutricion",       url: "{% url 'gimnasio:listar_nutriciones' %}",           icono: "fa-solid fa-utensils",      tipoRol: "" },
+      { nombre: "Rutinas",         url: "{% url 'gimnasio:listar_rutinas' %}",               icono: "fa-solid fa-dumbbell",      tipoRol: "" },
+      { nombre: "Masa Corporal",   url: "{% url 'gimnasio:listar_masa_corporal_clas' %}",    icono: "fa-solid fa-weight-scale",  tipoRol: "" },
+      { nombre: "Encuestas",       url: "{% url 'gimnasio:listar_encuestas' %}",             icono: "fa-solid fa-poll",          tipoRol: "" },
+      { nombre: "Soporte PQRS",    url: "{% url 'gimnasio:listar_Soporte_PQRS' %}",         icono: "fa-solid fa-headset",       tipoRol: "" },
+      { nombre: "Sanciones",       url: "{% url 'gimnasio:listar_sanciones_clas' %}",       icono: "fa-solid fa-gavel",         tipoRol: "" },
+      { nombre: "Certificaciones", url: "{% url 'gimnasio:listar_certificacioninterna' %}", icono: "fa-solid fa-award",         tipoRol: "" },
+      { nombre: "Reportes",        url: "{% url 'gimnasio:listar_Reportes_estadisticas' %}", icono: "fa-solid fa-chart-line",   tipoRol: "" }
+    ];
+
+    var modulosAdmin = [
+      { nombre: "Asistencia",          url: "{% url 'gimnasio:listar_asistencia' %}",        icono: "fa-solid fa-calendar-check",  tipoRol: "admin" },
+      { nombre: "Membresia",           url: "{% url 'gimnasio:listar_membresia' %}",         icono: "fa-solid fa-crown",           tipoRol: "admin" },
+      { nombre: "Notificaciones",      url: "{% url 'gimnasio:listar_notificacion' %}",      icono: "fa-solid fa-bell",            tipoRol: "admin" },
+      { nombre: "Usuarios",            url: "{% url 'gimnasio:listar_usuario' %}",           icono: "fa-solid fa-users",           tipoRol: "admin" },
+      { nombre: "Registro Visitantes", url: "{% url 'gimnasio:listar_registrovisitante' %}", icono: "fa-solid fa-person-walking",  tipoRol: "admin" },
+      { nombre: "Elementos",           url: "{% url 'gimnasio:listar_elementos' %}",         icono: "fa-solid fa-cogs",            tipoRol: "admin" },
+      { nombre: "Mantenimiento",       url: "{% url 'gimnasio:listar_mantenimiento' %}",     icono: "fa-solid fa-wrench",          tipoRol: "admin" },
+      { nombre: "Categorias",          url: "{% url 'gimnasio:listar_categorias' %}",        icono: "fa-solid fa-tags",            tipoRol: "admin" },
+      { nombre: "Turnos Entrenadores", url: "{% url 'gimnasio:listar_turnodeentrenador' %}", icono: "fa-solid fa-calendar-days",   tipoRol: "admin" }
+      { nombre: "Nutricion",       url: "{% url 'gimnasio:listar_nutriciones' %}",           icono: "fa-solid fa-utensils",      tipoRol: "admin" },
+      { nombre: "Rutinas",         url: "{% url 'gimnasio:listar_rutinas' %}",               icono: "fa-solid fa-dumbbell",      tipoRol: "admin" },
+      { nombre: "Masa Corporal",   url: "{% url 'gimnasio:listar_masa_corporal_clas' %}",    icono: "fa-solid fa-weight-scale",  tipoRol: "admin" },
+      { nombre: "Encuestas",       url: "{% url 'gimnasio:listar_encuestas' %}",             icono: "fa-solid fa-poll",          tipoRol: "admin" },
+      { nombre: "Soporte PQRS",    url: "{% url 'gimnasio:listar_Soporte_PQRS' %}",         icono: "fa-solid fa-headset",       tipoRol: "admin" },
+      { nombre: "Sanciones",       url: "{% url 'gimnasio:listar_sanciones_clas' %}",       icono: "fa-solid fa-gavel",         tipoRol: "admin" },
+      { nombre: "Certificaciones", url: "{% url 'gimnasio:listar_certificacioninterna' %}", icono: "fa-solid fa-award",         tipoRol: "admin" },
+      { nombre: "Reportes",        url: "{% url 'gimnasio:listar_Reportes_estadisticas' %}", icono: "fa-solid fa-chart-line",   tipoRol: "admin" }
+    
+    ];
+
+    var modulos = modulosTodos.slice();
+    if (esAdmin) {
+      for (var i = 0; i < modulosAdmin.length; i++) {
+        modulos.push(modulosAdmin[i]);
+      }
+    }
+
+    var inputBuscar  = document.getElementById('input-buscar');
+    var resultadosEl = document.getElementById('resultados-buscar');
+
+    if (!inputBuscar || !resultadosEl) return;
+
+    function renderBadge(m) {
+      if (m.tipoRol === 'admin')      return '<span class="resultado-badge badge-admin">Admin</span>';
+      if (m.tipoRol === 'entrenador') return '<span class="resultado-badge badge-entrenador">Entrenador</span>';
+      return '<span class="resultado-badge badge-todos">General</span>';
+    }
+
+    inputBuscar.addEventListener('input', function () {
+      var query = this.value.trim().toLowerCase();
+      resultadosEl.innerHTML = '';
+
+      if (query.length === 0) {
+        resultadosEl.classList.add('d-none');
+        return;
+      }
+
+      var filtrados = [];
+      for (var i = 0; i < modulos.length; i++) {
+        if (modulos[i].nombre.toLowerCase().indexOf(query) !== -1) {
+          filtrados.push(modulos[i]);
+        }
+      }
+
+      if (filtrados.length === 0) {
+        resultadosEl.innerHTML = '<div class="resultado-item text-muted"><i class="fa-solid fa-circle-xmark"></i> Sin resultados</div>';
+      } else {
+        for (var j = 0; j < filtrados.length; j++) {
+          var m = filtrados[j];
+          resultadosEl.innerHTML +=
+            '<a href="' + m.url + '" class="resultado-item">' +
+              '<i class="' + m.icono + '"></i> ' +
+              m.nombre + ' ' +
+              renderBadge(m) +
+            '</a>';
+        }
+      }
+
+      resultadosEl.classList.remove('d-none');
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!inputBuscar.contains(e.target) && !resultadosEl.contains(e.target)) {
+        resultadosEl.classList.add('d-none');
+      }
+    });
+
+    inputBuscar.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        var primero = resultadosEl.querySelector('a');
+        if (primero) primero.click();
+      }
+      if (e.key === 'ArrowDown') {
+        var primero = resultadosEl.querySelector('a');
+        if (primero) { e.preventDefault(); primero.focus(); }
+      }
+    });
+
+    resultadosEl.addEventListener('keydown', function (e) {
+      var items = Array.prototype.slice.call(resultadosEl.querySelectorAll('a'));
+      var idx   = items.indexOf(document.activeElement);
+
+      if (e.key === 'ArrowDown' && idx < items.length - 1) {
+        e.preventDefault();
+        items[idx + 1].focus();
+      }
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (idx === 0) inputBuscar.focus();
+        else if (idx > 0) items[idx - 1].focus();
+      }
+    });
+
+  })();
+  </script>
 </header>

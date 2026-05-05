@@ -6,30 +6,31 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from gimnasio.models import *
 from gimnasio.forms import MembresiaForm
-from django.http import HttpResponse,JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from datetime import date, datetime
 from django.core.mail import send_mail
 from django.http import HttpResponse, HttpResponseRedirect
+from datetime import date, datetime, timedelta
+from django.db.models import Count
+from django.db.models.functions import TruncMonth
+import calendar
+from django.utils import timezone  
 
 def crear_usuario_ajax(request):
-
     if request.method != "POST":
         return JsonResponse({'error': 'Método no permitido'}, status=405)
 
     try:
         data = json.loads(request.body)
 
-    
         if not data.get('documento') or not data.get('nombre') or not data.get('apellido') or not data.get('correo'):
             return JsonResponse({'error': 'Faltan campos obligatorios'})
 
-  
         if Usuario.objects.filter(documento=data['documento']).exists():
             return JsonResponse({'error': 'El usuario ya existe'})
 
-    
         if data.get('fecha_nacimiento'):
             fecha_nacimiento = datetime.strptime(data['fecha_nacimiento'], "%Y-%m-%d").date()
         else:
@@ -37,12 +38,14 @@ def crear_usuario_ajax(request):
         peso = float(data.get('peso') or 0)
         altura = float(data.get('altura') or 0)
         password = data.get('password') or "123456"
+        
         user = User.objects.create(
             username=data['username'],
-            email = data.get('correo','')
+            email=data.get('correo', '')
         )
         user.set_password(password)
         user.save()
+        
         usuario = Usuario.objects.create(
             user=user,
             documento=data['documento'],
@@ -59,7 +62,7 @@ def crear_usuario_ajax(request):
             fecha_registro=date.today()
         )
         membresia = Membresia.objects.create(
-            fk_usuario = usuario
+            fk_usuario=usuario
         )
         return JsonResponse({
             'id': usuario.id,
@@ -70,33 +73,61 @@ def crear_usuario_ajax(request):
         return JsonResponse({
             'error': str(e)
         })
+
 class MembresiaListView(ListView):
     model = Membresia
     template_name = 'Membresia/listar.html'
-
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
+    context_object_name = 'object_list'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Listado de membresias'
         context['crear_url'] = reverse_lazy('gimnasio:crear_membresia')
 
-        # // LOGICA PARA EL GRAFICO ///
-        
-
-        # Calculamos los estados
+        # ========== GRÁFICO DONUT - ESTADOS ==========
         activas = Membresia.objects.filter(estado='activo').count()
         vencidas = Membresia.objects.filter(estado='inactivo').count()
-
         context['total_membresias'] = activas + vencidas
-
-        # Empaquetamos en JSON para Chart.js
         context['chart_labels'] = json.dumps(['Activas', 'Vencidas'])
         context['chart_data'] = json.dumps([activas, vencidas])
 
-        return context
+        # ========== GRÁFICO BARRAS - MEMBRESÍAS POR MES ==========
+        hoy = timezone.now().date()
+        inicio_periodo = hoy - timedelta(days=365)
 
+        membresias_por_mes = Membresia.objects.filter(
+            fecha_inicio__gte=inicio_periodo
+        ).annotate(
+            mes=TruncMonth('fecha_inicio')
+        ).values('mes').annotate(
+            total=Count('id')
+        ).order_by('mes')
+
+        # ✅ MESES EN ORDEN CRONOLÓGICO (reciente primero)
+        meses_grafica = []
+        totales_grafica = []
+
+        # Crear 12 meses desde HOY hacia atrás
+        fecha_actual = hoy.replace(day=1)
+        for i in range(12):
+            mes_actual = fecha_actual - timedelta(days=30 * i)
+            nombre_mes = calendar.month_abbr[mes_actual.month]
+            meses_grafica.append(nombre_mes)
+            
+            # Buscar total para este mes
+            total_mes = 0
+            for item in membresias_por_mes:
+                if (item['mes'] and 
+                    item['mes'].month == mes_actual.month and 
+                    item['mes'].year == mes_actual.year):
+                    total_mes = item['total']
+                    break
+            totales_grafica.append(int(total_mes))  # ✅ NÚMEROS ENTEROS
+
+        context['chart_labels_mensual'] = json.dumps(meses_grafica)
+        context['chart_data_mensual'] = json.dumps(totales_grafica)
+
+        return context
 
 class MembresiaCreateView(CreateView):
     model = Membresia
@@ -109,7 +140,6 @@ class MembresiaCreateView(CreateView):
         context['titulo'] = 'Crear membresia'
         return context
 
-
 class MembresiaUpdateView(UpdateView):
     model = Membresia
     template_name = 'Membresia/crear.html'
@@ -121,7 +151,6 @@ class MembresiaUpdateView(UpdateView):
         context['titulo'] = 'Editar membresia'
         context['listar_url'] = reverse_lazy('gimnasio:listar_membresia')
         return context
-
 
 class MembresiaDeleteView(DeleteView):
     model = Membresia
