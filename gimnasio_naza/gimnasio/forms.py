@@ -599,18 +599,18 @@ class RutinaForm(ModelForm):
             'tipo': forms.Select(attrs={
                 'class': 'form-control'
             }),
-            'disponibilidad': forms.NumberInput(attrs={
+            'dias_disponibles': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'min': 1,
                 'max': 7
             }),
         }
 
-    def clean_disponibilidad(self):
-        disponibilidad = self.cleaned_data.get('disponibilidad')
-        if disponibilidad < 1 or disponibilidad > 7:
-            self.add_error('disponibilidad', "La disponibilidad debe ser un número entre 1 y 7.")
-        return disponibilidad
+    def clean_dias_disponibles(self):
+        dias_disponibles = self.cleaned_data.get('dias_disponibles')
+        if dias_disponibles < 1 or dias_disponibles > 7:
+            raise forms.ValidationError("Los días disponibles deben estar entre 1 y 7.")
+        return dias_disponibles
 
 class Masa_muscularForm(ModelForm):
     class Meta:
@@ -626,10 +626,10 @@ class Masa_muscularForm(ModelForm):
         peso = self.cleaned_data.get('peso_cliente')
 
         if peso <= 0:
-            raise ValidationError("El peso debe ser mayor que 0.")
+            raise forms.ValidationError("El peso debe ser mayor que 0.")
 
         if peso < 30 or peso > 300:
-            raise ValidationError("El peso debe estar entre 30kg y 300kg.")
+            raise forms.ValidationError("El peso debe estar entre 30kg y 300kg.")
 
         return peso
 
@@ -637,19 +637,19 @@ class Masa_muscularForm(ModelForm):
         altura = self.cleaned_data.get('altura_cliente')
 
         if altura <= 0:
-            raise ValidationError("La altura debe ser mayor que 0.")
+            raise forms.ValidationError("La altura debe ser mayor que 0.")
 
         if altura < 0.5 or altura > 2.5:
-            raise ValidationError("La altura debe estar entre 0.5m y 2.5m.")
+            raise forms.ValidationError("La altura debe estar entre 0.5m y 2.5m.")
 
         return altura
 
     def clean_fecha_control(self):
         fecha = self.cleaned_data.get('fecha_control')
         if fecha > date.today():
-            raise ValidationError("La fecha no puede ser futura.")
+            raise forms.ValidationError("La fecha no puede ser futura.")
         if fecha < date(1950, 1, 1):
-            raise ValidationError("La fecha no puede ser anterior al 1 de enero de 1950.")
+            raise forms.ValidationError("La fecha no puede ser anterior al 1 de enero de 1950.")
         return fecha
 
     def clean(self):
@@ -667,7 +667,7 @@ class Masa_muscularForm(ModelForm):
                 queryset = queryset.exclude(pk=self.instance.pk)
 
             if queryset.exists():
-                raise ValidationError(
+                raise forms.ValidationError(
                     "Ya existe un control para esta nutrición en esa fecha."
                 )
 
@@ -686,12 +686,12 @@ class SancionesForm(forms.ModelForm):
         motivo = self.cleaned_data.get('motivo_sancion')
 
         if not motivo or len(motivo.strip()) < 5:
-            raise ValidationError("El motivo debe tener al menos 5 caracteres.")
+            raise forms.ValidationError("El motivo debe tener al menos 5 caracteres.")
 
         motivo = motivo.strip()
 
         if not motivo[0].isalpha():
-            raise ValidationError("La descripción debe iniciar obligatoriamente con una letra.")
+            raise forms.ValidationError("La descripción debe iniciar obligatoriamente con una letra.")
 
         return motivo
 
@@ -699,10 +699,10 @@ class SancionesForm(forms.ModelForm):
         duracion = self.cleaned_data.get('duracion_sancion')
 
         if duracion <= 0:
-            raise ValidationError("La duración debe ser mayor que 0 días.")
+            raise forms.ValidationError("La duración debe ser mayor que 0 días.")
 
         if duracion > 365:
-            raise ValidationError("La duración no puede ser mayor a 365 días.")
+            raise forms.ValidationError("La duración no puede ser mayor a 365 días.")
 
         return duracion
 
@@ -732,7 +732,7 @@ class SancionesForm(forms.ModelForm):
                 queryset = queryset.exclude(pk=self.instance.pk)
 
             if queryset.exists():
-                raise ValidationError(
+                raise forms.ValidationError(
                     "Este usuario ya tiene una sanción activa de este tipo."
                 )
 
@@ -749,7 +749,7 @@ class SancionesForm(forms.ModelForm):
 
         if fecha_inicio and fecha_fin:
             if fecha_fin <= fecha_inicio:
-                raise ValidationError(
+                raise forms.ValidationError(
                     "La fecha de fin debe ser mayor que la fecha de inicio."
                 )
 
@@ -764,7 +764,7 @@ class SancionesForm(forms.ModelForm):
                 queryset = queryset.exclude(pk=self.instance.pk)
 
             if queryset.exists():
-                raise ValidationError(
+                raise forms.ValidationError(
                     "Este usuario ya tiene una sanción activa de este tipo."
                 )
 

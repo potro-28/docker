@@ -312,27 +312,27 @@ class Soporte_PQRS(models.Model):
 
 class Nutricion(models.Model):
 
-    NIVEL_ACTIVIDAD = [
+    NIVEL_ACTIVIDAD_FISICA= [
         ('bajo', 'Bajo'),
         ('medio', 'Medio'),
         ('alto', 'Alto'),
     ]
 
-    TIPO_OBJETIVO = [
+    OBJETIVO_NUTRICIONAL = [
         ('perder_peso', 'Perder Peso'),
         ('mantener', 'Mantener'),
         ('ganar_masa', 'Ganar Masa Muscular'),
     ]
 
-    TIPO_DIETA = [
+    TIPO_PLAN_ALIMENTICIO = [
         ('keto', 'Keto'),
         ('balanceada', 'Balanceada'),
         ('hiperproteica', 'Hiperproteica'),
     ]
 
-    nivel_actividad = models.CharField(max_length=20, choices=NIVEL_ACTIVIDAD)
-    tipo_objetivo = models.CharField(max_length=20, choices=TIPO_OBJETIVO)
-    tipo_dieta = models.CharField(max_length=40, choices=TIPO_DIETA)
+    nivel_actividad_fisica = models.CharField(max_length=20, choices=NIVEL_ACTIVIDAD_FISICA)
+    objetivo_nutricional = models.CharField(max_length=20, choices=OBJETIVO_NUTRICIONAL)
+    tipo_plan_alimenticio = models.CharField(max_length=40, choices=TIPO_PLAN_ALIMENTICIO)
 
     fk_Usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
 
@@ -397,7 +397,8 @@ class Masa_corporal (models.Model):
     fk_Nutricion=models.ForeignKey(Nutricion, on_delete=models.CASCADE ,verbose_name='Nutricion')
    
     def __str__(self):
-        return str(self.id)
+        usuario = self.fk_Nutricion.fk_Usuario
+        return f"{usuario.nombre_usuario} - {usuario.documento}"
     class Meta:
         db_table='Masa_corporal'
         verbose_name='Masa_corporal'
@@ -406,7 +407,7 @@ class Masa_corporal (models.Model):
 #------------RUTINA----------------
 
 class Rutina(models.Model):
-    tipo = models.CharField(max_length=50,
+    tipo_rutina = models.CharField(max_length=50,
         choices=[
             ('FUERZA', 'Fuerza'),
             ('CARDIO', 'Cardio'),
@@ -414,9 +415,9 @@ class Rutina(models.Model):
         ],
     )
 
-    disponibilidad_de_dias = models.IntegerField()
+    dias_disponibles = models.IntegerField()
 
-    distribucion = models.CharField(
+    distribucion_rutina = models.CharField(
         max_length=30,
         choices=[
             ('SUPERIOR', 'Superior'),
@@ -424,6 +425,8 @@ class Rutina(models.Model):
             ('COMPLETA', 'Cuerpo completo'),
         ]
     )
+    
+    
 
     fk_imc = models.ForeignKey(Masa_corporal,on_delete=models.CASCADE)
 
@@ -471,7 +474,8 @@ class Sancion(models.Model):
     fk_usuario=models.ForeignKey(Usuario, on_delete=models.CASCADE, verbose_name='Usuario')
     
     def __str__(self):
-        return self.id
+        usuario = self.fk_Usuario
+        return f"{usuario.nombre_usuario} - {usuario.documento}"
     
     class Meta:
         db_table='Sancion'

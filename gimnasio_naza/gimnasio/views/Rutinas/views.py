@@ -21,6 +21,7 @@ def wizard_crear_todo(request):
     if request.method == "POST":
 
         data = json.loads(request.body)
+        print(data)
 
         with transaction.atomic():
 
@@ -32,6 +33,7 @@ def wizard_crear_todo(request):
                 password=data['password']
             )
             print(user)
+            print("Creando Usuario")
             usuario = Usuario.objects.create(
                 user=user,
                 documento=data['documento'],
@@ -47,10 +49,11 @@ def wizard_crear_todo(request):
                 rol='cliente'
             )
             print(usuario)
+            print("Creando nutricion")
             nutricion = Nutricion.objects.create(
-                nivel_actividad=data['nivel_actividad'],
-                tipo_objetivo=data['tipo_objetivo'],
-                tipo_dieta=data['tipo_dieta'],
+                nivel_actividad_fisica=data['nivel_actividad'],
+                objetivo_nutricional=data['tipo_objetivo'],
+                tipo_plan_alimenticio=data['tipo_dieta'],
                 fk_Usuario=usuario
             )
             print(nutricion)

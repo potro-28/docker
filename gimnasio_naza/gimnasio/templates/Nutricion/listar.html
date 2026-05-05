@@ -21,9 +21,9 @@
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Nivel Actividad </th>
-                            <th>Tipo Objetivo</th>
-                            <th>Tipo Dieta</th>
+                            <th>Nivel Actividad Fisica</th>
+                            <th>Objetivo Nutricional</th>
+                            <th>Tipo Plan Alimenticio</th>
                             <th>fk_Usuario</th>
                             <th>Acciones</th>
                         </tr>
@@ -32,9 +32,9 @@
                         {% for nutricion in object_list %}
                         <tr>
                             <td>{{ nutricion.id }}</td>
-                            <td>{{ nutricion.nivel_actividad }}</td>
-                            <td>{{ nutricion.tipo_objetivo }}</td>
-                            <td>{{ nutricion.tipo_dieta }}</td>
+                            <td>{{ nutricion.nivel_actividad_fisica }}</td>
+                            <td>{{ nutricion.objetivo_nutricional }}</td>
+                            <td>{{ nutricion.tipo_plan_alimenticio }}</td>
                             <td>{{ nutricion.fk_Usuario }}</td>
                             <td class="text-nowrap">
                                

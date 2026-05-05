@@ -50,46 +50,84 @@
 
 <!-- PASO 1 -->
 <div id="paso1">
-<h6>Usuario</h6>
+<!-- ACCESO -->
+<h6 class="text-primary fw-bold">Datos de acceso</h6>
+<hr>
 
-<input id="nombreUsuario" class="form-control mb-1" placeholder="Usuario">
-<small id="error_nombreUsuario" class="text-danger"></small>
+<div class="row">
+  <div class="col-md-6 mb-2">
+    <input id="nombreUsuario" class="form-control" placeholder="Nombre de usuario">
+    <small id="error_nombreUsuario" class="text-danger"></small>
+  </div>
 
-<input id="contraseña" type="password" class="form-control mb-1" placeholder="Contraseña">
-<small id="error_contraseña" class="text-danger"></small>
-
-<input id="documento" class="form-control mb-1" placeholder="Documento">
-<small id="error_documento" class="text-danger"></small>
-
-<input id="nombre" class="form-control mb-1" placeholder="Nombre">
-<small id="error_nombre" class="text-danger"></small>
-
-<input id="apellido" class="form-control mb-1" placeholder="Apellido">
-<small id="error_apellido" class="text-danger"></small>
-
-<input id="correo" class="form-control mb-1" placeholder="Correo">
-<small id="error_correo" class="text-danger"></small>
-
-<input id="telefono" class="form-control mb-1" placeholder="Teléfono">
-<small id="error_telefono" class="text-danger"></small>
-
-<input id="fecha_nacimiento" type="date" class="form-control mb-1">
-<small id="error_fecha_nacimiento" class="text-danger"></small>
-
-<input id="peso_usuario" class="form-control mb-1" placeholder="Peso">
-<small id="error_peso_usuario" class="text-danger"></small>
-
-<input id="altura_usuario" class="form-control mb-1" placeholder="Altura">
-<small id="error_altura_usuario" class="text-danger"></small>
-
-<select id="genero" class="form-control mb-1">
-<option value="">Género</option>
-<option value="M">Masculino</option>
-<option value="F">Femenino</option>
-</select>
-<small id="error_genero" class="text-danger"></small>
+  <div class="col-md-6 mb-2">
+    <input id="contraseña" type="password" class="form-control" placeholder="Contraseña">
+    <small id="error_contraseña" class="text-danger"></small>
+  </div>
 </div>
 
+<!-- PERSONALES -->
+<h6 class="text-success fw-bold mt-3">Datos personales</h6>
+<hr>
+
+<div class="row">
+  <div class="col-md-6 mb-2">
+    <input id="documento" class="form-control" placeholder="Documento">
+    <small id="error_documento" class="text-danger"></small>
+  </div>
+
+  <div class="col-md-6 mb-2">
+    <input id="correo" class="form-control" placeholder="Correo">
+    <small id="error_correo" class="text-danger"></small>
+  </div>
+
+  <div class="col-md-6 mb-2">
+    <input id="nombre" class="form-control" placeholder="Nombre">
+    <small id="error_nombre" class="text-danger"></small>
+  </div>
+
+  <div class="col-md-6 mb-2">
+    <input id="apellido" class="form-control" placeholder="Apellido">
+    <small id="error_apellido" class="text-danger"></small>
+  </div>
+
+  <div class="col-md-6 mb-2">
+    <input id="telefono" class="form-control" placeholder="Teléfono">
+    <small id="error_telefono" class="text-danger"></small>
+  </div>
+
+  <div class="col-md-6 mb-2">
+    <label for="fecha_nacimiento" class="form-label">Fecha de nacimiento</label>
+    <input id="fecha_nacimiento" type="date" class="form-control">
+    <small id="error_fecha_nacimiento" class="text-danger"></small>
+  </div>
+
+  <div class="col-md-6 mb-2">
+    <select id="genero" class="form-select">
+      <option value="">Género</option>
+      <option value="M">Masculino</option>
+      <option value="F">Femenino</option>
+    </select>
+    <small id="error_genero" class="text-danger"></small>
+  </div>
+</div>
+
+<!-- FÍSICOS -->
+<h6 class="text-warning fw-bold mt-3">Datos físicos</h6>
+<hr>
+
+<div class="row">
+  <div class="col-md-6 mb-2">
+    <input id="peso_usuario" type="number" class="form-control" placeholder="Peso (kg)">
+    <small id="error_peso_usuario" class="text-danger"></small>
+  </div>
+
+  <div class="col-md-6 mb-2">
+    <input id="altura_usuario" type="number" class="form-control" placeholder="Altura (cm)">
+    <small id="error_altura_usuario" class="text-danger"></small>
+  </div>
+</div>
+</div>
 <!-- PASO 2 -->
 <div id="paso2" style="display:none;">
 <h6>Nutrición</h6>
@@ -237,7 +275,9 @@ peso_cliente.addEventListener("input",()=>{
 (peso_cliente.value<30||peso_cliente.value>200) ? mostrarError("peso_cliente","Valor inválido") : limpiarError("peso_cliente");
 });
 
-
+altura_cliente.addEventListener("input",()=>{
+(altura_cliente.value<100||altura_cliente.value>250) ? mostrarError("altura_cliente","Valor inválido") : limpiarError("altura_cliente");
+});
 
 fecha_control.addEventListener("change",()=>{
 !fecha_control.value ? mostrarError("fecha_control","Obligatorio") : limpiarError("fecha_control");
