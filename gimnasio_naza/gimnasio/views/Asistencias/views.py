@@ -11,6 +11,50 @@ from django.utils.decorators import method_decorator
 from gimnasio.models import *
 from gimnasio.forms import AsistenciaForm
 from django.utils import timezone
+from django.db import transaction
+
+@csrf_exempt
+def wizard_asistencia(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+
+            user = User.objects.create_user(
+                username=data['username'],
+                password=data['password'],
+                email=data['correo_usuario']
+            )
+            usuario = Usuario.objects.create(
+                user=user,
+                documento=data['documento'],
+                nombre_usuario=data['nombre_usuario'],
+                apellido_usuario=data['apellido_usuario'],
+                correo_usuario=data['correo_usuario'],
+                telefono_usuario=data['telefono_usuario'],
+                fecha_nacimiento=data['fecha_nacimiento'],
+                peso_usuario=data['peso_usuario'],
+                altura_usuario=data['altura_usuario'],
+                genero_usuario=data['genero_usuario'],
+                rol='Cliente',
+                estado='activo',
+            )
+
+            membresia = Membresia.objects.create(
+                fk_usuario=usuario,
+                fecha_inicio=data['fecha_inicio'],
+                fecha_fin=data['fecha_fin'],
+                estado=data['estado_membresia'],
+            )
+
+            return JsonResponse({
+                'id': membresia.id,
+                'nombre': f"{usuario.nombre_usuario} {usuario.apellido_usuario}"
+            })
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+
 # Listar asistencia ##
 def crear_membresia_ajax(request):
     if request.method != "POST":

@@ -7,7 +7,34 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 
+# Agrega esta vista a tu views.py de mantenimiento (o donde gestiones categorías)
 
+@csrf_exempt
+@require_POST
+def crear_categoria_ajax(request):
+    import json
+    from gimnasio.models import Categoria
+
+    try:
+        data = json.loads(request.body)
+    except Exception:
+        return JsonResponse({'error': 'JSON inválido'}, status=400)
+
+    nombre_categoria = data.get('nombre_categoria', '').strip()
+    descripcion      = data.get('descripcion', '').strip()
+
+    if not nombre_categoria or not descripcion:
+        return JsonResponse({'error': 'Todos los campos son obligatorios'}, status=400)
+
+    categoria = Categoria.objects.create(
+        nombre_categoria=nombre_categoria,
+        descripcion=descripcion
+    )
+
+    return JsonResponse({
+        'id':     categoria.id,
+        'nombre': categoria.get_nombre_categoria_display(),
+    })
 @csrf_exempt
 @require_POST
 

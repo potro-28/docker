@@ -2,115 +2,203 @@
 {% load widget_tweaks %}
 
 {% block contenido %}
+<style>
+  .swal2-container { z-index: 20000 !important; }
+</style>
 
-<form method="post" action=".">
-    <div class="card card-default">
-
-
-    <div class="card-header">
-        <h3 class="card-title">
-            <i class="fas fa-plus"></i>
-            {{ titulo }}
-        </h3>
-    </div>
-
-    <div class="card-body">
+<form method="post">
+    <div class="card">
+        <div class="card-header">
+            <h3><i class="fas fa-plus"></i> {{ titulo }}</h3>
+        </div>
+        <div class="card-body">
             {% csrf_token %}
-
-            {% if form.errors %}
-            <div class="alert alert-danger">
-                <strong>Error:</strong> Verifica los campos.
-            </div>
-            {% endif %}
-
             {% for field in form.visible_fields %}
-            <div class="form-group mb-3">
+            <div class="mb-3">
                 <label>{{ field.label }}</label>
-
                 {% if field.name == 'fk_membresia' %}
                 <div class="d-flex">
                     {{ field|add_class:'form-control' }}
-
-                    
-                    <button type="button" class="btn btn-success ms-2" data-bs-toggle="modal" data-bs-target="#modalmembresia">
-                        +
-                    </button>
+                    <button type="button" class="btn btn-success ms-2" onclick="abrirWizard()">+</button>
                 </div>
                 {% else %}
                     {{ field|add_class:'form-control' }}
                 {% endif %}
-
-                {% for error in field.errors %}
-                    <div class="text-danger">{{ error }}</div>
-                {% endfor %}
             </div>
             {% endfor %}
-
         </div>
-
         <div class="card-footer">
-            <button type="submit" class="btn btn-primary">
-                Guardar
-            </button>
-
-            <a href="{% url 'gimnasio:listar_asistencia' %}" class="btn btn-danger">
-                Cancelar
-            </a>
+            <button class="btn btn-primary">Guardar Asistencia</button>
         </div>
-
     </div>
 </form>
 
-
-<div class="modal fade" id="modalmembresia" tabindex="-1">
-  <div class="modal-dialog">
+<!-- ================= WIZARD ================= -->
+<div class="modal fade" id="modalWizard">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
 
-      <div class="modal-header">
-        <h5>Crear Membresia</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      <div class="modal-header text-white" style="background-color: #267ca7;">
+        <h5>Wizard - Registro Completo</h5>
+        <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
 
       <div class="modal-body">
 
-        <input type="text" id="fecha_inicio" class="form-control mb-2" placeholder="Documento">
-        <input type="text" id="fecha_fin" class="form-control mb-2" placeholder="Nombre">
-          <select id="estado" class="form-control mb-2">
-            <option value="inactivo">Inactivo</option>
-            <option value="activo">Activo</option>
-        </select>
-        <input type="text" id="codigo_qr" class="form-control mb-2" placeholder="Codigo QR">
-        
+        <!-- Indicador de pasos -->
+        <div class="d-flex justify-content-center mb-4">
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge rounded-pill paso-badge" id="badge1" style="background-color:#267ca7;">1. Usuario</span>
+            <span>→</span>
+            <span class="badge rounded-pill paso-badge bg-secondary" id="badge2">2. Membresía</span>
+          </div>
+        </div>
+
+        <!-- PASO 1: Usuario -->
+        <div id="paso1">
+          <h6 class="mb-3 text-muted">Datos del Usuario</h6>
+          <div class="row">
+            <div class="col-md-6 mb-2">
+              <input id="username" class="form-control" placeholder="Username">
+            </div>
+            <div class="col-md-6 mb-2">
+              <input id="password" type="password" class="form-control" placeholder="Password">
+            </div>
+            <div class="col-md-4 mb-2">
+              <input id="documento" class="form-control" placeholder="Documento">
+            </div>
+            <div class="col-md-4 mb-2">
+              <input id="nombre_usuario" class="form-control" placeholder="Nombre">
+            </div>
+            <div class="col-md-4 mb-2">
+              <input id="apellido_usuario" class="form-control" placeholder="Apellido">
+            </div>
+            <div class="col-md-4 mb-2">
+              <input id="correo_usuario" class="form-control" placeholder="Correo">
+            </div>
+            <div class="col-md-4 mb-2">
+              <input id="telefono_usuario" class="form-control" placeholder="Teléfono">
+            </div>
+            <div class="col-md-4 mb-2">
+              <label class="form-label small text-muted">Fecha Nacimiento</label>
+              <input id="fecha_nacimiento" type="date" class="form-control">
+            </div>
+            <div class="col-md-4 mb-2">
+              <input id="peso_usuario" class="form-control" placeholder="Peso (kg)">
+            </div>
+            <div class="col-md-4 mb-2">
+              <input id="altura_usuario" class="form-control" placeholder="Altura (cm)">
+            </div>
+            <div class="col-md-4 mb-2">
+              <select id="genero_usuario" class="form-control">
+                <option value="">Género</option>
+                <option value="M">Masculino</option>
+                <option value="F">Femenino</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- PASO 2: Membresía -->
+        <div id="paso2" style="display:none;">
+          <h6 class="mb-3 text-muted">Datos de la Membresía</h6>
+          <div class="row">
+            <div class="col-md-4 mb-2">
+              <label class="form-label small text-muted">Fecha Inicio</label>
+              <input id="fecha_inicio" type="date" class="form-control">
+            </div>
+            <div class="col-md-4 mb-2">
+              <label class="form-label small text-muted">Fecha Fin</label>
+              <input id="fecha_fin" type="date" class="form-control">
+            </div>
+            <div class="col-md-4 mb-2">
+              <label class="form-label small text-muted">Estado</label>
+              <select id="estado_membresia" class="form-control">
+                <option value="activo">Activo</option>
+                <option value="inactivo">Inactivo</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+
+
       </div>
 
       <div class="modal-footer">
-        <button class="btn btn-primary" onclick="crearMembresia()">Guardar</button>
+        <button class="btn btn-secondary" onclick="prevPaso()">Anterior</button>
+        <button class="btn btn-primary" onclick="nextPaso()" id="btnSiguiente">Siguiente</button>
       </div>
 
     </div>
   </div>
 </div>
-
 {% endblock %}
 
 {% block js %}
-
 <script>
-function crearMembresia() {
+const btnSiguiente = document.getElementById("btnSiguiente");
+let paso = 1;
 
-    let data = {
-        fecha_inicio: document.getElementById("fecha_inicio").value,
-        fecha_fin: document.getElementById("fecha_fin").value,
-        estado: document.getElementById("estado").value,
-        codigo_qr: document.getElementById("codigo_qr").value
+// Fechas por defecto al abrir
+function setFechasDefault() {
+    const hoy = new Date();
+    const fmt = d => d.toISOString().split('T')[0];
+    const en30 = new Date(hoy); en30.setDate(hoy.getDate() + 30);
+
+    document.getElementById('fecha_inicio').value = fmt(hoy);
+    document.getElementById('fecha_fin').value = fmt(en30);
+
+}
+
+function mostrarPaso() {
+    for (let i = 1; i <= 2; i++) {
+        document.getElementById('paso' + i).style.display = (i === paso) ? 'block' : 'none';
+        const badge = document.getElementById('badge' + i);
+        badge.style.backgroundColor = i === paso ? '#267ca7' : '#6c757d';
+    }
+    btnSiguiente.textContent = paso === 2 ? "Guardar" : "Siguiente";
+    document.querySelector('[onclick="prevPaso()"]').style.display = paso === 1 ? 'none' : 'inline-block';
+}
+
+function abrirWizard() {
+    paso = 1;
+    setFechasDefault();
+    mostrarPaso();
+    new bootstrap.Modal(document.getElementById('modalWizard')).show();
+}
+
+function nextPaso() {
+    if (paso === 2) { guardarTodo(); return; }
+    paso++;
+    mostrarPaso();
+}
+
+function prevPaso() {
+    if (paso > 1) { paso--; mostrarPaso(); }
+}
+
+function guardarTodo() {
+    const data = {
+        // Usuario
+        username:         document.getElementById('username').value,
+        password:         document.getElementById('password').value,
+        documento:        document.getElementById('documento').value,
+        nombre_usuario:   document.getElementById('nombre_usuario').value,
+        apellido_usuario: document.getElementById('apellido_usuario').value,
+        correo_usuario:   document.getElementById('correo_usuario').value,
+        telefono_usuario: document.getElementById('telefono_usuario').value,
+        fecha_nacimiento: document.getElementById('fecha_nacimiento').value,
+        peso_usuario:     parseFloat(document.getElementById('peso_usuario').value),
+        altura_usuario:   parseFloat(document.getElementById('altura_usuario').value),
+        genero_usuario:   document.getElementById('genero_usuario').value,
+        // Membresía
+        fecha_inicio:       document.getElementById('fecha_inicio').value,
+        fecha_fin:          document.getElementById('fecha_fin').value,
+        estado_membresia:   document.getElementById('estado_membresia').value,
     };
 
-    if (!data.fecha_inicio || !data.fecha_fin|| !data.estado || !data.codigo_qr) {
-        Swal.fire("Error", "Todos los campos son obligatorios", "error");
-        return;
-    }
-
-    fetch("{% url 'gimnasio:crear_membresia_ajax' %}", {
+    fetch("{% url 'gimnasio:wizard_asistencia' %}", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -118,20 +206,19 @@ function crearMembresia() {
         },
         body: JSON.stringify(data)
     })
-    .then(response => response.json())
-    .then(data => {
+    .then(res => res.json())
+    .then(res => {
+        if (res.error) { Swal.fire("Error", res.error, "error"); return; }
 
-        let select = document.getElementById("fk_membresia");
-
-        let option = new Option(data.nombre, data.id, true, true);
+        // Agregar la membresía creada al select del formulario principal
+        let select = document.getElementById("id_fk_membresia");
+        let option = new Option(res.nombre, res.id, true, true);
         select.add(option);
 
-        let modal = bootstrap.Modal.getInstance(document.getElementById('modalMembresia'));
-        modal.hide();
-
-        Swal.fire("Correcto", "membresia creada", "success");
-    });
+        bootstrap.Modal.getInstance(document.getElementById('modalWizard')).hide();
+        Swal.fire("Correcto", "Registro creado correctamente", "success");
+    })
+    .catch(() => Swal.fire("Error", "Error en la petición", "error"));
 }
 </script>
-
 {% endblock %}

@@ -61,96 +61,302 @@
 
 <!-- MODAL -->
 <div class="modal fade" id="modalUsuario" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
+  <div class="modal-dialog modal-lg"> 
+    <div class="modal-content">
 
-            <div class="modal-header">
-                <h5>Crear Usuario</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
+      <div class="modal-header text-white" style="background-color: #267ca7;">
+        <h5 class="modal-title">Crear Usuario</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
 
-            <div class="modal-body">
+      <div class="modal-body">
 
-                <input type="text" id="documento" class="form-control mb-2" placeholder="Documento">
-                <input type="text" id="nombre" class="form-control mb-2" placeholder="Nombre">
-                <input type="text" id="apellido" class="form-control mb-2" placeholder="Apellido">
-                <input type="email" id="correo" class="form-control mb-2" placeholder="Correo">
-                <input type="text" id="telefono" class="form-control mb-2" placeholder="Teléfono">
-                <input type="date" id="fecha_nacimiento" class="form-control mb-2">
-                <input type="number" id="peso" class="form-control mb-2" placeholder="Peso">
-                <input type="number" id="altura" class="form-control mb-2" placeholder="Altura">
+        <!-- ACCESO -->
+        <h6 class="text-primary fw-bold">Datos de acceso</h6>
+        <hr>
 
-                <select id="genero" class="form-control mb-2">
-                    <option value="M">Masculino</option>
-                    <option value="F">Femenino</option>
-                </select>
+        <div class="row">
+          <div class="col-md-6 mb-2">
+            <input type="text" id="username" class="form-control" placeholder="Username">
+          </div>
 
-            </div>
-
-            <div class="modal-footer">
-                <button class="btn btn-primary" onclick="crearUsuario()">Guardar</button>
-            </div>
-
+          <div class="col-md-6 mb-2">
+            <input type="password" id="password" class="form-control" placeholder="Contraseña">
+          </div>
         </div>
-    </div>
-</div>
 
+        <!-- PERSONALES -->
+        <h6 class="text-success fw-bold mt-3">Datos personales</h6>
+        <hr>
+
+        <div class="row">
+
+          <div class="col-md-6 mb-2">
+            <input type="text" id="documento" class="form-control" placeholder="Documento">
+            <small class="text-danger" id="error_documento"></small>
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <input type="email" id="correo" class="form-control" placeholder="Correo">
+            <small class="text-danger" id="error_correo"></small>
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <input type="text" id="nombre" class="form-control" placeholder="Nombre">
+            <small class="text-danger" id="error_nombre"></small>
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <input type="text" id="apellido" class="form-control" placeholder="Apellido">
+            <small class="text-danger" id="error_apellido"></small>
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <input type="text" id="telefono" class="form-control" placeholder="Teléfono">
+            <small class="text-danger" id="error_telefono"></small>
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <label for="fecha_nacimiento" class="form-label">Fecha de nacimiento</label>
+            <input id="fecha_nacimiento" type="date" class="form-control">
+            <small id="error_fecha_nacimiento" class="text-danger"></small>
+        </div>
+
+          <div class="col-md-6 mb-2">
+            <select id="genero" class="form-select">
+              <option value="M">Masculino</option>
+              <option value="F">Femenino</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- FISICOS -->
+        <h6 class="text-warning fw-bold mt-3">Datos físicos</h6>
+        <hr>
+
+        <div class="row">
+          <div class="col-md-6 mb-2">
+            <input type="number" id="peso" class="form-control" placeholder="Peso (kg)">
+            <small class="text-danger" id="error_peso"></small>
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <input type="number" id="altura" class="form-control" placeholder="Altura (cm)">
+            <small class="text-danger" id="error_altura"></small>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-primary" onclick="crearUsuario()">Guardar</button>
+      </div>
+
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block js %}
-
 <script>
+
+// CSRF
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        for (let cookie of document.cookie.split(';')) {
+            cookie = cookie.trim();
+            if (cookie.startsWith(name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// ERRORES
+function mostrarError(id, msg) {
+    document.getElementById("error_" + id).innerText = msg;
+}
+
+function limpiarError(id) {
+    document.getElementById("error_" + id).innerText = "";
+}
+
+// ================= VALIDACIONES =================
+
+// DOCUMENTO
+document.getElementById("documento").addEventListener("input", function () {
+    let v = this.value;
+
+    if (!/^\d{7,10}$/.test(v)) {
+        return mostrarError("documento", "Debe tener entre 7 y 10 dígitos");
+    }
+
+    for (let d of new Set(v)) {
+        if (v.split(d).length - 1 > 5) {
+            return mostrarError("documento", `El dígito "${d}" aparece más de 5 veces`);
+        }
+    }
+
+    limpiarError("documento");
+});
+
+// NOMBRE
+document.getElementById("nombre").addEventListener("input", function () {
+    let v = this.value;
+
+    if (v !== v.trim()) return mostrarError("nombre", "Sin espacios al inicio o final");
+    if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(v)) return mostrarError("nombre", "Solo letras");
+    if (v.includes("  ")) return mostrarError("nombre", "No espacios dobles");
+
+    limpiarError("nombre");
+});
+
+// APELLIDO
+document.getElementById("apellido").addEventListener("input", function () {
+    let v = this.value;
+
+    if (v !== v.trim()) return mostrarError("apellido", "Sin espacios al inicio o final");
+    if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(v)) return mostrarError("apellido", "Solo letras");
+    if (v.includes("  ")) return mostrarError("apellido", "No espacios dobles");
+
+    limpiarError("apellido");
+});
+
+// CORREO
+document.getElementById("correo").addEventListener("input", function () {
+    let v = this.value;
+
+    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(v))
+        return mostrarError("correo", "Correo inválido");
+
+    if (/[^a-zA-Z0-9._%+\-@]/.test(v))
+        return mostrarError("correo", "Caracteres no permitidos");
+
+    limpiarError("correo");
+});
+
+// TELEFONO
+document.getElementById("telefono").addEventListener("input", function () {
+    let v = this.value;
+
+    if (v && !/^3\d{9}$/.test(v))
+        return mostrarError("telefono", "Debe iniciar en 3 y tener 10 dígitos");
+
+    limpiarError("telefono");
+});
+
+// FECHA
+document.getElementById("fecha_nacimiento").addEventListener("change", function () {
+    let v = this.value;
+    let f = new Date(v);
+    let hoy = new Date();
+
+    if (!v) return mostrarError("fecha_nacimiento", "Campo obligatorio");
+    if (f >= hoy) return mostrarError("fecha_nacimiento", "No puede ser futura");
+    if (f.getFullYear() < 1900) return mostrarError("fecha_nacimiento", "Año inválido");
+
+    let min = new Date();
+    min.setFullYear(hoy.getFullYear() - 5);
+
+    if (f > min) return mostrarError("fecha_nacimiento", "Edad no válida");
+
+    limpiarError("fecha_nacimiento");
+});
+
+// PESO
+document.getElementById("peso").addEventListener("input", function () {
+    let v = parseFloat(this.value);
+
+    if (this.value === "") return limpiarError("peso");
+    if (v <= 0) return mostrarError("peso", "Debe ser positivo");
+    if (v < 30 || v > 150) return mostrarError("peso", "Entre 30 y 150 kg");
+
+    limpiarError("peso");
+});
+
+// ALTURA
+document.getElementById("altura").addEventListener("input", function () {
+    let v = parseFloat(this.value);
+
+    if (this.value === "") return limpiarError("altura");
+    if (v <= 0) return mostrarError("altura", "Debe ser positiva");
+    if (v < 100 || v > 230) return mostrarError("altura", "Entre 100 y 230 cm");
+
+    limpiarError("altura");
+});
+
+// VALIDAR ERRORES
+function hayErrores() {
+    return [...document.querySelectorAll('[id^="error_"]')]
+        .some(e => e.innerText !== "");
+}
+
+// ================= CREAR USUARIO =================
 function crearUsuario() {
 
-    let data = {
-        documento: document.getElementById("documento").value,
-        nombre: document.getElementById("nombre").value,
-        apellido: document.getElementById("apellido").value,
-        correo: document.getElementById("correo").value,
-        telefono: document.getElementById("telefono").value,
-        fecha_nacimiento: document.getElementById("fecha_nacimiento").value,
-        peso: document.getElementById("peso").value,
-        altura: document.getElementById("altura").value,
-        genero: document.getElementById("genero").value
-    };
+    if (hayErrores()) {
 
-    // ✅ VALIDACIÓN MEJORADA
-    if (!data.documento || !data.nombre || !data.apellido || !data.correo) {
-        Swal.fire("Error", "Completa los campos obligatorios", "error");
-        return;
-    }
+    //cerrar modal antes de mostrar alerta
+    let modal = bootstrap.Modal.getInstance(document.getElementById('modalUsuario'));
+    if (modal) modal.hide();
+
+    //alerta importante
+    Swal.fire({
+        icon: "error",
+        title: "Error importante",
+        text: "Corrige los errores antes de guardar",
+        confirmButtonColor: "#d33",
+        backdrop: true,
+        allowOutsideClick: false
+    });
+
+    return;
+}
+
+    let data = {
+        documento: documento.value,
+        nombre: nombre.value,
+        apellido: apellido.value,
+        correo: correo.value,
+        password: password.value,
+        username: username.value,
+        telefono: telefono.value,
+        fecha_nacimiento: fecha_nacimiento.value,
+        peso: peso.value,
+        altura: altura.value,
+        genero: genero.value
+    };
 
     fetch("{% url 'gimnasio:crear_usuario_ajax' %}", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-        
-            "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value
+            "X-CSRFToken": getCookie('csrftoken')
         },
         body: JSON.stringify(data)
     })
-    .then(response => response.json())
+    .then(res => res.json())
     .then(data => {
 
         if (data.error) {
-            Swal.fire("Error", data.error, "error");
-            return;
+            return Swal.fire("Error", data.error, "error");
         }
 
-        let select = document.getElementById("id_fk_usuario");
+        let select = document.querySelector('[name="fk_usuario"]');
+        if (!select.querySelector(`option[value="${data.id}"]`)) {
+            select.add(new Option(data.nombre, data.id, true, true));
+        }
 
-        let option = new Option(data.nombre, data.id, true, true);
-        select.add(option);
+        bootstrap.Modal.getInstance(document.getElementById('modalUsuario')).hide();
 
-        let modal = bootstrap.Modal.getInstance(document.getElementById('modalUsuario'));
-        modal.hide();
+        document.querySelectorAll('#modalUsuario input').forEach(i => i.value = '');
+        document.querySelectorAll('[id^="error_"]').forEach(e => e.innerText = '');
 
         Swal.fire("Correcto", "Usuario creado correctamente", "success");
-    })
-    .catch(error => {
-        Swal.fire("Error", "Ocurrió un error en la petición", "error");
     });
 }
 </script>
-
 {% endblock %}

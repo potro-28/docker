@@ -8,6 +8,9 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from django.shortcuts import render
 from django.db.models import Count
+from django.forms import BaseInlineFormSet
+
+from .models import Usuario
 class ElementoForm(forms.ModelForm):
     class Meta:
         model = Elemento
@@ -151,19 +154,34 @@ class UsuarioForm(forms.ModelForm):
         return apellido
 
     def clean_fecha_nacimiento(self):
+
+        fecha_nacimiento = forms.DateField(
+        widget=forms.DateInput(
+            attrs={'type': 'date'},
+            format='%Y-%m-%d'
+        ),
+        input_formats=['%Y-%m-%d']
+    )
+    def clean_fecha_nacimiento(self):
         fecha_nacimiento = self.cleaned_data.get('fecha_nacimiento')
+
         if fecha_nacimiento is None:
             raise forms.ValidationError("Por favor ingresa una fecha de nacimiento.")
+
         hoy = date.today()
+
         if fecha_nacimiento >= hoy:
             raise forms.ValidationError("La fecha de nacimiento no puede ser hoy ni una fecha futura.")
+
         if fecha_nacimiento.year < 1900:
             raise forms.ValidationError("La fecha de nacimiento debe ser posterior al año 1900.")
+
         edad_minima = hoy.replace(year=hoy.year - 5)
+
         if fecha_nacimiento > edad_minima:
             raise forms.ValidationError("La fecha de nacimiento no es válida, verifica el año ingresado.")
-        return fecha_nacimiento
 
+        return fecha_nacimiento    
     def clean_telefono_usuario(self):
         telefono = self.cleaned_data.get('telefono_usuario')
         if telefono:
@@ -231,7 +249,7 @@ class AsistenciaForm(forms.ModelForm):
                 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['fecha_asistencia'].initial = datetime.now().date()
+        self.fields['fecha_asistencia'].initial = datetime.now().strftime('%Y-%m-%d')
         self.fields['hora_ingreso'].initial = datetime.now().strftime('%H:%M') 
     class Meta:
  
@@ -246,7 +264,6 @@ class AsistenciaForm(forms.ModelForm):
             'fecha_asistencia': forms.DateInput(attrs={
                 'class': 'form-control',
                 'type': 'date',
-                'value': datetime.now().strftime('%d-%m-%Y'),     
             }),        
         }
     def clean(self):
@@ -270,10 +287,12 @@ class AsistenciaForm(forms.ModelForm):
 
 
 class MembresiaForm(ModelForm):
+    
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['fecha_inicio'].initial = datetime.now().date()
-       
+        hoy = datetime.now().date()
+        self.fields['fecha_inicio'].initial = hoy.strftime('%Y-%m-%d')
+        self.fields['fecha_fin'].initial = (hoy + timedelta(days=30)).strftime('%Y-%m-%d')
     class Meta:
         model = Membresia
         fields = '__all__'
@@ -281,13 +300,11 @@ class MembresiaForm(ModelForm):
             
             'fecha_inicio': forms.DateInput(attrs={
                 'class': 'form-control',
-                'type': 'date',
-                'value': datetime.now().strftime('%d-%m-%Y'),     
+                'type': 'date',    
             }),  
                 'fecha_fin': forms.DateInput(attrs={
                 'class': 'form-control',
                 'type': 'date',
-                'value': datetime.now().strftime('%d-%m-%Y'),     
             }),  
         }
         
@@ -300,7 +317,7 @@ class MembresiaForm(ModelForm):
         if fecha_inicio > forms.fields.datetime.date.today():
             self.add_error('fecha_inicio','La fecha de inicio no puede ser futura')
         if fecha_inicio < forms.fields.datetime.date.today():
-           self.add_error('fecha_inicio','La fecha de inicio no puede ser anterior al día de hoy')
+            self.add_error('fecha_inicio','La fecha de inicio no puede ser anterior al día de hoy')
         if fecha_fin > forms.fields.datetime.date.today() + forms.fields.datetime.timedelta(days=30):
             self.add_error('fecha_fin','La fecha de finalización no puede ser mayor a un mes')
         if fecha_fin < forms.fields.datetime.date.today() + forms.fields.datetime.timedelta(days=30):
@@ -362,7 +379,6 @@ class EncuestaForm(forms.ModelForm):
         required=False,
         label="Seleccionar Miembros"
     )
-    
     class Meta:
         model = Encuesta
         fields = ['nombre', 'estado', 'fk_usuario', 'miembros']
@@ -382,23 +398,27 @@ class EncuestaForm(forms.ModelForm):
 
     def clean_nombre(self):
         nombre = self.cleaned_data.get('nombre')
+
         if not nombre:
             raise forms.ValidationError("El nombre es obligatorio")
 
+        nombre = nombre.strip()
+
         if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$', nombre):
-            raise forms.ValidationError(
-                'El nombre solo puede contener letras'
-            )
-        existe = Encuesta.objects.filter(nombre=nombre)
+            raise forms.ValidationError("El nombre solo puede contener letras")
+
+        existe = Encuesta.objects.filter(nombre__iexact=nombre)
 
         if self.instance.pk:
             existe = existe.exclude(pk=self.instance.pk)
-        if existe.exists():
-            raise forms.ValidationError(
-                'Ya existe una encuesta con ese nombre'
-            )
-        return nombre
 
+        if existe.exists():
+            raise forms.ValidationError("Ya existe una encuesta con ese nombre")
+        
+        if len(set(nombre.replace(" ", "").lower())) == 1:
+            raise forms.ValidationError("El nombre no puede contener solo letras repetidas")
+
+        return nombre
 class PreguntaForm(forms.ModelForm):
     opciones = forms.CharField(
         required=False,
@@ -417,7 +437,22 @@ class PreguntaForm(forms.ModelForm):
             'tipo': forms.Select(attrs={'class': 'form-control'}),
             'requerida': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
-    
+    def clean_pregunta(self):
+        pregunta = self.cleaned_data.get('pregunta')
+
+        if not pregunta:
+            raise forms.ValidationError("La pregunta es obligatoria")
+
+        pregunta = pregunta.strip()
+
+        #Solo números (incluye espacios)
+        if pregunta.replace(" ", "").isdigit():
+            raise forms.ValidationError("La pregunta no puede contener solo números")
+        
+        if not re.search(r'[a-zA-ZáéíóúÁÉÍÓÚñÑ]', pregunta):
+            raise forms.ValidationError("La pregunta debe contener al menos una letra")
+
+        return pregunta
     # forms.py
     def clean_opciones(self):
         opciones = self.cleaned_data.get('opciones')
@@ -429,17 +464,38 @@ class PreguntaForm(forms.ModelForm):
             # Convierte el texto "1,2" en una lista de Python ['1', '2'] para el JSONField
             return [op.strip() for op in opciones.split(',') if op.strip()]
         return None
+    
+class BasePreguntaFormSet(BaseInlineFormSet):
+    def clean(self):
+        super().clean()
 
+        if any(self.errors):
+            return
+
+        total = 0
+
+        for form in self.forms:
+            if form.cleaned_data and not form.cleaned_data.get('DELETE', False):
+                pregunta = form.cleaned_data.get('pregunta')
+
+                if not pregunta:
+                    raise forms.ValidationError("No puede haber preguntas vacías")
+
+                total += 1
+
+        if total == 0:
+            raise forms.ValidationError("Debe agregar al menos una pregunta")
+        
 PreguntaFormSet = inlineformset_factory(
     Encuesta, 
     Pregunta, 
     form=PreguntaForm, 
-    extra=1,        # ✅ Solo 1 pregunta inicial
+    formset=BasePreguntaFormSet,
+    extra=1,        #Solo 1 pregunta inicial
     can_delete=True,
-    max_num=20,     # ✅ Permite hasta 20 preguntas
+    max_num=20,     #Permite hasta 20 preguntas
     validate_max=False
 )
-
 class Soporte_PQRSForm(ModelForm):
     class Meta:
         model = Soporte_PQRS
@@ -598,18 +654,18 @@ class RutinaForm(ModelForm):
             'tipo': forms.Select(attrs={
                 'class': 'form-control'
             }),
-            'disponibilidad': forms.NumberInput(attrs={
+            'dias_disponibles': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'min': 1,
                 'max': 7
             }),
         }
 
-    def clean_disponibilidad(self):
-        disponibilidad = self.cleaned_data.get('disponibilidad')
-        if disponibilidad < 1 or disponibilidad > 7:
-            self.add_error('disponibilidad', "La disponibilidad debe ser un número entre 1 y 7.")
-        return disponibilidad
+    def clean_dias_disponibles(self):
+        dias_disponibles = self.cleaned_data.get('dias_disponibles')
+        if dias_disponibles < 1 or dias_disponibles > 7:
+            raise forms.ValidationError("Los días disponibles deben estar entre 1 y 7.")
+        return dias_disponibles
 
 class Masa_muscularForm(ModelForm):
     class Meta:
@@ -625,10 +681,10 @@ class Masa_muscularForm(ModelForm):
         peso = self.cleaned_data.get('peso_cliente')
 
         if peso <= 0:
-            raise ValidationError("El peso debe ser mayor que 0.")
+            raise forms.ValidationError("El peso debe ser mayor que 0.")
 
         if peso < 30 or peso > 300:
-            raise ValidationError("El peso debe estar entre 30kg y 300kg.")
+            raise forms.ValidationError("El peso debe estar entre 30kg y 300kg.")
 
         return peso
 
@@ -636,19 +692,19 @@ class Masa_muscularForm(ModelForm):
         altura = self.cleaned_data.get('altura_cliente')
 
         if altura <= 0:
-            raise ValidationError("La altura debe ser mayor que 0.")
+            raise forms.ValidationError("La altura debe ser mayor que 0.")
 
         if altura < 0.5 or altura > 2.5:
-            raise ValidationError("La altura debe estar entre 0.5m y 2.5m.")
+            raise forms.ValidationError("La altura debe estar entre 0.5m y 2.5m.")
 
         return altura
 
     def clean_fecha_control(self):
         fecha = self.cleaned_data.get('fecha_control')
         if fecha > date.today():
-            raise ValidationError("La fecha no puede ser futura.")
+            raise forms.ValidationError("La fecha no puede ser futura.")
         if fecha < date(1950, 1, 1):
-            raise ValidationError("La fecha no puede ser anterior al 1 de enero de 1950.")
+            raise forms.ValidationError("La fecha no puede ser anterior al 1 de enero de 1950.")
         return fecha
 
     def clean(self):
@@ -666,7 +722,7 @@ class Masa_muscularForm(ModelForm):
                 queryset = queryset.exclude(pk=self.instance.pk)
 
             if queryset.exists():
-                raise ValidationError(
+                raise forms.ValidationError(
                     "Ya existe un control para esta nutrición en esa fecha."
                 )
 
@@ -685,12 +741,12 @@ class SancionesForm(forms.ModelForm):
         motivo = self.cleaned_data.get('motivo_sancion')
 
         if not motivo or len(motivo.strip()) < 5:
-            raise ValidationError("El motivo debe tener al menos 5 caracteres.")
+            raise forms.ValidationError("El motivo debe tener al menos 5 caracteres.")
 
         motivo = motivo.strip()
 
         if not motivo[0].isalpha():
-            raise ValidationError("La descripción debe iniciar obligatoriamente con una letra.")
+            raise forms.ValidationError("La descripción debe iniciar obligatoriamente con una letra.")
 
         return motivo
 
@@ -698,10 +754,10 @@ class SancionesForm(forms.ModelForm):
         duracion = self.cleaned_data.get('duracion_sancion')
 
         if duracion <= 0:
-            raise ValidationError("La duración debe ser mayor que 0 días.")
+            raise forms.ValidationError("La duración debe ser mayor que 0 días.")
 
         if duracion > 365:
-            raise ValidationError("La duración no puede ser mayor a 365 días.")
+            raise forms.ValidationError("La duración no puede ser mayor a 365 días.")
 
         return duracion
 
@@ -731,7 +787,7 @@ class SancionesForm(forms.ModelForm):
                 queryset = queryset.exclude(pk=self.instance.pk)
 
             if queryset.exists():
-                raise ValidationError(
+                raise forms.ValidationError(
                     "Este usuario ya tiene una sanción activa de este tipo."
                 )
 
@@ -748,7 +804,7 @@ class SancionesForm(forms.ModelForm):
 
         if fecha_inicio and fecha_fin:
             if fecha_fin <= fecha_inicio:
-                raise ValidationError(
+                raise forms.ValidationError(
                     "La fecha de fin debe ser mayor que la fecha de inicio."
                 )
 
@@ -763,7 +819,7 @@ class SancionesForm(forms.ModelForm):
                 queryset = queryset.exclude(pk=self.instance.pk)
 
             if queryset.exists():
-                raise ValidationError(
+                raise forms.ValidationError(
                     "Este usuario ya tiene una sanción activa de este tipo."
                 )
 

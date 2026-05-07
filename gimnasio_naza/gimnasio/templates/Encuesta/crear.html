@@ -2,158 +2,365 @@
 {% load widget_tweaks %}
 
 {% block contenido %}
+<style>
+
+/* ===== HEADER SUPERIOR (NUEVO) ===== */
+.header-encuesta{
+    background:linear-gradient(135deg,#267ca7,#1f5f80);
+    padding:18px 25px;
+    border-radius:14px;
+    margin-bottom:20px;
+    box-shadow:0 8px 20px rgba(0,0,0,0.08);
+}
+
+.header-encuesta h3{
+    color:white;
+    margin:0;
+    font-size:20px;
+    font-weight:600;
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.header-encuesta i{
+    font-size:18px;
+}
+
+/* ===== CARD GENERAL ===== */
+.card{
+    border-radius:14px;
+    overflow:hidden;
+    box-shadow:0 10px 25px rgba(0,0,0,0.08);
+    border:none;
+}
+
+/* 🔥 ESPACIO INTERNO */
+.card-body{
+    padding:25px;
+}
+
+/* ===== TITULO SECCION ===== */
+.titulo-seccion{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    font-size:19px;
+    font-weight:700;
+    color:#1e293b;
+    margin-bottom:18px;
+}
+
+.titulo-seccion i{
+    background:linear-gradient(135deg,#267ca7,#1f5f80);
+    color:white;
+    padding:10px;
+    border-radius:12px;
+}
+
+/* ===== CONTENEDOR PREGUNTAS ===== */
+.preguntas-wrapper{
+    background: linear-gradient(180deg, #e2e8f0, #cbd5e1);
+    padding:22px;
+    border-radius:16px;
+    border:1px solid #d6e4ef;
+}
+
+/* ===== CARD PREGUNTA ===== */
+.pregunta-item{
+    background:white;
+    border-radius:14px;
+    padding:18px;
+    border-left:5px solid #267ca7;
+    margin-bottom:14px;
+    transition:0.25s;
+    box-shadow:0 3px 8px rgba(0,0,0,0.05);
+}
+
+.pregunta-item:hover{
+    transform:translateY(-3px);
+    box-shadow:0 10px 20px rgba(0,0,0,0.08);
+}
+
+/* ===== INPUTS ===== */
+.form-control{
+    border-radius:10px;
+    background:#fff;
+}
+
+.form-control:focus{
+    border-color:#267ca7;
+    box-shadow:0 0 0 2px rgba(38,124,167,0.15);
+}
+
+/* ===== BOTONES ===== */
+#add-pregunta{
+    margin-top:18px;
+    border-radius:12px;
+    background:linear-gradient(135deg,#267ca7,#1f5f80);
+    color:white;
+    border:none;
+    padding:10px 18px;
+    font-weight:600;
+}
+
+.btn-primary{
+    background:linear-gradient(135deg,#267ca7,#1f5f80);
+    border:none;
+    border-radius:10px;
+}
+
+.btn-danger{
+    border-radius:10px;
+}
+
+</style>
+
 <div class="container-fluid">
-    <form method="post" action="." id="formEncuesta">
-        {% csrf_token %}
-        <div class="card card-primary card-outline">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <i class="fas fa-edit"></i>
-                    {{ titulo }}
-                </h3>
-            </div>
+<form method="post" action="." id="formEncuesta">
+{% csrf_token %}
+<div class="card card-primary card-outline">
 
-            <div class="card-body">
-                {% if form.errors or formset.errors or formset.non_form_errors %}
-                <div class="alert alert-danger alert-dismissible shadow">
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    <h5><i class="icon fas fa-ban"></i> Error en el formulario:</h5>
-                    <ul class="mb-0">
-                        {# Errores del formulario de Encuesta #}
-                        {% for field in form %}
-                            {% for error in field.errors %}
-                                <li><strong>{{ field.label }}:</strong> {{ error }}</li>
-                            {% endfor %}
-                        {% endfor %}
-
-                        {# Errores generales del formset #}
-                        {% for error in formset.non_form_errors %}
-                            <li><strong>Configuración de Preguntas:</strong> {{ error }}</li>
-                        {% endfor %}
-
-                        {# Errores específicos de cada pregunta dentro del formset #}
-                        {% for f_pregunta in formset %}
-                            {% for field in f_pregunta.visible_fields %}
-                                {% for error in field.errors %}
-                                    <li><strong>Pregunta {{ forloop.parentloop.parentloop.counter }} - {{ field.label }}:</strong> {{ error }}</li>
-                                {% endfor %}
-                            {% endfor %}
-                        {% endfor %}
-                    </ul>
-                </div>
-                {% endif %}
-
-                <div class="row">
-                    {% for field in form.visible_fields %}
-                    <div class="col-md-6 form-group mb-3">
-                        <label class="form-label font-weight-bold">{{ field.label }}</label>
-                        
-                        {% if field.name == 'fk_usuario' %}
-                        <div class="input-group">
-                            {{ field|add_class:'form-control' }}
-                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalUsuario">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                        </div>
-                        {% else %}
-                            {{ field|add_class:'form-control' }}
-                        {% endif %}
-                        
-                        {% if field.help_text %}
-                        <small class="form-text text-muted">{{ field.help_text }}</small>
-                        {% endif %}
-                    </div>
-                    {% endfor %}
-                </div>
-
-                <hr>
-
-                <div class="form-group mt-4">
-                    <h5 class="mb-3"><i class="fas fa-question-circle"></i> Configuración de Preguntas</h5>
-                    
-                    {{ formset.management_form }}
-                    
-                    <div id="preguntas-container">
-                        {% for form_pregunta in formset %}
-                        <div class="pregunta-item border rounded p-3 mb-3 bg-light shadow-sm">
-                            <div class="row">
-                                {% for field in form_pregunta.visible_fields %}
-                                <div class="col-md-4 mb-2">
-                                    <label class="small font-weight-bold">{{ field.label }}</label>
-                                    {{ field|add_class:'form-control form-control-sm' }}
-                                </div>
-                                {% endfor %}
-                            </div>
-                            {% if form_pregunta.instance.pk %}
-                                <div class="text-end mt-2">
-                                    <label class="text-danger small">{{ form_pregunta.DELETE }} Eliminar pregunta</label>
-                                </div>
-                            {% endif %}
-                        </div>
-                        {% endfor %}
-                        <div id="empty-form-template" style="display:none;">
-                            <div class="pregunta-item border rounded p-3 mb-3 bg-light shadow-sm">
-                                <div class="row">
-                                    {% for field in formset.empty_form.visible_fields %}
-                                    <div class="col-md-4 mb-2">
-                                        <label class="small font-weight-bold">{{ field.label }}</label>
-                                        {{ field|add_class:'form-control form-control-sm' }}
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <button type="button" class="btn btn-outline-primary btn-sm" id="add-pregunta">
-                        <i class="fas fa-plus-circle"></i> Agregar otra pregunta
-                    </button>
-                </div>
-            </div>
-
-            <div class="card-footer text-right">
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save"></i> Guardar Encuesta en Google Forms
-                </button>
-                <a href="{% url 'gimnasio:listar_encuestas' %}" class="btn btn-danger waves-effect waves-lightt">
-                    Cancelar
-                </a>
-            </div>
-        </div>
-    </form>
+<div class="header-encuesta">
+    <h3>
+        <i class="fas fa-edit"></i>
+        {{ titulo }}
+    </h3>
 </div>
 
-<div class="modal fade" id="modalUsuario" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-success text-white">
-                <h5 class="modal-title"><i class="fas fa-user-plus"></i> Registrar Nuevo Usuario</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-6 mb-2"><input type="text" id="documento" class="form-control" placeholder="Documento *"></div>
-                    <div class="col-md-6 mb-2"><input type="text" id="nombre" class="form-control" placeholder="Nombres *"></div>
-                    <div class="col-md-6 mb-2"><input type="text" id="apellido" class="form-control" placeholder="Apellidos *"></div>
-                    <div class="col-md-6 mb-2"><input type="email" id="correo" class="form-control" placeholder="Correo Electrónico *"></div>
-                    <div class="col-md-6 mb-2"><input type="text" id="telefono" class="form-control" placeholder="Teléfono"></div>
-                    <div class="col-md-6 mb-2"><input type="date" id="fecha_nacimiento" class="form-control"></div>
-                    <div class="col-md-4 mb-2"><input type="number" id="peso" class="form-control" placeholder="Peso (kg)"></div>
-                    <div class="col-md-4 mb-2"><input type="number" id="altura" class="form-control" placeholder="Altura (cm)"></div>
-                    <div class="col-md-4 mb-2">
-                        <select id="genero" class="form-control">
-                            <option value="M">Masculino</option>
-                            <option value="F">Femenino</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary" onclick="crearUsuario()">Guardar Usuario</button>
-            </div>
+<div class="card-body">
+<div class="row">
+
+{% for field in form.visible_fields %}
+<div class="col-md-6 form-group mb-3">
+
+<label class="form-label font-weight-bold">{{ field.label }}</label>
+
+{% if field.name == 'fk_usuario' %}
+<div class="input-group">
+
+    {% if field.errors %}
+        {{ field|add_class:'form-control is-invalid' }}
+    {% else %}
+        {{ field|add_class:'form-control' }}
+    {% endif %}
+
+    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalUsuario">
+        <i class="fas fa-plus"></i>
+    </button>
+</div>
+{% else %}
+
+    {% if field.errors %}
+        {{ field|add_class:'form-control is-invalid' }}
+    {% else %}
+        {{ field|add_class:'form-control' }}
+    {% endif %}
+
+{% endif %}
+
+{% if field.errors %}
+<div class="invalid-feedback d-block">
+    {{ field.errors }}
+</div>
+{% endif %}
+
+</div>
+{% endfor %}
+
+</div>
+
+<hr>
+
+<div class="form-group mt-4">
+
+<div class="titulo-seccion">
+    <i class="fas fa-layer-group"></i>
+    <span>Configuración de Preguntas</span>
+</div>
+
+<div class="preguntas-wrapper">
+
+{{ formset.management_form }}
+
+{% if formset.non_form_errors %}
+<div class="alert alert-danger">
+    {{ formset.non_form_errors }}
+</div>
+{% endif %}
+
+<div id="preguntas-container">
+
+{% for form_pregunta in formset %}
+<div class="pregunta-item">
+
+<div class="row">
+{% for field in form_pregunta.visible_fields %}
+<div class="col-md-4 mb-2">
+
+<label>{{ field.label }}</label>
+
+{% if field.errors %}
+    {{ field|add_class:'form-control form-control-sm is-invalid' }}
+{% else %}
+    {{ field|add_class:'form-control form-control-sm' }}
+{% endif %}
+
+{% if field.errors %}
+<div class="invalid-feedback d-block">
+    {{ field.errors }}
+</div>
+{% endif %}
+
+</div>
+{% endfor %}
+</div>
+
+{% if form_pregunta.instance.pk %}
+<div class="text-end">
+    <label class="text-danger small">
+        {{ form_pregunta.DELETE }} Eliminar pregunta
+    </label>
+</div>
+{% endif %}
+
+</div>
+{% endfor %}
+
+<div id="empty-form-template" style="display:none;">
+    <div class="pregunta-item">
+        <div class="row">
+        {% for field in formset.empty_form.visible_fields %}
+        <div class="col-md-4 mb-2">
+            <label>{{ field.label }}</label>
+            {{ field|add_class:'form-control form-control-sm' }}
+        </div>
+        {% endfor %}
         </div>
     </div>
+</div>
+
+</div>
+
+<button type="button" id="add-pregunta">
+    <i class="fas fa-plus-circle"></i> Agregar otra pregunta
+</button>
+
+</div>
+</div>
+
+</div>
+
+<div class="card-footer text-right">
+<button type="submit" class="btn btn-primary">
+<i class="fas fa-save"></i> Guardar Encuesta en Google Forms
+</button>
+
+<a href="{% url 'gimnasio:listar_encuestas' %}" class="btn btn-danger">
+Cancelar
+</a>
+</div>
+
+</div>
+</form>
+
+<!-- MODAL -->
+<div class="modal fade" id="modalUsuario" tabindex="-1">
+  <div class="modal-dialog modal-lg"> 
+    <div class="modal-content">
+
+      <div class="modal-header text-white" style="background-color: #267ca7;">
+        <h5 class="modal-title">Crear Usuario</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+
+        <!-- ACCESO -->
+        <h6 class="text-primary fw-bold">Datos de acceso</h6>
+        <hr>
+
+        <div class="row">
+          <div class="col-md-6 mb-2">
+            <input type="text" id="username" class="form-control" placeholder="Username">
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <input type="password" id="password" class="form-control" placeholder="Contraseña">
+          </div>
+        </div>
+
+        <!-- PERSONALES -->
+        <h6 class="text-success fw-bold mt-3">Datos personales</h6>
+        <hr>
+
+        <div class="row">
+
+          <div class="col-md-6 mb-2">
+            <input type="text" id="documento" class="form-control" placeholder="Documento">
+            <small class="text-danger" id="error_documento"></small>
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <input type="email" id="correo" class="form-control" placeholder="Correo">
+            <small class="text-danger" id="error_correo"></small>
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <input type="text" id="nombre" class="form-control" placeholder="Nombre">
+            <small class="text-danger" id="error_nombre"></small>
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <input type="text" id="apellido" class="form-control" placeholder="Apellido">
+            <small class="text-danger" id="error_apellido"></small>
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <input type="text" id="telefono" class="form-control" placeholder="Teléfono">
+            <small class="text-danger" id="error_telefono"></small>
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <label for="fecha_nacimiento" class="form-label">Fecha de nacimiento</label>
+            <input id="fecha_nacimiento" type="date" class="form-control">
+            <small id="error_fecha_nacimiento" class="text-danger"></small>
+        </div>
+
+
+          <div class="col-md-6 mb-2">
+            <select id="genero" class="form-select">
+              <option value="M">Masculino</option>
+              <option value="F">Femenino</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- FISICOS -->
+        <h6 class="text-warning fw-bold mt-3">Datos físicos</h6>
+        <hr>
+
+        <div class="row">
+          <div class="col-md-6 mb-2">
+            <input type="number" id="peso" class="form-control" placeholder="Peso (kg)">
+            <small class="text-danger" id="error_peso"></small>
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <input type="number" id="altura" class="form-control" placeholder="Altura (cm)">
+            <small class="text-danger" id="error_altura"></small>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-primary" onclick="crearUsuario()">Guardar</button>
+      </div>
+
+    </div>
+  </div>
 </div>
 
 {% endblock %}
@@ -161,8 +368,207 @@
 {% block js %}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    // Lógica para el Formset Dinámico
-   document.addEventListener("DOMContentLoaded", function () {
+
+// CSRF
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        for (let cookie of document.cookie.split(';')) {
+            cookie = cookie.trim();
+            if (cookie.startsWith(name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// ERRORES
+function mostrarError(id, msg) {
+    document.getElementById("error_" + id).innerText = msg;
+}
+
+function limpiarError(id) {
+    document.getElementById("error_" + id).innerText = "";
+}
+
+// ================= VALIDACIONES =================
+
+// DOCUMENTO
+document.getElementById("documento").addEventListener("input", function () {
+    let v = this.value;
+
+    if (!/^\d{7,10}$/.test(v)) {
+        return mostrarError("documento", "Debe tener entre 7 y 10 dígitos");
+    }
+
+    for (let d of new Set(v)) {
+        if (v.split(d).length - 1 > 5) {
+            return mostrarError("documento", `El dígito "${d}" aparece más de 5 veces`);
+        }
+    }
+
+    limpiarError("documento");
+});
+
+// NOMBRE
+document.getElementById("nombre").addEventListener("input", function () {
+    let v = this.value;
+
+    if (v !== v.trim()) return mostrarError("nombre", "Sin espacios al inicio o final");
+    if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(v)) return mostrarError("nombre", "Solo letras");
+    if (v.includes("  ")) return mostrarError("nombre", "No espacios dobles");
+
+    limpiarError("nombre");
+});
+
+// APELLIDO
+document.getElementById("apellido").addEventListener("input", function () {
+    let v = this.value;
+
+    if (v !== v.trim()) return mostrarError("apellido", "Sin espacios al inicio o final");
+    if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(v)) return mostrarError("apellido", "Solo letras");
+    if (v.includes("  ")) return mostrarError("apellido", "No espacios dobles");
+
+    limpiarError("apellido");
+});
+
+// CORREO
+document.getElementById("correo").addEventListener("input", function () {
+    let v = this.value;
+
+    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(v))
+        return mostrarError("correo", "Correo inválido");
+
+    if (/[^a-zA-Z0-9._%+\-@]/.test(v))
+        return mostrarError("correo", "Caracteres no permitidos");
+
+    limpiarError("correo");
+});
+
+// TELEFONO
+document.getElementById("telefono").addEventListener("input", function () {
+    let v = this.value;
+
+    if (v && !/^3\d{9}$/.test(v))
+        return mostrarError("telefono", "Debe iniciar en 3 y tener 10 dígitos");
+
+    limpiarError("telefono");
+});
+
+// FECHA
+document.getElementById("fecha_nacimiento").addEventListener("change", function () {
+    let v = this.value;
+    let f = new Date(v);
+    let hoy = new Date();
+
+    if (!v) return mostrarError("fecha_nacimiento", "Campo obligatorio");
+    if (f >= hoy) return mostrarError("fecha_nacimiento", "No puede ser futura");
+    if (f.getFullYear() < 1900) return mostrarError("fecha_nacimiento", "Año inválido");
+
+    let min = new Date();
+    min.setFullYear(hoy.getFullYear() - 5);
+
+    if (f > min) return mostrarError("fecha_nacimiento", "Edad no válida");
+
+    limpiarError("fecha_nacimiento");
+});
+
+// PESO
+document.getElementById("peso").addEventListener("input", function () {
+    let v = parseFloat(this.value);
+
+    if (this.value === "") return limpiarError("peso");
+    if (v <= 0) return mostrarError("peso", "Debe ser positivo");
+    if (v < 30 || v > 150) return mostrarError("peso", "Entre 30 y 150 kg");
+
+    limpiarError("peso");
+});
+
+// ALTURA
+document.getElementById("altura").addEventListener("input", function () {
+    let v = parseFloat(this.value);
+
+    if (this.value === "") return limpiarError("altura");
+    if (v <= 0) return mostrarError("altura", "Debe ser positiva");
+    if (v < 100 || v > 230) return mostrarError("altura", "Entre 100 y 230 cm");
+
+    limpiarError("altura");
+});
+
+// VALIDAR ERRORES
+function hayErrores() {
+    return [...document.querySelectorAll('[id^="error_"]')]
+        .some(e => e.innerText !== "");
+}
+
+// ================= CREAR USUARIO =================
+function crearUsuario() {
+
+    if (hayErrores()) {
+
+    //cerrar modal antes de mostrar alerta
+    let modal = bootstrap.Modal.getInstance(document.getElementById('modalUsuario'));
+    if (modal) modal.hide();
+
+    //alerta importante
+    Swal.fire({
+        icon: "error",
+        title: "Error importante",
+        text: "Corrige los errores antes de guardar",
+        confirmButtonColor: "#d33",
+        backdrop: true,
+        allowOutsideClick: false
+    });
+
+    return;
+}
+
+    let data = {
+        documento: documento.value,
+        nombre: nombre.value,
+        apellido: apellido.value,
+        correo: correo.value,
+        password: password.value,
+        username: username.value,
+        telefono: telefono.value,
+        fecha_nacimiento: fecha_nacimiento.value,
+        peso: peso.value,
+        altura: altura.value,
+        genero: genero.value
+    };
+
+    fetch("{% url 'gimnasio:crear_usuario_ajax' %}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCookie('csrftoken')
+        },
+        body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        if (data.error) {
+            return Swal.fire("Error", data.error, "error");
+        }
+
+        let select = document.querySelector('[name="fk_usuario"]');
+        if (!select.querySelector(`option[value="${data.id}"]`)) {
+            select.add(new Option(data.nombre, data.id, true, true));
+        }
+
+        bootstrap.Modal.getInstance(document.getElementById('modalUsuario')).hide();
+
+        document.querySelectorAll('#modalUsuario input').forEach(i => i.value = '');
+        document.querySelectorAll('[id^="error_"]').forEach(e => e.innerText = '');
+
+        Swal.fire("Correcto", "Usuario creado correctamente", "success");
+    });
+}
+
+// ================= FORMSET =================
+document.addEventListener("DOMContentLoaded", function () {
 
     const addButton = document.getElementById('add-pregunta');
     const container = document.getElementById('preguntas-container');
@@ -172,19 +578,16 @@
 
         let formNum = parseInt(totalForms.value);
 
-        // Tomar el template vacío
         let templateContainer = document.getElementById('empty-form-template');
         let template = templateContainer.querySelector('.pregunta-item');
         if (!template) return;
 
         let newForm = template.cloneNode(true);
 
-        // Reemplazar __prefix__ o cualquier índice por el número actual
         newForm.innerHTML = newForm.innerHTML
             .replace(/__prefix__/g, formNum)
             .replace(/forms-(\d+)-/g, `forms-${formNum}-`);
 
-        // Limpiar valores
         newForm.querySelectorAll('input, select, textarea').forEach(input => {
             if (input.type === 'checkbox') {
                 input.checked = false;
@@ -193,20 +596,19 @@
             }
         });
 
-        // Quitar sección eliminar si viene del template
         let deleteSection = newForm.querySelector('.text-end');
         if (deleteSection) deleteSection.remove();
 
-        // Insertar ANTES del template vacío, no al final
         container.insertBefore(newForm, templateContainer);
 
         totalForms.value = formNum + 1;
     });
 
-    // Eliminar pregunta
+    // ELIMINAR CON CONFIRMACION (SE DEJA)
     container.addEventListener('change', function(e) {
         if (e.target.name && e.target.name.includes('DELETE')) {
             let item = e.target.closest('.pregunta-item');
+
             if (e.target.checked) {
                 Swal.fire({
                     title: "¿Eliminar pregunta?",
@@ -218,12 +620,6 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         item.style.display = 'none';
-                        Swal.fire({
-                            title: "Correcto",
-                            text: "Pregunta eliminada correctamente",
-                            icon: "success",
-                            confirmButtonText: "OK"
-                        });
                     } else {
                         e.target.checked = false;
                     }
@@ -233,48 +629,8 @@
             }
         }
     });
+
 });
-    // Lógica AJAX para Crear Usuario
-    function crearUsuario() {
-        let data = {
-            documento: document.getElementById("documento").value,
-            nombre: document.getElementById("nombre").value,
-            apellido: document.getElementById("apellido").value,
-            correo: document.getElementById("correo").value,
-            telefono: document.getElementById("telefono").value,
-            fecha_nacimiento: document.getElementById("fecha_nacimiento").value,
-            peso: document.getElementById("peso").value,
-            altura: document.getElementById("altura").value,
-            genero: document.getElementById("genero").value
-        };
 
-        if (!data.documento || !data.nombre || !data.correo) {
-            Swal.fire("Atención", "Los campos con * son obligatorios", "warning");
-            return;
-        }
-
-        fetch("{% url 'gimnasio:crear_usuario_ajax' %}", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": "{{ csrf_token }}"
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(res => {
-            if (res.error) {
-                Swal.fire("Error", res.error, "error");
-            } else {
-                let select = document.getElementById("id_fk_usuario");
-                let option = new Option(res.nombre, res.id, true, true);
-                select.add(option);
-                
-                bootstrap.Modal.getInstance(document.getElementById('modalUsuario')).hide();
-                Swal.fire("Éxito", "Usuario registrado y seleccionado", "success");
-            }
-        })
-        .catch(err => Swal.fire("Error", "Error de conexión con el servidor", "error"));
-    }
 </script>
 {% endblock %}

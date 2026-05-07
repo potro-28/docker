@@ -79,9 +79,9 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         # ---------------------------------------------------------
         # // GRAFICO DE PASTEL: Tipos de Rutina asignadas//
         # ---------------------------------------------------------
-        rutinas_fuerza = Rutina.objects.filter(tipo='FUERZA').count()
-        rutinas_cardio = Rutina.objects.filter(tipo='CARDIO').count()
-        rutinas_funcional = Rutina.objects.filter(tipo='FUNCIONAL').count()
+        rutinas_fuerza = Rutina.objects.filter(tipo_rutina='FUERZA').count()
+        rutinas_cardio = Rutina.objects.filter(tipo_rutina='CARDIO').count()
+        rutinas_funcional = Rutina.objects.filter(tipo_rutina='FUNCIONAL').count()
         
         context['rutinas_data'] = json.dumps([rutinas_fuerza, rutinas_cardio, rutinas_funcional])
         context['rutinas_labels'] = json.dumps(['Fuerza', 'Cardio', 'Funcional'])

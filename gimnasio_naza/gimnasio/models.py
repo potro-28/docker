@@ -33,12 +33,11 @@ class Usuario(models.Model):
         ('visitante', 'Visitante'),
     ]
     estado = models.CharField(max_length=30, choices=ESTADO_CHOICES)
-    fecha_registro = models.DateField()
 
     def __str__(self):
         return str(self.documento)+("/")+(self.nombre_usuario) 
 
-    fecha_registro = models.DateField(default=datetime.now)
+    fecha_registro = models.DateField(default=date.today)
     class Meta:
         verbose_name = 'Usuario'
         verbose_name_plural = 'Usuarios'
@@ -75,7 +74,20 @@ class Membresia(models.Model):
     
     @property
     def es_valida(self):
-        return self.esta_activa and self.fecha_vencimiento >= timezone.now().date()
+        """Verifica si la membresía es válida (activa y no vencida)"""
+        if not self.fecha_fin:
+            return self.estado == 'activo'
+        from django.utils import timezone
+        return self.estado == 'activo' and self.fecha_fin >= timezone.now().date()
+    
+    @property
+    def dias_para_vencer(self):
+        """Retorna los días restantes para que venza la membresía"""
+        if not self.fecha_fin:
+            return None
+        from django.utils import timezone
+        dias = (self.fecha_fin - timezone.now().date()).days
+        return dias if dias >= 0 else 0
     
     def __str__(self):
         return str(self.fk_usuario.documento)+ ("/")+(self.fk_usuario.nombre_usuario)
@@ -198,14 +210,18 @@ class Notificacion(models.Model):
     canal_notificacion = models.CharField(max_length=120, choices=CANAL_NOTIFICACION, verbose_name='Canal de Notificacion')
     estado_notificacion = models.CharField(max_length=120, choices=ESTADO_NOTFIFICACION, verbose_name='Estado de Notificacion')
     fk_usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    fecha_creacion = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de Creación')
+    fecha_envio = models.DateTimeField(null=True, blank=True, verbose_name='Fecha de Envío')
+    descripcion = models.TextField(null=True, blank=True, verbose_name='Descripción')
     
     def __str__(self):
-        return str(self.id)
+        return f"{self.get_tipo_notificacion_display()} - {self.fk_usuario.nombre_usuario} ({self.fecha_creacion.strftime('%d/%m/%Y')})"
       
     class Meta:
         verbose_name = 'Notificacion'
         verbose_name_plural = 'Notificaciones'
         db_table = 'notificaciones'
+        ordering = ['-fecha_creacion']
 #--------------------------------Modulo de Gestión de Encuestas----------------------------
 class Encuesta(models.Model):
     ESTADO_CHOICES = [
@@ -267,7 +283,7 @@ class Reportes_estadisticas(models.Model):
     ]
     tipo_reporte = models.CharField(max_length=20,choices=TIPO_REPORTE_CHOICES,default='membresia')
     descripcion = models.TextField()
-    fecha_generacion = models.DateField(default=datetime.now)
+    fecha_generacion = models.DateField(default=date.today)
     fk_usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -289,7 +305,7 @@ class Soporte_PQRS(models.Model):
     ]
     tipo = models.CharField(max_length=20,choices=TIPO_PQRS_CHOICES,default='peticion')
     descripcion = models.TextField()
-    fecha_ingreso = models.DateField(default=datetime.now)
+    fecha_ingreso = models.DateField(default=date.today)
     ESTADO_CHOICES = [
     ('pendiente', 'pendiente'),
     ('en_proceso', 'en_proceso'),
@@ -312,27 +328,27 @@ class Soporte_PQRS(models.Model):
 
 class Nutricion(models.Model):
 
-    NIVEL_ACTIVIDAD = [
+    NIVEL_ACTIVIDAD_FISICA= [
         ('bajo', 'Bajo'),
         ('medio', 'Medio'),
         ('alto', 'Alto'),
     ]
 
-    TIPO_OBJETIVO = [
+    OBJETIVO_NUTRICIONAL = [
         ('perder_peso', 'Perder Peso'),
         ('mantener', 'Mantener'),
         ('ganar_masa', 'Ganar Masa Muscular'),
     ]
 
-    TIPO_DIETA = [
+    TIPO_PLAN_ALIMENTICIO = [
         ('keto', 'Keto'),
         ('balanceada', 'Balanceada'),
         ('hiperproteica', 'Hiperproteica'),
     ]
 
-    nivel_actividad = models.CharField(max_length=20, choices=NIVEL_ACTIVIDAD)
-    tipo_objetivo = models.CharField(max_length=20, choices=TIPO_OBJETIVO)
-    tipo_dieta = models.CharField(max_length=40, choices=TIPO_DIETA)
+    nivel_actividad_fisica = models.CharField(max_length=20, choices=NIVEL_ACTIVIDAD_FISICA)
+    objetivo_nutricional = models.CharField(max_length=20, choices=OBJETIVO_NUTRICIONAL)
+    tipo_plan_alimenticio = models.CharField(max_length=40, choices=TIPO_PLAN_ALIMENTICIO)
 
     fk_Usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
 
@@ -348,7 +364,7 @@ class Nutricion(models.Model):
 #------------REGISTRO DE VISITANTES----------------
     
 class Registrovisitantestemporales(models.Model):
-    fecha_registro = models.DateField(default=datetime.now)
+    fecha_registro = models.DateField(default=date.today)
     fk_usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
 
     def _str_(self):
@@ -375,8 +391,8 @@ class Turnosentrenadores(models.Model):
         related_name='turnos_entrenador'
     )
 
-    fecha_turno_inicio = models.DateField(default=datetime.now)
-    fecha_turno_final = models.DateField(default=datetime.now)
+    fecha_turno_inicio = models.DateField(default=date.today)
+    fecha_turno_final = models.DateField(default=date.today)
     jornada = models.CharField(max_length=10, choices=JORNADA_CHOICES)
 
     def __str__(self):
@@ -397,7 +413,8 @@ class Masa_corporal (models.Model):
     fk_Nutricion=models.ForeignKey(Nutricion, on_delete=models.CASCADE ,verbose_name='Nutricion')
    
     def __str__(self):
-        return str(self.id)
+        usuario = self.fk_Nutricion.fk_Usuario
+        return f"{usuario.nombre_usuario} - {usuario.documento}"
     class Meta:
         db_table='Masa_corporal'
         verbose_name='Masa_corporal'
@@ -406,7 +423,7 @@ class Masa_corporal (models.Model):
 #------------RUTINA----------------
 
 class Rutina(models.Model):
-    tipo = models.CharField(max_length=50,
+    tipo_rutina = models.CharField(max_length=50,
         choices=[
             ('FUERZA', 'Fuerza'),
             ('CARDIO', 'Cardio'),
@@ -414,9 +431,9 @@ class Rutina(models.Model):
         ],
     )
 
-    disponibilidad_de_dias = models.IntegerField()
+    dias_disponibles = models.IntegerField()
 
-    distribucion = models.CharField(
+    distribucion_rutina = models.CharField(
         max_length=30,
         choices=[
             ('SUPERIOR', 'Superior'),
@@ -424,6 +441,8 @@ class Rutina(models.Model):
             ('COMPLETA', 'Cuerpo completo'),
         ]
     )
+    
+    
 
     fk_imc = models.ForeignKey(Masa_corporal,on_delete=models.CASCADE)
 
@@ -471,7 +490,8 @@ class Sancion(models.Model):
     fk_usuario=models.ForeignKey(Usuario, on_delete=models.CASCADE, verbose_name='Usuario')
     
     def __str__(self):
-        return self.id
+        usuario = self.fk_Usuario
+        return f"{usuario.nombre_usuario} - {usuario.documento}"
     
     class Meta:
         db_table='Sancion'

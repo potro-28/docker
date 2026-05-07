@@ -10,7 +10,7 @@
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Listado de Nutriciones</h5>
-            <a href="{{ crear_url }}" class="btn btn-primary">
+                <a href="{% url 'gimnasio:crear_nutricion' %}" class="btn btn-primary">
                 <i class="icon-base ri ri-add-line icon-18px me-1"></i>Agregar nueva nutricion
             </a>
         </div>
@@ -21,9 +21,9 @@
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Nivel Actividad </th>
-                            <th>Tipo Objetivo</th>
-                            <th>Tipo Dieta</th>
+                            <th>Nivel Actividad Fisica</th>
+                            <th>Objetivo Nutricional</th>
+                            <th>Tipo Plan Alimenticio</th>
                             <th>fk_Usuario</th>
                             <th>Acciones</th>
                         </tr>
@@ -32,9 +32,9 @@
                         {% for nutricion in object_list %}
                         <tr>
                             <td>{{ nutricion.id }}</td>
-                            <td>{{ nutricion.nivel_actividad }}</td>
-                            <td>{{ nutricion.tipo_objetivo }}</td>
-                            <td>{{ nutricion.tipo_dieta }}</td>
+                            <td>{{ nutricion.nivel_actividad_fisica }}</td>
+                            <td>{{ nutricion.objetivo_nutricional }}</td>
+                            <td>{{ nutricion.tipo_plan_alimenticio }}</td>
                             <td>{{ nutricion.fk_Usuario }}</td>
                             <td class="text-nowrap">
                                

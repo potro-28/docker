@@ -6,16 +6,7 @@
 <link rel="stylesheet" href="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/css/responsive.bootstrap4.min.css' %}">
 
 <style>
-.stagger-1 { animation: revealBounce 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-delay: 0.1s; opacity: 0; }
-.stagger-2 { animation: revealBounce 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-delay: 0.2s; opacity: 0; }
-.stagger-3 { animation: revealBounce 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-delay: 0.3s; opacity: 0; }
-.stagger-4 { animation: revealBounce 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-delay: 0.4s; opacity: 0; }
 
-@keyframes revealBounce {
-0% { opacity:0; transform:translateY(40px) scale(0.95); }
-70% { transform:translateY(-10px) scale(1.02); }
-100% { opacity:1; transform:translateY(0) scale(1); }
-}
 
 .card-dash{
 background:#fff;
@@ -29,8 +20,7 @@ transition:.4s;
 }
 
 .card-dash:hover{
-transform:translateY(-5px);
-box-shadow:0 15px 35px rgba(91,115,232,.08);
+transform:none;
 }
 
 .grid-5-stats{
@@ -70,7 +60,7 @@ margin:0;
 </style>
 
 
-<div class="grid-5-stats stagger-4">
+<div class="grid-5-stats ">
 
 <div class="card-dash stat-box">
 <div class="stat-box-icon" style="background:linear-gradient(135deg,#ff4d4f,#ff7875)">

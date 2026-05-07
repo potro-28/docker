@@ -19,55 +19,55 @@ from django.db import transaction
 @csrf_exempt
 def wizard_crear_todo(request):
     if request.method == "POST":
-        try:
-            data = json.loads(request.body)
-            for key,value in data.items():
-                print(f"{key}: {value}")
 
-            with transaction.atomic():
+        data = json.loads(request.body)
+        print(data)
 
-                user = User.objects.create_user(
-                    username=data['username'],
-                    password=data['password']
-                )
-                print("Usuario creado con ID:", user.id)
-                usuario = Usuario.objects.create(
-                    user=user,
-                    documento=data['documento'],
-                    nombre_usuario=data['nombre'],
-                    apellido_usuario=data['apellido'],
-                    correo_usuario=data['correo'],
-                    telefono_usuario=data['telefono'],
-                    fecha_nacimiento=data['fecha_nacimiento'],
-                    peso_usuario=data['peso_usuario'],
-                    altura_usuario=data['altura_usuario'],
-                    genero_usuario=data['genero'],
-                    estado='activo'
-                )
-                print("Usuario",usuario.nombre_usuario)
-                nutricion = Nutricion.objects.create(
-                    nivel_actividad=data['nivel_actividad'],
-                    tipo_objetivo=data['tipo_objetivo'],
-                    tipo_dieta=data['tipo_dieta'],
-                    fk_Usuario=usuario
-                )
-                print("nutricion", nutricion.id)
+        with transaction.atomic():
 
-                masa = Masa_corporal.objects.create(
-                    peso_cliente=data['peso_cliente'],
-                    altura_cliente=data['altura_cliente'],
-                    fecha_control=data['fecha_control'],
-                    fk_Nutricion=nutricion
-                )
-                print("masa corporal", masa.id)
-            return JsonResponse({
-                "id": masa.id,
-                "nombre": f"IMC {masa.id}-{usuario.nombre_usuario}"
-            })
+            fecha_nacimiento = datetime.strptime(data['fecha_nacimiento'], '%Y-%m-%d').date()
+            fecha_control = datetime.strptime(data['fecha_control'], '%Y-%m-%d').date()
 
-        except Exception as e:
-            print("error por ", e)
-            return JsonResponse({"error": str(e)}, status=400)
+            user = User.objects.create_user(
+                username=data['username'],
+                password=data['password']
+            )
+            print(user)
+            print("Creando Usuario")
+            usuario = Usuario.objects.create(
+                user=user,
+                documento=data['documento'],
+                nombre_usuario=data['nombre'],
+                apellido_usuario=data['apellido'],
+                correo_usuario=data['correo'],
+                telefono_usuario=data['telefono'],
+                fecha_nacimiento=fecha_nacimiento,
+                peso_usuario=data['peso_usuario'],
+                altura_usuario=data['altura_usuario'],
+                genero_usuario=data['genero'],
+                estado='activo',
+                rol='cliente'
+            )
+            print(usuario)
+            print("Creando nutricion")
+            nutricion = Nutricion.objects.create(
+                nivel_actividad_fisica=data['nivel_actividad'],
+                objetivo_nutricional=data['tipo_objetivo'],
+                tipo_plan_alimenticio=data['tipo_dieta'],
+                fk_Usuario=usuario
+            )
+            print(nutricion)
+            masa = Masa_corporal.objects.create(
+                peso_cliente=data['peso_cliente'],
+                altura_cliente=data['altura_cliente'],
+                fecha_control=fecha_control,
+                fk_Nutricion=nutricion
+            )
+            print(masa)
+        return JsonResponse({
+            "id": masa.id,
+            "nombre": f"IMC {masa.id}"
+        })
 #Listar rutinas
 def listar_rutinas(request):
     nombre ={

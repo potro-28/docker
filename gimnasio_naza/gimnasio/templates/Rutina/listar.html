@@ -21,9 +21,9 @@
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Tipo </th>
-                            <th>Disponibilidad de Dias</th>
-                            <th>Distribucion</th>
+                            <th>Tipo Rutina</th>
+                            <th>Dias Disponibles</th>
+                            <th>Distribucion Rutina</th>
                             <th>fk_imc</th>
                             <th>Acciones</th>
                         </tr>
@@ -32,9 +32,9 @@
                         {% for rutina in object_list %}
                         <tr>
                             <td>{{ rutina.id }}</td>
-                            <td>{{ rutina.tipo }}</td>
-                            <td>{{ rutina.disponibilidad_de_dias}} dias</td>
-                            <td>{{ rutina.distribucion }}</td>
+                            <td>{{ rutina.tipo_rutina }}</td>
+                            <td>{{ rutina.dias_disponibles }} dias</td>
+                            <td>{{ rutina.distribucion_rutina }}</td>
                             <td>{{ rutina.fk_imc }}</td>
                             <td class="text-nowrap">
                                

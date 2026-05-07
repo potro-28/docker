@@ -3,16 +3,13 @@
 
 {% block contenido %}
 <style>
-  .swal2-container {
-    z-index: 20000 !important;
-}
+  .swal2-container { z-index: 20000 !important; }
 </style>
+
 <form method="post">
     <div class="card">
-
         <div class="card-header">
-            <h3> <i class="fas fa-plus"></i>  {{ titulo }}</h3>
-            
+            <h3><i class="bi bi-plus"></i> {{ titulo }}</h3>
         </div>
 
         <div class="card-body">
@@ -25,239 +22,349 @@
                 {% if field.name == 'fk_imc' %}
                 <div class="d-flex">
                     {{ field|add_class:'form-control' }}
-
-                    <button type="button" class="btn btn-success ms-2" onclick="abrirWizard()">
-                        +
-                    </button>
+                    <button type="button" class="btn btn-success ms-2" onclick="abrirWizard()">+</button>
                 </div>
                 {% else %}
                     {{ field|add_class:'form-control' }}
                 {% endif %}
             </div>
             {% endfor %}
-
         </div>
 
         <div class="card-footer">
             <button class="btn btn-primary">Guardar Rutina</button>
         </div>
-
     </div>
 </form>
-
-<!-- ================= WIZARD ================= -->
+<!-- ================= MODAL ================= -->
 <div class="modal fade" id="modalWizard">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
 
-      <div class="modal-header text-white" style="background-color: #267ca7;"> <h5>Wizard Completo</h5>
+      <div class="modal-header text-white" style="background-color: #267ca7;">
+        <h5>Wizard Completo</h5>
         <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
 
       <div class="modal-body">
 
-    <!-- PASO 1 -->
-    <div id="paso1">
-        <h6 class="mb-3">Usuario</h6>
+<!-- PASO 1 -->
+<div id="paso1">
+<!-- ACCESO -->
+<h6 class="text-primary fw-bold">Datos de acceso</h6>
+<hr>
 
-        <div class="row">
-            <div class="col-md-6 mb-2">
-                <input id="username" class="form-control" placeholder="Username">
-            </div>
-            <div class="col-md-6 mb-2">
-                <input id="password" type="password" class="form-control" placeholder="Password">
-            </div>
+<div class="row">
+  <div class="col-md-6 mb-2">
+    <input id="nombreUsuario" class="form-control" placeholder="Nombre de usuario">
+    <small id="error_nombreUsuario" class="text-danger"></small>
+  </div>
 
-            <div class="col-md-4 mb-2">
-                <input id="documento" class="form-control" placeholder="Documento">
-            </div>
-            <div class="col-md-4 mb-2">
-                <input id="nombre" class="form-control" placeholder="Nombre">
-            </div>
-            <div class="col-md-4 mb-2">
-                <input id="apellido" class="form-control" placeholder="Apellido">
-            </div>
+  <div class="col-md-6 mb-2">
+    <input id="contraseña" type="password" class="form-control" placeholder="Contraseña">
+    <small id="error_contraseña" class="text-danger"></small>
+  </div>
+</div>
 
-            <div class="col-md-4 mb-2">
-                <input id="correo" class="form-control" placeholder="Correo">
-            </div>
-            <div class="col-md-4 mb-2">
-                <input id="telefono" class="form-control" placeholder="Teléfono">
-            </div>
-            <div class="col-md-4 mb-2">
-                <input id="fecha_nacimiento" type="date" class="form-control">
-            </div>
+<!-- PERSONALES -->
+<h6 class="text-success fw-bold mt-3">Datos personales</h6>
+<hr>
 
-            <div class="col-md-4 mb-2">
-                <input id="peso_usuario" class="form-control" placeholder="Peso usuario">
-            </div>
-            <div class="col-md-4 mb-2">
-                <input id="altura_usuario" class="form-control" placeholder="Altura usuario">
-            </div>
-            <div class="col-md-4 mb-2">
-                <select id="genero" class="form-control">
-                    <option value="">Género</option>
-                    <option value="M">Masculino</option>
-                    <option value="F">Femenino</option>
-                </select>
-            </div>
-        </div>
-    </div>
+<div class="row">
+  <div class="col-md-6 mb-2">
+    <input id="documento" class="form-control" placeholder="Documento">
+    <small id="error_documento" class="text-danger"></small>
+  </div>
 
-    <!-- PASO 2 -->
-    <div id="paso2" style="display:none;">
-        <h6 class="mb-3">Nutrición</h6>
+  <div class="col-md-6 mb-2">
+    <input id="correo" class="form-control" placeholder="Correo">
+    <small id="error_correo" class="text-danger"></small>
+  </div>
 
-        <div class="row">
-            <div class="col-md-4 mb-2">
-                <select id="nivel_actividad" class="form-control">
-                    <option value="">Nivel actividad</option>
-                    <option value="bajo">Bajo</option>
-                    <option value="medio">Medio</option>
-                    <option value="alto">Alto</option>
-                </select>
-            </div>
+  <div class="col-md-6 mb-2">
+    <input id="nombre" class="form-control" placeholder="Nombre">
+    <small id="error_nombre" class="text-danger"></small>
+  </div>
 
-            <div class="col-md-4 mb-2">
-                <select id="tipo_objetivo" class="form-control">
-                    <option value="">Objetivo</option>
-                    <option value="perder_peso">Perder peso</option>
-                    <option value="mantener">Mantener</option>
-                    <option value="ganar_masa">Ganar masa</option>
-                </select>
-            </div>
+  <div class="col-md-6 mb-2">
+    <input id="apellido" class="form-control" placeholder="Apellido">
+    <small id="error_apellido" class="text-danger"></small>
+  </div>
 
-            <div class="col-md-4 mb-2">
-                <select id="tipo_dieta" class="form-control">
-                    <option value="">Dieta</option>
-                    <option value="keto">Keto</option>
-                    <option value="balanceada">Balanceada</option>
-                </select>
-            </div>
-        </div>
-    </div>
+  <div class="col-md-6 mb-2">
+    <input id="telefono" class="form-control" placeholder="Teléfono">
+    <small id="error_telefono" class="text-danger"></small>
+  </div>
 
-    <!-- PASO 3 -->
-    <div id="paso3" style="display:none;">
-        <h6 class="mb-3">Masa Corporal</h6>
+  <div class="col-md-6 mb-2">
+    <label for="fecha_nacimiento" class="form-label">Fecha de nacimiento</label>
+    <input id="fecha_nacimiento" type="date" class="form-control">
+    <small id="error_fecha_nacimiento" class="text-danger"></small>
+  </div>
 
-        <div class="row">
-            <div class="col-md-4 mb-2">
-                <input id="peso_cliente" class="form-control" placeholder="Peso">
-            </div>
-            <div class="col-md-4 mb-2">
-                <input id="altura_cliente" class="form-control" placeholder="Altura">
-            </div>
-            <div class="col-md-4 mb-2">
-                <input id="fecha_control" type="date" class="form-control">
-            </div>
-        </div>
-    </div>
+  <div class="col-md-6 mb-2">
+    <select id="genero" class="form-select">
+      <option value="">Género</option>
+      <option value="M">Masculino</option>
+      <option value="F">Femenino</option>
+    </select>
+    <small id="error_genero" class="text-danger"></small>
+  </div>
+</div>
+
+<!-- FÍSICOS -->
+<h6 class="text-warning fw-bold mt-3">Datos físicos</h6>
+<hr>
+
+<div class="row">
+  <div class="col-md-6 mb-2">
+    <input id="peso_usuario" type="number" class="form-control" placeholder="Peso (kg)">
+    <small id="error_peso_usuario" class="text-danger"></small>
+  </div>
+
+  <div class="col-md-6 mb-2">
+    <input id="altura_usuario" type="number" class="form-control" placeholder="Altura (cm)">
+    <small id="error_altura_usuario" class="text-danger"></small>
+  </div>
+</div>
+</div>
+<!-- PASO 2 -->
+<div id="paso2" style="display:none;">
+<h6>Nutrición</h6>
+
+<select id="nivel_actividad" class="form-control mb-1">
+<option value="">Nivel</option>
+<option value="bajo">Bajo</option>
+<option value="medio">Medio</option>
+<option value="alto">Alto</option>
+</select>
+<small id="error_nivel_actividad" class="text-danger"></small>
+
+<select id="tipo_objetivo" class="form-control mb-1">
+<option value="">Objetivo</option>
+<option value="perder_peso">Perder</option>
+<option value="mantener">Mantener</option>
+<option value="ganar_masa">Ganar</option>
+</select>
+<small id="error_tipo_objetivo" class="text-danger"></small>
+
+<select id="tipo_dieta" class="form-control mb-1">
+<option value="">Dieta</option>
+<option value="keto">Keto</option>
+<option value="balanceada">Balanceada</option>
+</select>
+<small id="error_tipo_dieta" class="text-danger"></small>
+</div>
+
+<!-- PASO 3 -->
+<div id="paso3" style="display:none;">
+<h6>Masa Corporal</h6>
+
+<input id="peso_cliente" class="form-control mb-1" placeholder="Peso">
+<small id="error_peso_cliente" class="text-danger"></small>
+
+<input id="altura_cliente" class="form-control mb-1" placeholder="Altura">
+<small id="error_altura_cliente" class="text-danger"></small>
+
+<input id="fecha_control" type="date" class="form-control mb-1">
+<small id="error_fecha_control" class="text-danger"></small>
+</div>
 
 </div>
 
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="prevPaso()">Anterior</button>
-        <button class="btn btn-primary" onclick="nextPaso()" id="Siguiente">Siguiente</button>
-      </div>
+<div class="modal-footer">
+<button type="button" class="btn btn-secondary" onclick="prevPaso()">Anterior</button>
+<button type="button" class="btn btn-primary" onclick="nextPaso()" id="Siguiente">Siguiente</button>
+</div>
 
-    </div>
-  </div>
+</div>
+</div>
 </div>
 
 {% endblock %}
 
 {% block js %}
 <script>
-const siguientebtn = document.getElementById("Siguiente");
+document.addEventListener("DOMContentLoaded", function(){
+
+// ===== ELEMENTOS =====
+const nombreUsuario = document.getElementById("nombreUsuario");
+const contraseña = document.getElementById("contraseña");
+const documento = document.getElementById("documento");
+const nombre = document.getElementById("nombre");
+const apellido = document.getElementById("apellido");
+const correo = document.getElementById("correo");
+const telefono = document.getElementById("telefono");
+const fecha_nacimiento = document.getElementById("fecha_nacimiento");
+const peso_usuario = document.getElementById("peso_usuario");
+const altura_usuario = document.getElementById("altura_usuario");
+const genero = document.getElementById("genero");
+
+const nivel_actividad = document.getElementById("nivel_actividad");
+const tipo_objetivo = document.getElementById("tipo_objetivo");
+const tipo_dieta = document.getElementById("tipo_dieta");
+
+const peso_cliente = document.getElementById("peso_cliente");
+const altura_cliente = document.getElementById("altura_cliente");
+const fecha_control = document.getElementById("fecha_control");
+
+const Siguiente = document.getElementById("Siguiente");
+
 let paso = 1;
 
+// ===== FUNCIONES =====
+function mostrarError(id,msg){ document.getElementById("error_"+id).innerText=msg; }
+function limpiarError(id){ document.getElementById("error_"+id).innerText=""; }
+
+function hayErroresPaso(p){
+return [...document.querySelectorAll("#paso"+p+" small")]
+.some(e=>e.innerText!=="");
+}
+
+// ===== VALIDACIONES =====
+nombreUsuario.addEventListener("input",()=>{
+nombreUsuario.value.length<4 ? mostrarError("nombreUsuario","Mínimo 4 caracteres") : limpiarError("nombreUsuario");
+});
+
+contraseña.addEventListener("input",()=>{
+contraseña.value.length<6 ? mostrarError("contraseña","Mínimo 6 caracteres") : limpiarError("contraseña");
+});
+
+documento.addEventListener("input",()=>{
+/^\d{7,10}$/.test(documento.value) ? limpiarError("documento") : mostrarError("documento","7-10 dígitos");
+});
+
+[nombre,apellido].forEach(c=>{
+c.addEventListener("input",()=>{
+/^[a-zA-Z\s]+$/.test(c.value) ? limpiarError(c.id) : mostrarError(c.id,"Solo letras");
+});
+});
+
+correo.addEventListener("input",()=>{
+/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo.value) ? limpiarError("correo") : mostrarError("correo","Correo inválido");
+});
+
+telefono.addEventListener("input",()=>{
+/^3\d{9}$/.test(telefono.value) ? limpiarError("telefono") : mostrarError("telefono","Debe iniciar en 3");
+});
+
+fecha_nacimiento.addEventListener("change",()=>{
+let f=new Date(fecha_nacimiento.value);
+f>=new Date() ? mostrarError("fecha_nacimiento","Fecha inválida") : limpiarError("fecha_nacimiento");
+});
+
+peso_usuario.addEventListener("input",()=>{
+(peso_usuario.value<30||peso_usuario.value>200) ? mostrarError("peso_usuario","Valor inválido") : limpiarError("peso_usuario");
+});
+
+
+
+genero.addEventListener("change",()=>{
+!genero.value ? mostrarError("genero","Selecciona uno") : limpiarError("genero");
+});
+
+// PASO 2
+[nivel_actividad,tipo_objetivo,tipo_dieta].forEach(c=>{
+c.addEventListener("change",()=>{
+!c.value ? mostrarError(c.id,"Campo obligatorio") : limpiarError(c.id);
+});
+});
+
+// PASO 3
+peso_cliente.addEventListener("input",()=>{
+(peso_cliente.value<30||peso_cliente.value>200) ? mostrarError("peso_cliente","Valor inválido") : limpiarError("peso_cliente");
+});
+
+altura_cliente.addEventListener("input",()=>{
+(altura_cliente.value<100||altura_cliente.value>250) ? mostrarError("altura_cliente","Valor inválido") : limpiarError("altura_cliente");
+});
+
+fecha_control.addEventListener("change",()=>{
+!fecha_control.value ? mostrarError("fecha_control","Obligatorio") : limpiarError("fecha_control");
+});
+
+// ===== WIZARD =====
+window.abrirWizard = function(){
+paso=1;
+mostrarPaso();
+new bootstrap.Modal(document.getElementById('modalWizard')).show();
+}
+
 function mostrarPaso(){
-    for(let i=1;i<=3;i++){
-        document.getElementById('paso'+i).style.display = (i === paso) ? 'block' : 'none';
-    }
-    if(paso === 3){
-      siguientebtn.textContent = "Guardar"
-    }else{
-      siguientebtn.textContent = "Siguiente"
+for(let i=1;i<=3;i++){
+document.getElementById("paso"+i).style.display = i===paso?"block":"none";
 }
+Siguiente.innerText = paso===3?"Guardar":"Siguiente";
 }
 
-function abrirWizard(){
-    paso = 1;
-    mostrarPaso();
-    new bootstrap.Modal(document.getElementById('modalWizard')).show();
+window.nextPaso = function(){
+if(hayErroresPaso(paso)){
+Swal.fire("Error","Corrige los errores","error");
+return;
+}
+if(paso===3){ guardar(); return; }
+paso++;
+mostrarPaso();
 }
 
-function nextPaso(){
-    if(paso === 3){
-        console.log("Guardar todo");
-        guardarTodo();
-        return;
-    }
-    paso++;
-    console.log(paso)
-    mostrarPaso();
+window.prevPaso = function(){
+if(paso>1){ paso--; mostrarPaso(); }
 }
 
-function prevPaso(){
-    if(paso > 1){
-        paso--;
-        mostrarPaso();
-    }
+// ===== CSRF =====
+function getCookie(name){
+let v=null;
+document.cookie.split(';').forEach(c=>{
+if(c.trim().startsWith(name+'=')) v=decodeURIComponent(c.split('=')[1]);
+});
+return v;
 }
 
-function guardarTodo(){
+// ===== GUARDAR =====
+function guardar(){
 
-    let data = {
-        username: username.value,
-        password: password.value,
-        documento: documento.value,
-        nombre: nombre.value,
-        apellido: apellido.value,
-        correo: correo.value,
-        telefono: telefono.value,
-        fecha_nacimiento: fecha_nacimiento.value,
-        peso_usuario: parseFloat(peso_usuario.value),
-        altura_usuario: parseFloat(altura_usuario.value),
-        genero: genero.value,
+let data = {
+username:nombreUsuario.value,
+password:contraseña.value,
+documento:documento.value,
+nombre:nombre.value,
+apellido:apellido.value,
+correo:correo.value,
+telefono:telefono.value,
+fecha_nacimiento:fecha_nacimiento.value,
+peso_usuario:peso_usuario.value,
+altura_usuario:altura_usuario.value,
+genero:genero.value,
+nivel_actividad:nivel_actividad.value,
+tipo_objetivo:tipo_objetivo.value,
+tipo_dieta:tipo_dieta.value,
+peso_cliente:peso_cliente.value,
+altura_cliente:altura_cliente.value,
+fecha_control:fecha_control.value
+};
 
-        nivel_actividad: nivel_actividad.value,
-        tipo_objetivo: tipo_objetivo.value,
-        tipo_dieta: tipo_dieta.value,
+Swal.fire({title:"Guardando...",didOpen:()=>Swal.showLoading()});
 
-        peso_cliente: parseFloat(peso_cliente.value),
-        altura_cliente: parseFloat(altura_cliente.value),
-        fecha_control: fecha_control.value
-    };
+fetch("/gimnasio/wizard/crear-todo/",{
+method:"POST",
+headers:{
+"Content-Type":"application/json",
+"X-CSRFToken":getCookie('csrftoken')
+},
+body:JSON.stringify(data)
+})
+.then(r=>r.json())
+.then(r=>{
 
-    fetch("{% url 'gimnasio:wizard_crear_todo' %}", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": "{{ csrf_token }}"
-        },
-        body: JSON.stringify(data)
-    })
-    .then(res => res.json())
-    .then(res => {
+if(r.error){ Swal.fire("Error",r.error,"error"); return; }
 
-        if(res.error){
-            Swal.fire("Error", res.error, "error");
-            return;
-        }
+Swal.fire("Correcto","Guardado exitoso","success");
 
-        let select = document.getElementById("id_fk_imc");
-        let option = new Option(res.nombre, res.id, true, true);
-        select.add(option);
-
-        bootstrap.Modal.getInstance(document.getElementById('modalWizard')).hide();
-
-        Swal.fire("Correcto", "Creado correctamente", "success");
-    })
-    .catch(()=>{
-        Swal.fire("Error", "Error en la petición", "error");
-    });
+document.querySelector("[name='fk_imc']").value=r.id;
+bootstrap.Modal.getInstance(document.getElementById('modalWizard')).hide();
+});
 }
+
+});
 </script>
 {% endblock %}
