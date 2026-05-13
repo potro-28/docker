@@ -18,7 +18,7 @@
 
   <ul class="nav-menu">
 
-    {% if user.usuario.rol == 'Administrador' %}
+    {% if user.usuario.rol == 'Administrador' or user.is_superuser %}
 
     <li class="{% if request.resolver_match.url_name == 'listar_asistencia' %}active{% endif %}">
       <a href="{% url 'gimnasio:listar_asistencia' %}">

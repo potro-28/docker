@@ -11,7 +11,7 @@ from django.urls import reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models.functions import ExtractMonth
 from django.db.models import Count
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin,PermissionRequiredMixin
 
 
 # Importamos SOLO los modelos que vamos a usar explícitamente, evitando colisiones
@@ -19,9 +19,10 @@ from gimnasio.models import Usuario, Asistencia, Membresia, Elemento, Soporte_PQ
 
 class DashboardView(LoginRequiredMixin, TemplateView):
     template_name = 'Dashboard/dashboard.html'
-
     def dispatch(self, request, *args, **kwargs):
-        user = request.user
+        print("Accediendo al DashboardView...")
+        print("Usuario actual:", request.user)
+        user = self.request.user
 
         if user.is_superuser:
             return super().dispatch(request, *args, **kwargs)
@@ -39,7 +40,9 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         hoy = timezone.now().date()
 
         # ---------------------------------------------------------
-        # //1.KPIs principales//
+        # //1.KPIs principales// request, *args, **kwargs):
+        user = self.request.user
+
         # ---------------------------------------------------------
         context['usuarios_activos'] = Usuario.objects.filter(estado='activo').count()
         context['asistencias_hoy'] = Asistencia.objects.filter(fecha_asistencia=hoy).count()
@@ -129,8 +132,6 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         context['usuarios_mensuales'] = json.dumps(datos_meses[:3])
         return context
 
-@login_required
-def dashboard(request):
-    return render(request, 'Dashboard/dashboard.html')
+
 
        
