@@ -69,57 +69,70 @@
     </div>
 
     <!-- Accesos -->
-    <h4 class="mb-3"><i class="fas fa-compass"></i> Accesos Rápidos</h4>
+     <div class="d-flex justify-content-between align-items-center mb-3 bg-light p-3 rounded">
+        <h4 class="mb-0 text-black"><i class="fas fa-compass"></i> Accesos Rápidos</h4>
+     </div>
+     <div>
+            <div class="">
 
-    <div class="row g-3">
-        <!-- Card reusable -->
-        <div class="col-lg-3 col-md-6">
-            <div class="card card-menu text-center">
-                <div class="card-body">
-                    <i class="fas fa-clipboard-check icon-menu text-primary"></i>
-                    <h6>Asistencia</h6>
-                    <p>Registra y consulta tu asistencia</p>
-                    <a href="#" class="btn btn-sm btn-primary">Acceder</a>
-                </div>
+        <div class="card card-menu">
+            <div class="card-body">
+
+                <div id="calendar"></div>
+
             </div>
         </div>
 
-        <div class="col-lg-3 col-md-6">
-            <div class="card card-menu text-center">
-                <div class="card-body">
-                    <i class="fas fa-credit-card icon-menu text-success"></i>
-                    <h6>Masa corporal</h6>
-                    <p>consulta tu masa corporal</p>
-                    <a href="#" class="btn btn-sm btn-success">Acceder</a>
-                </div>
-            </div>
-        </div>
+    </div>
+     </div>
+<div class="row g-3">
 
-        <div class="col-lg-3 col-md-6">
-            <div class="card card-menu text-center">
-                <div class="card-body">
-                    <i class="fas fa-list-check icon-menu text-warning"></i>
-                    <h6>Rutinas</h6>
-                    <p>Planes de entrenamiento</p>
-                    <a href="#" class="btn btn-sm btn-warning">Acceder</a>
-                </div>
-            </div>
-        </div>
+    <!-- Calendario -->
 
-        <div class="col-lg-3 col-md-6">
-            <div class="card card-menu text-center">
-                <div class="card-body">
-                    <i class="fas fa-apple-alt icon-menu text-danger"></i>
-                    <h6>Nutrición</h6>
-                    <p>Consejos nutricionales</p>
-                    <a href="#" class="btn btn-sm btn-danger">Acceder</a>
-                </div>
+    <!-- Masa corporal -->
+    <div class="col-lg-3 col-md-6">
+        <div class="card card-menu text-center">
+            <div class="card-body">
+                <i class="fas fa-credit-card icon-menu text-success"></i>
+                <h6>Masa corporal</h6>
+                <p>consulta tu masa corporal</p>
+                <a href="#" class="btn btn-sm btn-success">Acceder</a>
             </div>
         </div>
     </div>
 
-    <!-- Estadísticas -->
-    <h4 class="mt-5 mb-3"><i class="fas fa-chart-bar"></i> Estadísticas</h4>
+    <!-- Rutinas -->
+    <div class="col-lg-3 col-md-6">
+        <div class="card card-menu text-center">
+            <div class="card-body">
+                <i class="fas fa-list-check icon-menu text-warning"></i>
+                <h6>Rutinas</h6>
+                <p>Planes de entrenamiento</p>
+                <a href="#" class="btn btn-sm btn-warning">Acceder</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nutrición -->
+    <div class="col-lg-3 col-md-6">
+        <div class="card card-menu text-center">
+            <div class="card-body">
+                <i class="fas fa-apple-alt icon-menu text-danger"></i>
+                <h6>Nutrición</h6>
+                <p>Consejos nutricionales</p>
+                <a href="#" class="btn btn-sm btn-danger">Acceder</a>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+    <!-- Estadísticas -->\
+     <div class="d-flex justify-content-between align-items-center mb-3 bg-light p-3 rounded mt-0">
+        <h4 class="mb-0 text-black"><i class="fas fa-chart-bar"></i> Estadísticas</h4>
+     </div>
+
 
     <div class="row g-3">
         <div class="col-lg-3 col-md-6">
@@ -155,7 +168,9 @@
     color: #bf2828;
     text-transform: uppercase;
 }
-
+    #calendar {
+        width: 100%;
+    }
 .icon {
     font-size: 28px;
     opacity: 0.4;
@@ -278,6 +293,33 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     porcentajeText.textContent = porcentaje.toFixed(0) + '%';
+
+});
+document.addEventListener("DOMContentLoaded", function () {
+
+    let calendarEl = document.getElementById('calendar');
+
+    let eventos = {{ eventos|default:"[]"|safe }};
+
+    let calendar = new FullCalendar.Calendar(calendarEl, {
+
+        initialView: 'dayGridMonth',
+
+        locale: 'es',
+
+        height: 400,
+
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: ''
+        },
+
+        events: eventos
+
+    });
+
+    calendar.render();
 
 });
 </script>

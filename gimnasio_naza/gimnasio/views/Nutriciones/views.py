@@ -73,12 +73,7 @@ def crear_usuario_ajax_nutricion(request):
 
 
 #Listar nutriciones
-def listar_nutriciones(request):
-    nombre ={
-        'titulo':'Listado de Nutriciones',
-        'Nutriciones': Nutricion.objects.all()
-    }
-    return render(request,'Nutricion/listar.html', nombre)
+
 
 class nutricionListView(PermissionRequiredMixin,ListView):
     model = Nutricion

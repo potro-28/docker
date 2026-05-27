@@ -254,5 +254,104 @@ function guardarWizard(){
     });
 }
 </script>
+<script>
+
+function getCookie(name) {
+
+    let cookieValue = null;
+
+    if (document.cookie && document.cookie !== '') {
+
+        let cookies = document.cookie.split(';');
+
+        for (let i = 0; i < cookies.length; i++) {
+
+            let cookie = cookies[i].trim();
+
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+
+                cookieValue = decodeURIComponent(
+                    cookie.substring(name.length + 1)
+                );
+
+                break;
+            }
+        }
+    }
+
+    return cookieValue;
+}
+
+function guardarWizard(){
+
+    let data = {
+
+        username: document.getElementById('username').value,
+        password: document.getElementById('password').value,
+        documento: document.getElementById('documento').value,
+        nombre: document.getElementById('nombre').value,
+        apellido: document.getElementById('apellido').value,
+        correo: document.getElementById('correo').value,
+        telefono: document.getElementById('telefono').value,
+        fecha_nacimiento: document.getElementById('fecha_nacimiento').value,
+        peso_usuario: document.getElementById('peso_usuario').value,
+        altura_usuario: document.getElementById('altura_usuario').value,
+        genero: document.getElementById('genero').value,
+
+        fecha_inicio: document.getElementById('fecha_inicio').value,
+        fecha_fin: document.getElementById('fecha_fin').value,
+        estado: document.getElementById('estado').value
+    };
+
+    fetch('/gimnasio/guardar-wizard/', {
+
+        method: 'POST',
+
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+
+        body: JSON.stringify(data)
+
+    })
+
+    .then(response => response.json())
+
+    .then(data => {
+
+        if(data.success){
+
+            Swal.fire({
+                title: "Correcto",
+                text: data.message,
+                icon: "success"
+            });
+
+            location.reload();
+
+        } else {
+
+            Swal.fire({
+                title: "Error",
+                text: data.message,
+                icon: "error"
+            });
+        }
+    })
+
+    .catch(error => {
+
+        console.error(error);
+
+        Swal.fire({
+            title: "Error",
+            text: "Ocurrió un error",
+            icon: "error"
+        });
+    });
+}
+
+</script>
 
 {% endblock %}
