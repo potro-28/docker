@@ -111,7 +111,7 @@ class SancionesCreateView(CreateView):
         return context
 class SancionesUpdateView(UpdateView):
     model = Sancion
-    template_name = 'Sanciones/crear.html'
+    template_name = 'sanciones/crear.html'
     form_class = SancionesForm
     success_url = reverse_lazy('gimnasio:listar_sanciones_clas')
     #@method_decorator(csrf_exempt)
