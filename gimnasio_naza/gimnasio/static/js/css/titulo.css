@@ -1,3 +1,4 @@
+  .swal2-container { z-index: 20000 !important; }
 .header-encuesta{
     background:linear-gradient(135deg,#267ca7,#1f5f80);
     padding:18px 25px;

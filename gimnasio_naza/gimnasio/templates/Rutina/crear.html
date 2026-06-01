@@ -1,384 +1,944 @@
-{% extends 'body.html' %}
-{% load widget_tweaks %}
-
-{% block contenido %}
+{% extends 'body.html' %} {% load widget_tweaks %} {% block contenido %}
 <style>
-  .swal2-container { z-index: 20000 !important; }
+  .swal2-container {
+    z-index: 20000 !important;
+  }
 </style>
 
 <form method="post">
-    <div class="card">
-        <div class="header-encuesta">
-            <h3>
-                <i class="fas fa-edit"></i>
-                {{ titulo }}
-            </h3>
-        </div>
-
-        <div class="card-body">
-            {% csrf_token %}
-
-            {% for field in form.visible_fields %}
-            <div class="mb-3">
-                <label>{{ field.label }}</label>
-
-                {% if field.name == 'fk_imc' %}
-                <div class="d-flex">
-                    {{ field|add_class:'form-control' }}
-                    <button type="button" class="btn btn-success ms-2" onclick="abrirWizard()">+</button>
-                </div>
-                {% else %}
-                    {{ field|add_class:'form-control' }}
-                {% endif %}
-            </div>
-            {% endfor %}
-        </div>
-
-        <div class="card-footer">
-            <button class="btn btn-primary">Guardar Rutina</button>
-        </div>
+  <div class="card">
+    <div class="header-encuesta">
+      <h3>
+        <i class="fas fa-edit"></i>
+        {{ titulo }}
+      </h3>
     </div>
+
+    <div class="card-body">
+      {% csrf_token %} {% for field in form.visible_fields %}
+      <div class="mb-3">
+        <label>{{ field.label }}</label>
+
+        {% if field.name == 'fk_imc' %}
+        <div class="d-flex">
+          {{ field|add_class:'form-control' }}
+          <button
+            type="button"
+            class="btn btn-success ms-2"
+            onclick="abrirWizard()"
+          >
+            +
+          </button>
+        </div>
+        {% else %} {{ field|add_class:'form-control' }} {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="card-footer">
+      <button class="btn btn-primary">Guardar Rutina</button>
+    </div>
+  </div>
 </form>
 <!-- ================= MODAL ================= -->
 <div class="modal fade" id="modalWizard">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
-
-      <div class="modal-header text-white" style="background-color: #267ca7;">
+      <div class="modal-header text-white" style="background-color: #267ca7">
         <h5>Wizard Completo</h5>
-        <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <button
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"
+        ></button>
       </div>
 
       <div class="modal-body">
+        <!-- PASO 1 -->
+        <div id="paso1">
+          <!-- ACCESO -->
+          <h6 class="text-primary fw-bold">Datos de acceso</h6>
+          <hr />
 
-<!-- PASO 1 -->
-<div id="paso1">
-<!-- ACCESO -->
-<h6 class="text-primary fw-bold">Datos de acceso</h6>
-<hr>
+          <div class="row">
+            <div class="col-md-6 mb-2">
+              <input
+                type="text"
+                id="username"
+                name="fake_user"
+                class="form-control"
+                placeholder="Username"
+                autocomplete="off"
+              />
+            </div>
 
-<div class="row">
-  <div class="col-md-6 mb-2">
-    <input 
-      type="text"
-      id="username"
-      name="fake_user"
-      class="form-control"
-      placeholder="Username"
-      autocomplete="off">
-  </div>
+            <div class="col-md-6 mb-2">
+              <input
+                type="password"
+                id="password"
+                name="fake_pass"
+                class="form-control"
+                placeholder="Contraseña"
+                autocomplete="new-password"
+              />
+            </div>
+          </div>
 
-  <div class="col-md-6 mb-2">
-    <input 
-      type="password"
-      id="password"
-      name="fake_pass"
-      class="form-control"
-      placeholder="Contraseña"
-      autocomplete="new-password">
+          <!-- PERSONALES -->
+          <h6 class="text-success fw-bold mt-3">Datos personales</h6>
+          <hr />
+
+          <div class="row">
+            <div class="col-md-6 mb-2">
+              <input
+                id="documento"
+                class="form-control"
+                placeholder="Documento"
+              />
+              <small id="error_documento" class="text-danger"></small>
+            </div>
+
+            <div class="col-md-6 mb-2">
+              <input id="correo" class="form-control" placeholder="Correo" />
+              <small id="error_correo" class="text-danger"></small>
+            </div>
+
+            <div class="col-md-6 mb-2">
+              <input id="nombre" class="form-control" placeholder="Nombre" />
+              <small id="error_nombre" class="text-danger"></small>
+            </div>
+
+            <div class="col-md-6 mb-2">
+              <input
+                id="apellido"
+                class="form-control"
+                placeholder="Apellido"
+              />
+              <small id="error_apellido" class="text-danger"></small>
+            </div>
+
+            <div class="col-md-6 mb-2">
+              <input
+                id="telefono"
+                class="form-control"
+                placeholder="Teléfono"
+              />
+              <small id="error_telefono" class="text-danger"></small>
+            </div>
+
+            <div class="col-md-6 mb-2">
+              <label for="fecha_nacimiento" class="form-label"
+                >Fecha de nacimiento</label
+              >
+              <input id="fecha_nacimiento" type="date" class="form-control" />
+              <small id="error_fecha_nacimiento" class="text-danger"></small>
+            </div>
+
+            <div class="col-md-6 mb-2">
+              <select id="genero" class="form-select">
+                <option value="">Género</option>
+                <option value="M">Masculino</option>
+                <option value="F">Femenino</option>
+              </select>
+              <small id="error_genero" class="text-danger"></small>
+            </div>
+          </div>
+
+          <!-- FÍSICOS -->
+          <h6 class="text-warning fw-bold mt-3">Datos físicos</h6>
+          <hr />
+
+          <div class="row">
+            <div class="col-md-6 mb-2">
+              <input
+                id="peso_usuario"
+                type="number"
+                class="form-control"
+                placeholder="Peso (kg)"
+              />
+              <small id="error_peso_usuario" class="text-danger"></small>
+            </div>
+
+            <div class="col-md-6 mb-2">
+              <input
+                id="altura_usuario"
+                type="number"
+                class="form-control"
+                placeholder="Altura (cm)"
+              />
+              <small id="error_altura_usuario" class="text-danger"></small>
+            </div>
+          </div>
+        </div>
+        <!-- PASO 2 -->
+        <div id="paso2" style="display: none">
+          <h6>Nutrición</h6>
+
+          <select id="nivel_actividad" class="form-control mb-1">
+            <option value="">Nivel Actividad Fisica</option>
+            <option value="bajo">Bajo</option>
+            <option value="medio">Medio</option>
+            <option value="alto">Alto</option>
+          </select>
+          <small id="error_nivel_actividad" class="text-danger"></small>
+
+          <select id="tipo_objetivo" class="form-control mb-1">
+            <option value="">Objetivo Nutricional</option>
+            <option value="perder_peso">Perder</option>
+            <option value="mantener">Mantener</option>
+            <option value="ganar_masa">Ganar</option>
+          </select>
+          <small id="error_tipo_objetivo" class="text-danger"></small>
+
+          <select id="tipo_dieta" class="form-control mb-1">
+            <option value="">Tipo Plan Alimenticio</option>
+            <option value="keto">Keto</option>
+            <option value="balanceada">Balanceada</option>
+          </select>
+          <small id="error_tipo_dieta" class="text-danger"></small>
+        </div>
+
+        <!-- PASO 3 -->
+        <div id="paso3" style="display: none">
+          <h6>Masa Corporal</h6>
+
+          <input
+            id="peso_cliente"
+            class="form-control mb-1"
+            placeholder="Peso"
+          />
+          <small id="error_peso_cliente" class="text-danger"></small>
+
+          <input
+            id="altura_cliente"
+            class="form-control mb-1"
+            placeholder="Altura"
+          />
+          <small id="error_altura_cliente" class="text-danger"></small>
+
+          <label for="fecha_nacimiento" class="form-label"
+            >Fecha de control</label
+          >
+          <input id="fecha_control" type="date" class="form-control mb-1" />
+          <small id="error_fecha_control" class="text-danger"></small>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="prevPaso()">
+          Anterior
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          onclick="nextPaso()"
+          id="Siguiente"
+        >
+          Siguiente
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 
-<!-- PERSONALES -->
-<h6 class="text-success fw-bold mt-3">Datos personales</h6>
-<hr>
+{% endblock %} {% block js %}
 
-<div class="row">
-  <div class="col-md-6 mb-2">
-    <input id="documento" class="form-control" placeholder="Documento">
-    <small id="error_documento" class="text-danger"></small>
-  </div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-  <div class="col-md-6 mb-2">
-    <input id="correo" class="form-control" placeholder="Correo">
-    <small id="error_correo" class="text-danger"></small>
-  </div>
-
-  <div class="col-md-6 mb-2">
-    <input id="nombre" class="form-control" placeholder="Nombre">
-    <small id="error_nombre" class="text-danger"></small>
-  </div>
-
-  <div class="col-md-6 mb-2">
-    <input id="apellido" class="form-control" placeholder="Apellido">
-    <small id="error_apellido" class="text-danger"></small>
-  </div>
-
-  <div class="col-md-6 mb-2">
-    <input id="telefono" class="form-control" placeholder="Teléfono">
-    <small id="error_telefono" class="text-danger"></small>
-  </div>
-
-  <div class="col-md-6 mb-2">
-    <label for="fecha_nacimiento" class="form-label">Fecha de nacimiento</label>
-    <input id="fecha_nacimiento" type="date" class="form-control">
-    <small id="error_fecha_nacimiento" class="text-danger"></small>
-  </div>
-
-  <div class="col-md-6 mb-2">
-    <select id="genero" class="form-select">
-      <option value="">Género</option>
-      <option value="M">Masculino</option>
-      <option value="F">Femenino</option>
-    </select>
-    <small id="error_genero" class="text-danger"></small>
-  </div>
-</div>
-
-<!-- FÍSICOS -->
-<h6 class="text-warning fw-bold mt-3">Datos físicos</h6>
-<hr>
-
-<div class="row">
-  <div class="col-md-6 mb-2">
-    <input id="peso_usuario" type="number" class="form-control" placeholder="Peso (kg)">
-    <small id="error_peso_usuario" class="text-danger"></small>
-  </div>
-
-  <div class="col-md-6 mb-2">
-    <input id="altura_usuario" type="number" class="form-control" placeholder="Altura (cm)">
-    <small id="error_altura_usuario" class="text-danger"></small>
-  </div>
-</div>
-</div>
-<!-- PASO 2 -->
-<div id="paso2" style="display:none;">
-<h6>Nutrición</h6>
-
-<select id="nivel_actividad" class="form-control mb-1">
-<option value="">Nivel Actividad Fisica</option>
-<option value="bajo">Bajo</option>
-<option value="medio">Medio</option>
-<option value="alto">Alto</option>
-</select>
-<small id="error_nivel_actividad" class="text-danger"></small>
-
-<select id="tipo_objetivo" class="form-control mb-1">
-<option value="">Objetivo Nutricional</option>
-<option value="perder_peso">Perder</option>
-<option value="mantener">Mantener</option>
-<option value="ganar_masa">Ganar</option>
-</select>
-<small id="error_tipo_objetivo" class="text-danger"></small>
-
-<select id="tipo_dieta" class="form-control mb-1">
-<option value="">Tipo Plan Alimenticio</option>
-<option value="keto">Keto</option>
-<option value="balanceada">Balanceada</option>
-</select>
-<small id="error_tipo_dieta" class="text-danger"></small>
-</div>
-
-<!-- PASO 3 -->
-<div id="paso3" style="display:none;">
-<h6>Masa Corporal</h6>
-
-<input id="peso_cliente" class="form-control mb-1" placeholder="Peso">
-<small id="error_peso_cliente" class="text-danger"></small>
-
-<input id="altura_cliente" class="form-control mb-1" placeholder="Altura">
-<small id="error_altura_cliente" class="text-danger"></small>
-
-<label for="fecha_nacimiento" class="form-label">Fecha de control</label>
-<input id="fecha_control" type="date" class="form-control mb-1">
-<small id="error_fecha_control" class="text-danger"></small>
-</div>
-
-</div>
-
-<div class="modal-footer">
-<button type="button" class="btn btn-secondary" onclick="prevPaso()">Anterior</button>
-<button type="button" class="btn btn-primary" onclick="nextPaso()" id="Siguiente">Siguiente</button>
-</div>
-
-</div>
-</div>
-</div>
-
-{% endblock %}
-
-{% block js %}
 <script>
 document.addEventListener("DOMContentLoaded", function(){
 
-// ===== ELEMENTOS =====
-const nombreUsuario = document.getElementById("nombreUsuario");
-const contraseña = document.getElementById("contraseña");
+/* ========= ELEMENTOS ========= */
+
+const nombreUsuario = document.getElementById("username");
+const password = document.getElementById("password");
+
 const documento = document.getElementById("documento");
 const nombre = document.getElementById("nombre");
 const apellido = document.getElementById("apellido");
 const correo = document.getElementById("correo");
 const telefono = document.getElementById("telefono");
-const fecha_nacimiento = document.getElementById("fecha_nacimiento");
-const peso_usuario = document.getElementById("peso_usuario");
-const altura_usuario = document.getElementById("altura_usuario");
-const genero = document.getElementById("genero");
 
-const nivel_actividad = document.getElementById("nivel_actividad");
-const tipo_objetivo = document.getElementById("tipo_objetivo");
-const tipo_dieta = document.getElementById("tipo_dieta");
+const fecha_nacimiento =
+document.getElementById("fecha_nacimiento");
 
-const peso_cliente = document.getElementById("peso_cliente");
-const altura_cliente = document.getElementById("altura_cliente");
-const fecha_control = document.getElementById("fecha_control");
+const peso_usuario =
+document.getElementById("peso_usuario");
 
-const Siguiente = document.getElementById("Siguiente");
+const altura_usuario =
+document.getElementById("altura_usuario");
+
+const genero =
+document.getElementById("genero");
+
+const nivel_actividad =
+document.getElementById("nivel_actividad");
+
+const tipo_objetivo =
+document.getElementById("tipo_objetivo");
+
+const tipo_dieta =
+document.getElementById("tipo_dieta");
+
+const peso_cliente =
+document.getElementById("peso_cliente");
+
+const altura_cliente =
+document.getElementById("altura_cliente");
+
+const fecha_control =
+document.getElementById("fecha_control");
+
+const Siguiente =
+document.getElementById("Siguiente");
 
 let paso = 1;
 
-// ===== FUNCIONES =====
-function mostrarError(id,msg){ document.getElementById("error_"+id).innerText=msg; }
-function limpiarError(id){ document.getElementById("error_"+id).innerText=""; }
+
+/* ========= HELPERS ========= */
+
+function mostrarError(id,msg){
+
+    const el =
+    document.getElementById("error_"+id);
+
+    if(el){
+        el.innerText = msg;
+    }
+}
+
+function limpiarError(id){
+
+    const el =
+    document.getElementById("error_"+id);
+
+    if(el){
+        el.innerText = "";
+    }
+}
 
 function hayErroresPaso(p){
-return [...document.querySelectorAll("#paso"+p+" small")]
-.some(e=>e.innerText!=="");
+
+    return [
+        ...document.querySelectorAll(
+            "#paso"+p+" small"
+        )
+    ].some(
+        e => e.innerText !== ""
+    );
 }
 
-// ===== VALIDACIONES =====
-nombreUsuario.addEventListener("input",()=>{
-nombreUsuario.value.length<4 ? mostrarError("nombreUsuario","Mínimo 4 caracteres") : limpiarError("nombreUsuario");
-});
+function validarVaciosPaso(p){
 
-contraseña.addEventListener("input",()=>{
-contraseña.value.length<6 ? mostrarError("contraseña","Mínimo 6 caracteres") : limpiarError("contraseña");
-});
+    const campos =
+    document.querySelectorAll(
+        "#paso"+p+" input, #paso"+p+" select"
+    );
 
-documento.addEventListener("input",()=>{
-/^\d{7,10}$/.test(documento.value) ? limpiarError("documento") : mostrarError("documento","7-10 dígitos");
-});
+    for(const campo of campos){
 
-[nombre,apellido].forEach(c=>{
-c.addEventListener("input",()=>{
-/^[a-zA-Z\s]+$/.test(c.value) ? limpiarError(c.id) : mostrarError(c.id,"Solo letras");
-});
-});
+        if(
+            campo.type !== "button" &&
+            !campo.value.trim()
+        ){
 
-correo.addEventListener("input",()=>{
-/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo.value) ? limpiarError("correo") : mostrarError("correo","Correo inválido");
-});
+            Swal.fire(
+                "Campo obligatorio",
+                "Completa todos los campos",
+                "warning"
+            );
 
-telefono.addEventListener("input",()=>{
-/^3\d{9}$/.test(telefono.value) ? limpiarError("telefono") : mostrarError("telefono","Debe iniciar en 3");
-});
+            campo.focus();
 
-fecha_nacimiento.addEventListener("change",()=>{
-let f=new Date(fecha_nacimiento.value);
-f>=new Date() ? mostrarError("fecha_nacimiento","Fecha inválida") : limpiarError("fecha_nacimiento");
-});
+            return false;
+        }
+    }
 
-peso_usuario.addEventListener("input",()=>{
-(peso_usuario.value<30||peso_usuario.value>200) ? mostrarError("peso_usuario","Valor inválido") : limpiarError("peso_usuario");
-});
-
-
-
-genero.addEventListener("change",()=>{
-!genero.value ? mostrarError("genero","Selecciona uno") : limpiarError("genero");
-});
-
-// PASO 2
-[nivel_actividad,tipo_objetivo,tipo_dieta].forEach(c=>{
-c.addEventListener("change",()=>{
-!c.value ? mostrarError(c.id,"Campo obligatorio") : limpiarError(c.id);
-});
-});
-
-// PASO 3
-peso_cliente.addEventListener("input",()=>{
-(peso_cliente.value<30||peso_cliente.value>200) ? mostrarError("peso_cliente","Valor inválido") : limpiarError("peso_cliente");
-});
-
-altura_cliente.addEventListener("input",()=>{
-(altura_cliente.value<100||altura_cliente.value>250) ? mostrarError("altura_cliente","Valor inválido") : limpiarError("altura_cliente");
-});
-
-fecha_control.addEventListener("change",()=>{
-!fecha_control.value ? mostrarError("fecha_control","Obligatorio") : limpiarError("fecha_control");
-});
-
-// ===== WIZARD =====
-window.abrirWizard = function(){
-paso=1;
-mostrarPaso();
-new bootstrap.Modal(document.getElementById('modalWizard')).show();
+    return true;
 }
 
-function mostrarPaso(){
-for(let i=1;i<=3;i++){
-document.getElementById("paso"+i).style.display = i===paso?"block":"none";
-}
-Siguiente.innerText = paso===3?"Guardar":"Siguiente";
-}
 
-window.nextPaso = function(){
-if(hayErroresPaso(paso)){
-Swal.fire("Error","Corrige los errores","error");
-return;
-}
-if(paso===3){ guardar(); return; }
-paso++;
-mostrarPaso();
-}
+/* ========= VALIDACIONES ========= */
 
-window.prevPaso = function(){
-if(paso>1){ paso--; mostrarPaso(); }
-}
+/* usuario */
 
-// ===== CSRF =====
-function getCookie(name){
-let v=null;
-document.cookie.split(';').forEach(c=>{
-if(c.trim().startsWith(name+'=')) v=decodeURIComponent(c.split('=')[1]);
+nombreUsuario.addEventListener(
+"input",
+()=>{
+
+    nombreUsuario.value.length < 4
+
+    ? mostrarError(
+        "username",
+        "Mínimo 4 caracteres"
+    )
+
+    : limpiarError(
+        "username"
+    );
+
+}
+);
+
+/* password */
+
+password.addEventListener(
+"input",
+()=>{
+
+    password.value.length < 6
+
+    ? mostrarError(
+        "password",
+        "Mínimo 6 caracteres"
+    )
+
+    : limpiarError(
+        "password"
+    );
+
+}
+);
+
+/* documento */
+
+documento.addEventListener(
+"input",
+()=>{
+
+    /^\d{7,10}$/.test(
+        documento.value
+    )
+
+    ? limpiarError(
+        "documento"
+    )
+
+    : mostrarError(
+        "documento",
+        "Debe tener 7 a 10 dígitos"
+    );
+
+}
+);
+
+/* nombre y apellido */
+
+[nombre,apellido].forEach(
+campo=>{
+
+    campo.addEventListener(
+    "input",
+    ()=>{
+
+        /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(
+            campo.value
+        )
+
+        ? limpiarError(
+            campo.id
+        )
+
+        : mostrarError(
+            campo.id,
+            "Solo letras"
+        );
+
+    });
+
+}
+);
+
+/* correo */
+
+correo.addEventListener(
+"input",
+()=>{
+
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+        correo.value
+    )
+
+    ? limpiarError(
+        "correo"
+    )
+
+    : mostrarError(
+        "correo",
+        "Correo inválido"
+    );
+
+}
+);
+
+/* telefono */
+
+telefono.addEventListener(
+"input",
+()=>{
+
+    /^3\d{9}$/.test(
+        telefono.value
+    )
+
+    ? limpiarError(
+        "telefono"
+    )
+
+    : mostrarError(
+        "telefono",
+        "Debe iniciar en 3"
+    );
+
+}
+);
+
+/* fecha nacimiento */
+
+fecha_nacimiento.addEventListener(
+"change",
+()=>{
+
+    const f =
+    new Date(
+        fecha_nacimiento.value
+    );
+
+    f >= new Date()
+
+    ? mostrarError(
+        "fecha_nacimiento",
+        "Fecha inválida"
+    )
+
+    : limpiarError(
+        "fecha_nacimiento"
+    );
+
+}
+);
+
+/* peso */
+
+peso_usuario.addEventListener(
+"input",
+()=>{
+
+    (
+        peso_usuario.value < 30 ||
+        peso_usuario.value > 200
+    )
+
+    ? mostrarError(
+        "peso_usuario",
+        "Valor inválido"
+    )
+
+    : limpiarError(
+        "peso_usuario"
+    );
+
+}
+);
+
+/* altura */
+
+altura_usuario.addEventListener(
+"input",
+()=>{
+
+    (
+        altura_usuario.value < 100 ||
+        altura_usuario.value > 250
+    )
+
+    ? mostrarError(
+        "altura_usuario",
+        "Valor inválido"
+    )
+
+    : limpiarError(
+        "altura_usuario"
+    );
+
+}
+);
+
+/* genero */
+
+genero.addEventListener(
+"change",
+()=>{
+
+    !genero.value
+
+    ? mostrarError(
+        "genero",
+        "Selecciona uno"
+    )
+
+    : limpiarError(
+        "genero"
+    );
+
+}
+);
+
+/* paso 2 */
+
+[
+nivel_actividad,
+tipo_objetivo,
+tipo_dieta
+
+].forEach(campo=>{
+
+    campo.addEventListener(
+    "change",
+    ()=>{
+
+        !campo.value
+
+        ? mostrarError(
+            campo.id,
+            "Campo obligatorio"
+        )
+
+        : limpiarError(
+            campo.id
+        );
+
+    });
+
 });
-return v;
+
+/* paso 3 */
+
+peso_cliente.addEventListener(
+"input",
+()=>{
+
+    (
+        peso_cliente.value < 30 ||
+        peso_cliente.value > 200
+    )
+
+    ? mostrarError(
+        "peso_cliente",
+        "Valor inválido"
+    )
+
+    : limpiarError(
+        "peso_cliente"
+    );
+
 }
+);
 
-// ===== GUARDAR =====
-function guardar(){
+altura_cliente.addEventListener(
+"input",
+()=>{
 
-let data = {
-username:nombreUsuario.value,
-password:contraseña.value,
-documento:documento.value,
-nombre:nombre.value,
-apellido:apellido.value,
-correo:correo.value,
-telefono:telefono.value,
-fecha_nacimiento:fecha_nacimiento.value,
-peso_usuario:peso_usuario.value,
-altura_usuario:altura_usuario.value,
-genero:genero.value,
-nivel_actividad:nivel_actividad.value,
-tipo_objetivo:tipo_objetivo.value,
-tipo_dieta:tipo_dieta.value,
-peso_cliente:peso_cliente.value,
-altura_cliente:altura_cliente.value,
-fecha_control:fecha_control.value
+    (
+        altura_cliente.value < 100 ||
+        altura_cliente.value > 250
+    )
+
+    ? mostrarError(
+        "altura_cliente",
+        "Valor inválido"
+    )
+
+    : limpiarError(
+        "altura_cliente"
+    );
+
+}
+);
+
+fecha_control.addEventListener(
+"change",
+()=>{
+
+    !fecha_control.value
+
+    ? mostrarError(
+        "fecha_control",
+        "Campo obligatorio"
+    )
+
+    : limpiarError(
+        "fecha_control"
+    );
+
+}
+);
+
+
+/* ========= WIZARD ========= */
+
+window.abrirWizard =
+function(){
+
+    paso = 1;
+
+    mostrarPaso();
+
+    new bootstrap.Modal(
+        document.getElementById(
+            "modalWizard"
+        )
+    ).show();
 };
 
-Swal.fire({title:"Guardando...",didOpen:()=>Swal.showLoading()});
+function mostrarPaso(){
 
-fetch("/gimnasio/wizard/crear-todo/",{
-method:"POST",
-headers:{
-"Content-Type":"application/json",
-"X-CSRFToken":getCookie('csrftoken')
-},
-body:JSON.stringify(data)
-})
-.then(r=>r.json())
-.then(r=>{
+    for(
+        let i=1;
+        i<=3;
+        i++
+    ){
 
-if(r.error){ Swal.fire("Error",r.error,"error"); return; }
+        document.getElementById(
+            "paso"+i
+        ).style.display =
+        i===paso
+        ? "block"
+        : "none";
+    }
 
-Swal.fire("Correcto","Guardado exitoso","success");
+    Siguiente.innerText =
+    paso===3
+    ? "Guardar"
+    : "Siguiente";
+}
 
-document.querySelector("[name='fk_imc']").value=r.id;
-bootstrap.Modal.getInstance(document.getElementById('modalWizard')).hide();
-});
+window.nextPaso =
+function(){
+
+    if(
+        !validarVaciosPaso(
+            paso
+        )
+    ){
+        return;
+    }
+
+    if(
+        hayErroresPaso(
+            paso
+        )
+    ){
+
+        Swal.fire(
+            "Error",
+            "Corrige los errores",
+            "error"
+        );
+
+        return;
+    }
+
+    if(
+        paso===3
+    ){
+
+        guardar();
+
+        return;
+    }
+
+    paso++;
+
+    mostrarPaso();
+};
+
+window.prevPaso =
+function(){
+
+    if(
+        paso>1
+    ){
+
+        paso--;
+
+        mostrarPaso();
+    }
+
+};
+
+
+/* ========= CSRF ========= */
+
+function getCookie(name){
+
+    let valor = null;
+
+    document.cookie
+    .split(";")
+    .forEach(c=>{
+
+        if(
+            c.trim().startsWith(
+                name+"="
+            )
+        ){
+
+            valor =
+            decodeURIComponent(
+                c.split("=")[1]
+            );
+        }
+
+    });
+
+    return valor;
+}
+
+
+/* ========= GUARDAR ========= */
+
+function guardar(){
+
+    const data = {
+
+        username:
+        nombreUsuario.value,
+
+        password:
+        password.value,
+
+        documento:
+        documento.value,
+
+        nombre:
+        nombre.value,
+
+        apellido:
+        apellido.value,
+
+        correo:
+        correo.value,
+
+        telefono:
+        telefono.value,
+
+        fecha_nacimiento:
+        fecha_nacimiento.value,
+
+        peso_usuario:
+        peso_usuario.value,
+
+        altura_usuario:
+        altura_usuario.value,
+
+        genero:
+        genero.value,
+
+        nivel_actividad:
+        nivel_actividad.value,
+
+        tipo_objetivo:
+        tipo_objetivo.value,
+
+        tipo_dieta:
+        tipo_dieta.value,
+
+        peso_cliente:
+        peso_cliente.value,
+
+        altura_cliente:
+        altura_cliente.value,
+
+        fecha_control:
+        fecha_control.value
+    };
+
+    Swal.fire({
+        title:"Guardando...",
+        allowOutsideClick:false,
+        didOpen:()=>{
+            Swal.showLoading();
+        }
+    });
+
+    fetch(
+        "/gimnasio/wizard/crear-todo/",
+        {
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json",
+                "X-CSRFToken":
+                getCookie(
+                    "csrftoken"
+                )
+            },
+            body:
+            JSON.stringify(
+                data
+            )
+        }
+    )
+    .then(r=>r.json())
+    .then(r=>{
+
+        if(r.error){
+
+            Swal.fire(
+                "Error",
+                r.error,
+                "error"
+            );
+
+            return;
+        }
+
+        const selectImc =
+        document.querySelector(
+            "[name='fk_imc']"
+        );
+
+        if(selectImc){
+
+            if(
+                !selectImc.querySelector(
+                    `option[value="${r.id}"]`
+                )
+            ){
+
+                selectImc.add(
+                    new Option(
+                        r.nombre ||
+                        "Registro creado",
+                        r.id,
+                        true,
+                        true
+                    )
+                );
+            }
+
+            selectImc.value = r.id;
+        }
+
+        bootstrap
+        .Modal
+        .getInstance(
+            document.getElementById(
+                "modalWizard"
+            )
+        )
+        .hide();
+
+        Swal.fire(
+            "Correcto",
+            "Guardado exitosamente",
+            "success"
+        );
+
+    });
+
 }
 
 });
 </script>
+
 {% endblock %}

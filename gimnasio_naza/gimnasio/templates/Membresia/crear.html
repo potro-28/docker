@@ -1,4 +1,5 @@
 {% extends 'body.html' %}
+{% load static %}
 {% load widget_tweaks %}
 
 {% block contenido %}
@@ -66,11 +67,17 @@
     <div class="modal-content">
 
   
-      <div class="modal-header bg-primary text-white">
+      <div class="modal-header bg-primary text-white py-5">
         <h5 class="modal-title">
-          <i class="ri-user-add-line me-2"></i>Crear Usuario
+          <i class="ri-user-add-line me-2"></i>
+         Crear Usuario
         </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal">
+        </button>
       </div>
 
   
@@ -82,26 +89,39 @@
         <hr>
 
         <div class="row">
-  <div class="col-md-6 mb-2">
-    <input 
-      type="text"
-      id="username"
-      name="fake_user"
-      class="form-control"
-      placeholder="Username"
-      autocomplete="off">
-  </div>
+          <div class="col-md-6 mb-2">
+            <input 
+              type="text"
+              id="username"
+              name="fake_user"
+              class="form-control"
+              placeholder="Username"
+              autocomplete="off">
+          </div>
 
-  <div class="col-md-6 mb-2">
-    <input 
+          <div class="col-md-6 mb-2">
+              <div class="input-group">
+
+    <input
       type="password"
       id="password"
-      name="fake_pass"
       class="form-control"
-      placeholder="Contraseña"
-      autocomplete="new-password">
+      placeholder="Contraseña">
+
+    <button
+      type="button"
+      class="btn btn-outline-secondary"
+      id="btnTogglePassword">
+
+      <i
+        class="ri-eye-line"
+        id="iconPassword">
+      </i>
+
+    </button>
+
   </div>
-</div>
+        </div>
 
 
         <h6 class="text-success fw-bold mt-3 mb-2">Datos personales</h6>
@@ -173,36 +193,45 @@
 {% endblock %}
 
 {% block js %}
-
+<script src = '{% static "js/validation.js" %}'></script>
 <script>
 function crearUsuario() {
+    const modal = document.getElementById("modalUsuario");
+    const inputs = modal.querySelectorAll(".form-control, .form-select");
+    let formularioValido = true;
 
+    inputs.forEach(input => {
+        const esValido = validarCampo(input);
+        if (!esValido) {
+            formularioValido = false;
+        }
+    });
+
+    if (!formularioValido) {
+
+        const primerError = modal.querySelector(".is-invalid");
+        if (primerError) primerError.focus();
+        return; 
+    }
     let data = {
+        username: document.getElementById("username").value,
+        password: document.getElementById("password").value,
         documento: document.getElementById("documento").value,
+        correo: document.getElementById("correo").value,
         nombre: document.getElementById("nombre").value,
         apellido: document.getElementById("apellido").value,
-        correo: document.getElementById("correo").value,
-        password: document.getElementById("password").value,
-        username: document.getElementById("username").value,
         telefono: document.getElementById("telefono").value,
         fecha_nacimiento: document.getElementById("fecha_nacimiento").value,
+        genero: document.getElementById("genero").value,
         peso: document.getElementById("peso").value,
         altura: document.getElementById("altura").value,
-        genero: document.getElementById("genero").value
     };
-
-
-    if (!data.documento || !data.nombre || !data.apellido || !data.correo) {
-        Swal.fire("Error", "Completa los campos obligatorios", "error");
-        return;
-    }
-
     fetch("{% url 'gimnasio:crear_usuario_ajax' %}", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         
-            "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value
+            "X-CSRFToken": '{{csrf_token}}'
         },
         body: JSON.stringify(data)
     })
@@ -228,6 +257,7 @@ function crearUsuario() {
         Swal.fire("Error", "Ocurrió un error en la petición", "error");
     });
 }
+
 </script>
 
 {% endblock %}

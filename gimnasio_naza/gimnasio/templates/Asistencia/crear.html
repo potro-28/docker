@@ -25,7 +25,7 @@
             {% for field in form.visible_fields %}
                 <div class="mb-3">
 
-                    <label class="form-label fw-semibold">
+                    <label class="form-label">
                         {{ field.label }}
                     </label>
 
@@ -72,121 +72,285 @@
                 Guardar Asistencia
 
             </button>
-
+            <a href="{% url 'gimnasio:listar_asistencia' %}" class="btn btn-danger">
+                <i class="fas fa-times me-2"></i> Cancelar
+            </a>
         </div>
 
     </div>
 </form>
 
 <!-- ================= WIZARD ================= -->
-<div class="modal fade" id="modalWizard">
+<!-- MODAL WIZARD -->
+<div class="modal fade" id="modalWizard" tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
 
-      <div class="modal-header text-white" style="background-color: #267ca7;">
-        <h5>Wizard - Registro Completo</h5>
-        <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      <!-- HEADER -->
+      <div class="modal-header bg-primary text-white py-5">
+        <h5 class="modal-title">
+          <i class="ri-user-add-line me-2"></i>
+          Registro Completo
+        </h5>
+
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal">
+        </button>
       </div>
 
+      <!-- BODY -->
       <div class="modal-body">
+        {% csrf_token %}
 
-        <!-- Indicador de pasos -->
+        <!-- INDICADOR -->
         <div class="d-flex justify-content-center mb-4">
           <div class="d-flex align-items-center gap-2">
-            <span class="badge rounded-pill paso-badge" id="badge1" style="background-color:#267ca7;">1. Usuario</span>
+
+            <span
+              class="badge rounded-pill paso-badge bg-primary"
+              id="badge1">
+              1. Usuario
+            </span>
+
             <span>→</span>
-            <span class="badge rounded-pill paso-badge bg-secondary" id="badge2">2. Membresía</span>
+
+            <span
+              class="badge rounded-pill paso-badge bg-secondary"
+              id="badge2">
+              2. Membresía
+            </span>
+
           </div>
         </div>
 
-        <!-- PASO 1: Usuario -->
+        <!-- ========================= -->
+        <!-- PASO 1 -->
+        <!-- ========================= -->
         <div id="paso1">
-          <h6 class="mb-3 text-muted">Datos del Usuario</h6>
-          <div class="row">
-  <div class="col-md-6 mb-2">
-    <input 
-      type="text"
-      id="username"
-      name="fake_user"
-      class="form-control"
-      placeholder="Username"
-      autocomplete="off">
-  </div>
 
-  <div class="col-md-6 mb-2">
-    <input 
+          <!-- DATOS ACCESO -->
+          <h6 class="text-primary fw-bold mb-2">
+            Datos de acceso
+          </h6>
+          <hr>
+
+          <div class="row">
+
+            <div class="col-md-6 mb-2">
+              <input
+                type="text"
+                id="username"
+                class="form-control"
+                placeholder="Username">
+            </div>
+
+<div class="col-md-6 mb-2">
+
+  <div class="input-group">
+
+    <input
       type="password"
       id="password"
-      name="fake_pass"
       class="form-control"
-      placeholder="Contraseña"
-      autocomplete="new-password">
+      placeholder="Contraseña">
+
+    <button
+      type="button"
+      class="btn btn-outline-secondary"
+      id="btnTogglePassword">
+
+      <i
+        class="ri-eye-line"
+        id="iconPassword">
+      </i>
+
+    </button>
+
   </div>
+
 </div>
-            <div class="col-md-4 mb-2">
-              <input id="documento" class="form-control" placeholder="Documento">
-            </div>
-            <div class="col-md-4 mb-2">
-              <input id="nombre_usuario" class="form-control" placeholder="Nombre">
-            </div>
-            <div class="col-md-4 mb-2">
-              <input id="apellido_usuario" class="form-control" placeholder="Apellido">
-            </div>
-            <div class="col-md-4 mb-2">
-              <input id="correo_usuario" class="form-control" placeholder="Correo">
-            </div>
-            <div class="col-md-4 mb-2">
-              <input id="telefono_usuario" class="form-control" placeholder="Teléfono">
-            </div>
-            <div class="col-md-4 mb-2">
-              <label class="form-label small text-muted">Fecha Nacimiento</label>
-              <input id="fecha_nacimiento" type="date" class="form-control">
-            </div>
-            <div class="col-md-4 mb-2">
-              <input id="peso_usuario" class="form-control" placeholder="Peso (kg)">
-            </div>
-            <div class="col-md-4 mb-2">
-              <input id="altura_usuario" class="form-control" placeholder="Altura (cm)">
-            </div>
-            <div class="col-md-4 mb-2">
-              <select id="genero_usuario" class="form-control">
-                <option value="">Género</option>
-                <option value="M">Masculino</option>
-                <option value="F">Femenino</option>
-              </select>
-            </div>
-          </div>
-        </div>
 
-        <!-- PASO 2: Membresía -->
-        <div id="paso2" style="display:none;">
-          <h6 class="mb-3 text-muted">Datos de la Membresía</h6>
+          </div>
+
+          <!-- DATOS PERSONALES -->
+          <h6 class="text-success fw-bold mt-3 mb-2">
+            Datos personales
+          </h6>
+          <hr>
+
           <div class="row">
-            <div class="col-md-4 mb-2">
-              <label class="form-label small text-muted">Fecha Inicio</label>
-              <input id="fecha_inicio" type="date" class="form-control">
+
+            <div class="col-md-6 mb-2">
+              <input
+                id="documento"
+                class="form-control"
+                placeholder="Documento">
             </div>
-            <div class="col-md-4 mb-2">
-              <label class="form-label small text-muted">Fecha Fin</label>
-              <input id="fecha_fin" type="date" class="form-control">
+
+            <div class="col-md-6 mb-2">
+              <input
+                id="correo_usuario"
+                class="form-control"
+                placeholder="Correo">
             </div>
-            <div class="col-md-4 mb-2">
-              <label class="form-label small text-muted">Estado</label>
-              <select id="estado_membresia" class="form-control">
-                <option value="activo">Activo</option>
-                <option value="inactivo">Inactivo</option>
+
+            <div class="col-md-6 mb-2">
+              <input
+                id="nombre_usuario"
+                class="form-control"
+                placeholder="Nombre">
+            </div>
+
+            <div class="col-md-6 mb-2">
+              <input
+                id="apellido_usuario"
+                class="form-control"
+                placeholder="Apellido">
+            </div>
+
+            <div class="col-md-6 mb-2">
+              <input
+                id="telefono_usuario"
+                class="form-control"
+                placeholder="Teléfono">
+            </div>
+
+            <div class="col-md-6 mb-2">
+              <input
+                type="date"
+                id="fecha_nacimiento"
+                class="form-control">
+            </div>
+
+            <div class="col-md-6 mb-2">
+              <select
+                id="genero_usuario"
+                class="form-select">
+
+                <option value="">
+                  Género
+                </option>
+
+                <option value="M">
+                  Masculino
+                </option>
+
+                <option value="F">
+                  Femenino
+                </option>
+
               </select>
             </div>
+
+          </div>
+
+          <!-- DATOS FISICOS -->
+          <h6 class="text-warning fw-bold mt-3 mb-2">
+            Datos físicos
+          </h6>
+          <hr>
+
+          <div class="row">
+
+            <div class="col-md-6 mb-2">
+              <input
+                id="peso_usuario"
+                class="form-control"
+                placeholder="Peso (kg)">
+            </div>
+
+            <div class="col-md-6 mb-2">
+              <input
+                id="altura_usuario"
+                class="form-control"
+                placeholder="Altura (cm)">
+            </div>
+
           </div>
         </div>
 
+        <!-- ========================= -->
+        <!-- PASO 2 -->
+        <!-- ========================= -->
+        <div
+          id="paso2"
+          style="display:none;">
 
+          <h6 class="text-primary fw-bold mb-2">
+            Datos de membresía
+          </h6>
+
+          <hr>
+
+          <div class="row">
+
+            <div class="col-md-4 mb-2">
+              <label class="form-label">
+                Fecha Inicio
+              </label>
+
+              <input
+                id="fecha_inicio"
+                type="date"
+                class="form-control">
+            </div>
+
+            <div class="col-md-4 mb-2">
+              <label class="form-label">
+                Fecha Fin
+              </label>
+
+              <input
+                id="fecha_fin"
+                type="date"
+                class="form-control">
+            </div>
+
+            <div class="col-md-4 mb-2">
+              <label class="form-label">
+                Estado
+              </label>
+
+              <select
+                id="estado_membresia"
+                class="form-select">
+
+                <option value="activo">
+                  Activo
+                </option>
+
+                <option value="inactivo">
+                  Inactivo
+                </option>
+
+              </select>
+            </div>
+
+          </div>
+        </div>
 
       </div>
 
+      <!-- FOOTER -->
       <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="prevPaso()">Anterior</button>
-        <button class="btn btn-primary" onclick="nextPaso()" id="btnSiguiente">Siguiente</button>
+
+        <button
+          class="btn btn-secondary"
+          onclick="prevPaso()">
+
+          Anterior
+        </button>
+
+        <button
+          class="btn btn-primary"
+          id="btnSiguiente"
+          onclick="nextPaso()">
+
+          Siguiente
+        </button>
+
       </div>
 
     </div>
@@ -196,88 +360,479 @@
 
 {% block js %}
 <script>
-const btnSiguiente = document.getElementById("btnSiguiente");
+
+const $ = (id) =>
+    document.getElementById(id);
+
+const btnSiguiente =
+    $("btnSiguiente");
+
 let paso = 1;
 
-// Fechas por defecto al abrir
+/* =========================
+   FECHAS POR DEFECTO
+========================= */
+
 function setFechasDefault() {
-    const hoy = new Date();
-    const fmt = d => d.toISOString().split('T')[0];
-    const en30 = new Date(hoy); en30.setDate(hoy.getDate() + 30);
 
-    document.getElementById('fecha_inicio').value = fmt(hoy);
-    document.getElementById('fecha_fin').value = fmt(en30);
+    const hoy =
+        new Date();
 
+    const fmt = (fecha) =>
+        fecha
+            .toISOString()
+            .split("T")[0];
+
+    const en30 =
+        new Date(hoy);
+
+    en30.setDate(
+        hoy.getDate() + 30
+    );
+
+    $("fecha_inicio").value =
+        fmt(hoy);
+
+    $("fecha_fin").value =
+        fmt(en30);
 }
+
+/* =========================
+   MOSTRAR PASOS
+========================= */
 
 function mostrarPaso() {
-    for (let i = 1; i <= 2; i++) {
-        document.getElementById('paso' + i).style.display = (i === paso) ? 'block' : 'none';
-        const badge = document.getElementById('badge' + i);
-        badge.style.backgroundColor = i === paso ? '#267ca7' : '#6c757d';
+
+    for (
+        let i = 1;
+        i <= 2;
+        i++
+    ) {
+
+        $("paso" + i)
+            .style.display =
+            i === paso
+                ? "block"
+                : "none";
+
+        $("badge" + i)
+            .classList.toggle(
+                "bg-primary",
+                i === paso
+            );
+
+        $("badge" + i)
+            .classList.toggle(
+                "bg-secondary",
+                i !== paso
+            );
     }
-    btnSiguiente.textContent = paso === 2 ? "Guardar" : "Siguiente";
-    document.querySelector('[onclick="prevPaso()"]').style.display = paso === 1 ? 'none' : 'inline-block';
+
+    btnSiguiente.textContent =
+        paso === 2
+            ? "Guardar"
+            : "Siguiente";
+
+    document
+        .querySelector(
+            '[onclick="prevPaso()"]'
+        )
+        .style.display =
+        paso === 1
+            ? "none"
+            : "inline-block";
 }
+
+/* =========================
+   VALIDACIONES
+========================= */
+
+function validarPaso1() {
+
+    if (
+        !$("username")
+            .value.trim()
+    ) {
+
+        Swal.fire(
+            "Campo requerido",
+            "Ingrese el username",
+            "warning"
+        );
+
+        return false;
+    }
+
+    if (
+        !$("password")
+            .value.trim()
+    ) {
+
+        Swal.fire(
+            "Campo requerido",
+            "Ingrese la contraseña",
+            "warning"
+        );
+
+        return false;
+    }
+
+    if (
+        !$("documento")
+            .value.trim()
+    ) {
+
+        Swal.fire(
+            "Campo requerido",
+            "Ingrese el documento",
+            "warning"
+        );
+
+        return false;
+    }
+
+    if (
+        !$("nombre_usuario")
+            .value.trim()
+    ) {
+
+        Swal.fire(
+            "Campo requerido",
+            "Ingrese el nombre",
+            "warning"
+        );
+
+        return false;
+    }
+
+    return true;
+}
+
+/* =========================
+   ABRIR WIZARD
+========================= */
 
 function abrirWizard() {
+
     paso = 1;
+
     setFechasDefault();
+
     mostrarPaso();
-    new bootstrap.Modal(document.getElementById('modalWizard')).show();
+
+    new bootstrap.Modal(
+        $("modalWizard")
+    ).show();
 }
+
+/* =========================
+   SIGUIENTE
+========================= */
 
 function nextPaso() {
-    if (paso === 2) { guardarTodo(); return; }
-    paso++;
+
+    if (
+        paso === 1
+    ) {
+
+        if (
+            !validarPaso1()
+        ) return;
+
+        paso++;
+
+        mostrarPaso();
+
+        return;
+    }
+
+    guardarTodo();
+}
+
+/* =========================
+   ANTERIOR
+========================= */
+
+function prevPaso() {
+
+    if (
+        paso > 1
+    ) {
+
+        paso--;
+
+        mostrarPaso();
+    }
+}
+
+/* =========================
+   OBTENER DATOS
+========================= */
+
+function obtenerDatos() {
+
+    return {
+
+        username:
+            $("username")
+                .value.trim(),
+
+        password:
+            $("password")
+                .value,
+
+        documento:
+            $("documento")
+                .value.trim(),
+
+        nombre_usuario:
+            $("nombre_usuario")
+                .value.trim(),
+
+        apellido_usuario:
+            $("apellido_usuario")
+                .value.trim(),
+
+        correo_usuario:
+            $("correo_usuario")
+                .value.trim(),
+
+        telefono_usuario:
+            $("telefono_usuario")
+                .value.trim(),
+
+        fecha_nacimiento:
+            $("fecha_nacimiento")
+                .value,
+
+        peso_usuario:
+            parseFloat(
+                $("peso_usuario")
+                    .value
+            ) || null,
+
+        altura_usuario:
+            parseFloat(
+                $("altura_usuario")
+                    .value
+            ) || null,
+
+        genero_usuario:
+            $("genero_usuario")
+                .value,
+
+        fecha_inicio:
+            $("fecha_inicio")
+                .value,
+
+        fecha_fin:
+            $("fecha_fin")
+                .value,
+
+        estado_membresia:
+            $("estado_membresia")
+                .value
+    };
+}
+
+/* =========================
+   LIMPIAR FORMULARIO
+========================= */
+
+function limpiarFormulario() {
+
+    document
+        .querySelectorAll(
+            "#modalWizard input, #modalWizard select"
+        )
+        .forEach(
+            campo => {
+
+                if (
+                    campo.type !==
+                    "date"
+                ) {
+
+                    campo.value =
+                        "";
+                }
+
+            }
+        );
+
+    setFechasDefault();
+
+    paso = 1;
+
     mostrarPaso();
 }
 
-function prevPaso() {
-    if (paso > 1) { paso--; mostrarPaso(); }
-}
+/* =========================
+   GUARDAR
+========================= */
 
 function guardarTodo() {
-    const data = {
-        // Usuario
-        username:         document.getElementById('username').value,
-        password:         document.getElementById('password').value,
-        documento:        document.getElementById('documento').value,
-        nombre_usuario:   document.getElementById('nombre_usuario').value,
-        apellido_usuario: document.getElementById('apellido_usuario').value,
-        correo_usuario:   document.getElementById('correo_usuario').value,
-        telefono_usuario: document.getElementById('telefono_usuario').value,
-        fecha_nacimiento: document.getElementById('fecha_nacimiento').value,
-        peso_usuario:     parseFloat(document.getElementById('peso_usuario').value),
-        altura_usuario:   parseFloat(document.getElementById('altura_usuario').value),
-        genero_usuario:   document.getElementById('genero_usuario').value,
-        // Membresía
-        fecha_inicio:       document.getElementById('fecha_inicio').value,
-        fecha_fin:          document.getElementById('fecha_fin').value,
-        estado_membresia:   document.getElementById('estado_membresia').value,
-    };
 
-    fetch("{% url 'gimnasio:wizard_asistencia' %}", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": "{{ csrf_token }}"
-        },
-        body: JSON.stringify(data)
-    })
-    .then(res => res.json())
-    .then(res => {
-        if (res.error) { Swal.fire("Error", res.error, "error"); return; }
+    const data =
+        obtenerDatos();
 
-        // Agregar la membresía creada al select del formulario principal
-        let select = document.getElementById("id_fk_membresia");
-        let option = new Option(res.nombre, res.id, true, true);
-        select.add(option);
+    btnSiguiente.disabled =
+        true;
 
-        bootstrap.Modal.getInstance(document.getElementById('modalWizard')).hide();
-        Swal.fire("Correcto", "Registro creado correctamente", "success");
-    })
-    .catch(() => Swal.fire("Error", "Error en la petición", "error"));
+    btnSiguiente.textContent =
+        "Guardando...";
+
+    fetch(
+        "{% url 'gimnasio:wizard_asistencia' %}",
+        {
+
+            method: "POST",
+
+            headers: {
+
+                "Content-Type":
+                    "application/json",
+
+                "X-CSRFToken":
+                    "{{ csrf_token }}"
+            },
+
+            body:
+                JSON.stringify(
+                    data
+                )
+        }
+    )
+
+    .then(
+        res =>
+            res.json()
+    )
+
+    .then(
+        res => {
+
+            if (
+                res.error
+            ) {
+
+                Swal.fire(
+                    "Error",
+                    res.error,
+                    "error"
+                );
+
+                return;
+            }
+
+            const select =
+                $("id_fk_membresia");
+
+            if (
+                select
+            ) {
+
+                const option =
+                    new Option(
+                        res.nombre,
+                        res.id,
+                        true,
+                        true
+                    );
+
+                select.add(
+                    option
+                );
+
+                select.dispatchEvent(
+                    new Event(
+                        "change"
+                    )
+                );
+            }
+
+            bootstrap
+                .Modal
+                .getInstance(
+                    $("modalWizard")
+                )
+                .hide();
+
+            limpiarFormulario();
+
+            Swal.fire(
+                "Correcto",
+                "Registro creado correctamente",
+                "success"
+            );
+        }
+    )
+
+    .catch(
+        () => {
+
+            Swal.fire(
+                "Error",
+                "Error en la petición",
+                "error"
+            );
+        }
+    )
+
+    .finally(
+        () => {
+
+            btnSiguiente
+                .disabled =
+                false;
+
+            btnSiguiente
+                .textContent =
+                paso === 2
+                    ? "Guardar"
+                    : "Siguiente";
+        }
+    );
+}
+const passwordInput =
+    document.getElementById(
+        "password"
+    );
+
+const btnTogglePassword =
+    document.getElementById(
+        "btnTogglePassword"
+    );
+
+const iconPassword =
+    document.getElementById(
+        "iconPassword"
+    );
+
+if (
+    btnTogglePassword
+) {
+
+    btnTogglePassword
+        .addEventListener(
+            "click",
+            function () {
+
+                const esPassword =
+                    passwordInput.type ===
+                    "password";
+
+                passwordInput.type =
+                    esPassword
+                        ? "text"
+                        : "password";
+
+                iconPassword.className =
+                    esPassword
+                        ? "ri-eye-off-line"
+                        : "ri-eye-line";
+            }
+        );
 }
 </script>
 {% endblock %}

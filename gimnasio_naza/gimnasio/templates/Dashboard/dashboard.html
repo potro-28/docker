@@ -54,6 +54,150 @@
     @media (max-width: 768px) {
         .grid-sparklines, .grid-5-stats, .grid-bottom-charts { grid-template-columns: 1fr; }
     }
+
+    /* =========================
+   GRID CHARTS INFERIORES
+========================= */
+
+.grid-bottom-charts{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:25px;
+    margin-top:30px;
+    align-items:stretch;
+}
+
+.bottom-chart-card{
+    background:#fff;
+    border-radius:16px;
+    padding:25px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-start;
+    text-align:center;
+    width:100%;
+    min-width:0;
+    overflow:hidden;
+    box-shadow:0 10px 30px rgba(0,0,0,0.03);
+}
+
+/* canvas */
+.bottom-chart-card canvas{
+    width:100% !important;
+    max-width:100%;
+    height:auto !important;
+}
+
+/* donut */
+.donut-container{
+    position:relative;
+    width:100%;
+    max-width:220px;
+    height:220px;
+    margin:0 auto;
+}
+
+.donut-inner-text{
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%, -50%);
+    text-align:center;
+}
+
+.donut-inner-text span{
+    display:block;
+    font-size:13px;
+    color:#8b9eb0;
+    margin-bottom:4px;
+}
+
+.donut-inner-text h2{
+    font-size:34px;
+    color:#2c3e50;
+    margin:0;
+    font-weight:700;
+}
+
+/* =========================
+   TABLET
+========================= */
+
+@media (max-width:1024px){
+
+    .grid-bottom-charts{
+        grid-template-columns:repeat(2,1fr);
+        gap:20px;
+    }
+
+    .bottom-chart-card{
+        padding:22px;
+    }
+
+    .donut-container{
+        max-width:200px;
+        height:200px;
+    }
+}
+
+/* =========================
+   MÓVIL
+========================= */
+
+@media (max-width:768px){
+
+    .grid-bottom-charts{
+        grid-template-columns:1fr;
+        gap:18px;
+    }
+
+    .bottom-chart-card{
+        padding:18px;
+        border-radius:14px;
+    }
+
+    .bottom-chart-card canvas{
+        max-width:100%;
+    }
+
+    .donut-container{
+        max-width:180px;
+        height:180px;
+    }
+
+    .donut-inner-text h2{
+        font-size:28px;
+    }
+
+    .donut-inner-text span{
+        font-size:12px;
+    }
+}
+
+/* =========================
+   CELULARES PEQUEÑOS
+========================= */
+
+@media (max-width:480px){
+
+    .grid-bottom-charts{
+        gap:15px;
+    }
+
+    .bottom-chart-card{
+        padding:15px;
+    }
+
+    .donut-container{
+        max-width:160px;
+        height:160px;
+    }
+
+    .donut-inner-text h2{
+        font-size:24px;
+    }
+}
 </style>
 
 <div class="page-header stagger-1">

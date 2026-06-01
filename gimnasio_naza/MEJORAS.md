@@ -1,6 +1,6 @@
 ##  Documento de Mejoras 
 #   Asistencia
-[] 1.Mejora del modulo de asistencia UX
+[x] 1.Mejora del modulo de asistencia UX
 [] 2.Wizard UX crear_asistencia
 [] 3.Boton de devolver
 

@@ -9,8 +9,38 @@ from django.contrib.auth.models import User
 from django.shortcuts import render
 from django.db.models import Count
 from django.forms import BaseInlineFormSet
-
+from django.contrib.auth.forms import PasswordResetForm
 from .models import Usuario
+from django.contrib.auth.forms import PasswordResetForm
+from .models import Usuario # Asegúrate de que el nombre sea correcto
+
+class CustomPasswordResetForm(PasswordResetForm):
+    def get_users(self, email):
+        # Buscamos en tu modelo personalizado 'Usuario'
+        usuarios_perfil = Usuario.objects.filter(correo_usuario__iexact=email)
+        
+        if usuarios_perfil.exists():
+            usuarios_reales = []
+            for perfil in usuarios_perfil:
+                if perfil.user:
+                    # TRUCO: Le asignamos temporalmente el correo del perfil 
+                    # al objeto User de Django para que el enviador lo encuentre
+                    perfil.user.email = perfil.correo_usuario
+                    usuarios_reales.append(perfil.user)
+            return usuarios_reales
+        
+        return super().get_users(email)
+
+    def send_mail(self, subject_template_name, email_template_name, context, 
+                  from_email, to_email, html_email_template_name=None):
+        
+        # Forzamos el nombre de la URL con el namespace 'login'
+        context['password_reset_confirm_url_name'] = 'login:password_reset_confirm'
+        
+        super().send_mail(
+            subject_template_name, email_template_name, context, 
+            from_email, to_email, html_email_template_name
+        )
 class ElementoForm(forms.ModelForm):
     class Meta:
         model = Elemento

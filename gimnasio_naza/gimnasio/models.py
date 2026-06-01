@@ -51,15 +51,20 @@ class Usuario(models.Model):
     def __str__(self):
         return str(self.documento) + ("/") + (self.nombre_usuario)
 
+
     fecha_registro = models.DateField(default=date.today)
 
+    def save(self,*args, **kwargs):
+        if self.user and self.correo_usuario:
+            if self.user.email != self.correo_usuario:
+                self.user.email = self.correo_usuario
+                self.user.save(update_fields=['email'])
+        super(Usuario,self).save(*args, **kwargs)
     class Meta:
         verbose_name = "Usuario"
         verbose_name_plural = "Usuarios"
         db_table = "usuario"
 
-    def __str__(self):
-        return self.user.username
 
 
 # -----------------------------MODELO MEMBRESIA---------------------------------------------------

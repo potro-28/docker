@@ -160,7 +160,7 @@ class ExportarElementosPDF(DjangoView):
         
         # Preparar los datos en  tuplas
         datos = [
-            (e.id, e.nombre_elemento,e.marca,e.categoria_id)
+            (e.id, e.nombre_elemento,e.marca,e.nombre_categoria.nombre_categoria)
             for e in elemento
         ]
         
@@ -191,7 +191,7 @@ class ExportarElementosExcel(DjangoView):
         
         # Preparar los datos en  tuplas
         datos = [
-            (e.id, e.nombre_elemento, e.marca, e.categoria_id)
+            (e.id, e.nombre_elemento, e.marca , e.nombre_categoria.nombre_categoria)
             for e in elemento
         ]
         

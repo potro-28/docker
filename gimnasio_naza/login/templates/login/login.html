@@ -47,21 +47,12 @@
 
                 <!-- RECUPERAR CONTRASEÑA -->
                 <p class="reset_password">
-                    <a href="{% url 'login:confirmar_correo' %}">
+                    <a href="{% url 'login:password_reset' %}">
                         ¿Olvidaste tu contraseña?
                     </a>
                 </p>
 
             </form>
-
-            <!-- REGISTRO -->
-            <p class="login-text">
-                ¿No tienes una cuenta?
-                <a href="{% url 'login:registrarse' %}">
-                    Regístrate
-                </a>
-            </p>
-
         </div>
 
     </div>

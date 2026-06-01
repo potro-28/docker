@@ -1,4 +1,5 @@
 {% extends 'body.html' %}
+{% load static %}
 {% load widget_tweaks %}
 
 {% block contenido %}
@@ -64,13 +65,18 @@
     <div class="modal-content">
 
       <!-- HEADER -->
-      <div class="modal-header bg-primary text-white">
+  <div class="modal-header bg-primary text-white py-5">
         <h5 class="modal-title">
-          <i class="ri-user-add-line me-2"></i>Crear Usuario
+          <i class="ri-user-add-line me-2"></i>
+         Crear Usuario
         </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
 
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal">
+        </button>
+      </div>
       <!-- BODY -->
       <div class="modal-body">
         {% csrf_token %}
@@ -91,13 +97,27 @@
   </div>
 
   <div class="col-md-6 mb-2">
-    <input 
+  <div class="input-group">
+
+    <input
       type="password"
       id="password"
-      name="fake_pass"
       class="form-control"
-      placeholder="Contraseña"
-      autocomplete="new-password">
+      placeholder="Contraseña">
+
+    <button
+      type="button"
+      class="btn btn-outline-secondary"
+      id="btnTogglePassword">
+
+      <i
+        class="ri-eye-line"
+        id="iconPassword">
+      </i>
+
+    </button>
+
+  </div>
   </div>
 </div>
 
@@ -171,10 +191,27 @@
 {% endblock %}
 
 {% block js %}
-
+<script src = '{% static "js/validation.js" %}'></script>
 <script>
-function crearUsuario() {
 
+function crearUsuario() {
+      const modal = document.getElementById("modalUsuario");
+    const inputs = modal.querySelectorAll(".form-control, .form-select");
+    let formularioValido = true;
+
+    inputs.forEach(input => {
+        const esValido = validarCampo(input);
+        if (!esValido) {
+            formularioValido = false;
+        }
+    });
+
+    if (!formularioValido) {
+
+        const primerError = modal.querySelector(".is-invalid");
+        if (primerError) primerError.focus();
+        return; 
+    }
     let data = {
         documento: document.getElementById("documento").value,
         nombre: document.getElementById("nombre").value,
@@ -189,18 +226,12 @@ function crearUsuario() {
         genero: document.getElementById("genero").value
     };
 
-    // ✅ VALIDACIÓN MEJORADA
-    if (!data.documento || !data.nombre || !data.apellido || !data.correo) {
-        Swal.fire("Error", "Completa los campos obligatorios", "error");
-        return;
-    }
-
     fetch("{% url 'gimnasio:crear_usuario_ajax' %}", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         
-            "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value
+            "X-CSRFToken": '{{ csrf_token }}'
         },
         body: JSON.stringify(data)
     })

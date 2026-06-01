@@ -1,11 +1,33 @@
 from django.urls import path
 from login.views import *
-
+from django.contrib.auth import views as auth_views
+from gimnasio.forms import CustomPasswordResetForm
 app_name = 'login'
 urlpatterns = [
     path('login/', LoginFormView.as_view(), name='login'),
     path('logout/', logoutFormView.as_view(), name='logout'),
-    path('register/', RegisterFormView.as_view(), name='registrarse'),
-    path('password_reset/', PasswordResetView.as_view(), name='recuperar'),
-    path('confirmar_correo/', ConfirmarCorreoView.as_view(), name='confirmar_correo'),
+path('recuperar_credenciales/', 
+         auth_views.PasswordResetView.as_view(
+             template_name='login/confirmar_correo.html',
+             success_url=reverse_lazy('login:password_reset_done'), # Usa reverse_lazy aquí
+             form_class=CustomPasswordResetForm,
+             email_template_name='login/password_reset_email.html'
+         ), 
+         name="password_reset"),
+    
+    path('password_reset_done/', 
+         auth_views.PasswordResetDoneView.as_view(template_name='login/password_reset_sent.html'), 
+         name="password_reset_done"),
+    
+    # Esta es la que genera el error al intentar crear el correo:
+    path('reset/<uidb64>/<token>/', 
+         auth_views.PasswordResetConfirmView.as_view(
+             template_name="login/password_reset_form.html",
+             success_url=reverse_lazy('login:password_reset_complete') # Agrega esto por seguridad
+         ), 
+         name="password_reset_confirm"),
+         
+    path('reset_password_complete/', 
+         auth_views.PasswordResetCompleteView.as_view(template_name="login/password_reset_done.html"), 
+         name="password_reset_complete"),
 ]

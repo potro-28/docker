@@ -1,6 +1,6 @@
 {% extends 'body.html' %}
 {% load widget_tweaks %}
-
+{% load static %}
 {% block contenido %}
 <form method="post" action=".">
     <div class="card card-default">
@@ -64,9 +64,17 @@
   <div class="modal-dialog modal-lg"> 
     <div class="modal-content">
 
-      <div class="modal-header text-white" style="background-color: #267ca7;">
-        <h5 class="modal-title">Crear Usuario</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      <div class="modal-header bg-primary text-white py-5">
+        <h5 class="modal-title">
+          <i class="ri-user-add-line me-2"></i>
+         Crear Usuario
+        </h5>
+
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal">
+        </button>
       </div>
 
       <div class="modal-body">
@@ -87,13 +95,26 @@
   </div>
 
   <div class="col-md-6 mb-2">
-    <input 
+      <div class="input-group">
+
+    <input
       type="password"
       id="password"
-      name="fake_pass"
       class="form-control"
-      placeholder="Contraseña"
-      autocomplete="new-password">
+      placeholder="Contraseña">
+
+    <button
+      type="button"
+      class="btn btn-outline-secondary"
+      id="btnTogglePassword">
+
+      <i
+        class="ri-eye-line"
+        id="iconPassword">
+      </i>
+
+    </button>
+
   </div>
 </div>
 
@@ -129,8 +150,13 @@
           </div>
 
             <div class="col-md-6 mb-2">
-                <label for="fecha_nacimiento" class="form-label">Fecha de nacimiento</label>
-                <input id="fecha_nacimiento" type="date" class="form-control">
+                <input 
+    id="fecha_nacimiento" 
+    type="text" 
+    class="form-control" 
+    placeholder="Fecha de Nacimiento"
+    onfocus="(this.type='date')"
+    onblur="if(!this.value)this.type='text'">
                 <small id="error_fecha_nacimiento" class="text-danger"></small>
             </div>
 
@@ -171,163 +197,29 @@
 {% endblock %}
 
 {% block js %}
+<script src = "{% static 'js/validation.js' %}"></script>
 <script>
 
 // CSRF
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        for (let cookie of document.cookie.split(';')) {
-            cookie = cookie.trim();
-            if (cookie.startsWith(name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-            }
-        }
-    }
-    return cookieValue;
-}
-
-// ERRORES
-function mostrarError(id, msg) {
-    document.getElementById("error_" + id).innerText = msg;
-}
-
-function limpiarError(id) {
-    document.getElementById("error_" + id).innerText = "";
-}
-
-// ================= VALIDACIONES =================
-
-// DOCUMENTO
-document.getElementById("documento").addEventListener("input", function () {
-    let v = this.value;
-
-    if (!/^\d{7,10}$/.test(v)) {
-        return mostrarError("documento", "Debe tener entre 7 y 10 dígitos");
-    }
-
-    for (let d of new Set(v)) {
-        if (v.split(d).length - 1 > 5) {
-            return mostrarError("documento", `El dígito "${d}" aparece más de 5 veces`);
-        }
-    }
-
-    limpiarError("documento");
-});
-
-// NOMBRE
-document.getElementById("nombre").addEventListener("input", function () {
-    let v = this.value;
-
-    if (v !== v.trim()) return mostrarError("nombre", "Sin espacios al inicio o final");
-    if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(v)) return mostrarError("nombre", "Solo letras");
-    if (v.includes("  ")) return mostrarError("nombre", "No espacios dobles");
-
-    limpiarError("nombre");
-});
-
-// APELLIDO
-document.getElementById("apellido").addEventListener("input", function () {
-    let v = this.value;
-
-    if (v !== v.trim()) return mostrarError("apellido", "Sin espacios al inicio o final");
-    if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(v)) return mostrarError("apellido", "Solo letras");
-    if (v.includes("  ")) return mostrarError("apellido", "No espacios dobles");
-
-    limpiarError("apellido");
-});
-
-// CORREO
-document.getElementById("correo").addEventListener("input", function () {
-    let v = this.value;
-
-    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(v))
-        return mostrarError("correo", "Correo inválido");
-
-    if (/[^a-zA-Z0-9._%+\-@]/.test(v))
-        return mostrarError("correo", "Caracteres no permitidos");
-
-    limpiarError("correo");
-});
-
-// TELEFONO
-document.getElementById("telefono").addEventListener("input", function () {
-    let v = this.value;
-
-    if (v && !/^3\d{9}$/.test(v))
-        return mostrarError("telefono", "Debe iniciar en 3 y tener 10 dígitos");
-
-    limpiarError("telefono");
-});
-
-// FECHA
-document.getElementById("fecha_nacimiento").addEventListener("change", function () {
-    let v = this.value;
-    let f = new Date(v);
-    let hoy = new Date();
-
-    if (!v) return mostrarError("fecha_nacimiento", "Campo obligatorio");
-    if (f >= hoy) return mostrarError("fecha_nacimiento", "No puede ser futura");
-    if (f.getFullYear() < 1900) return mostrarError("fecha_nacimiento", "Año inválido");
-
-    let min = new Date();
-    min.setFullYear(hoy.getFullYear() - 5);
-
-    if (f > min) return mostrarError("fecha_nacimiento", "Edad no válida");
-
-    limpiarError("fecha_nacimiento");
-});
-
-// PESO
-document.getElementById("peso").addEventListener("input", function () {
-    let v = parseFloat(this.value);
-
-    if (this.value === "") return limpiarError("peso");
-    if (v <= 0) return mostrarError("peso", "Debe ser positivo");
-    if (v < 30 || v > 150) return mostrarError("peso", "Entre 30 y 150 kg");
-
-    limpiarError("peso");
-});
-
-// ALTURA
-document.getElementById("altura").addEventListener("input", function () {
-    let v = parseFloat(this.value);
-
-    if (this.value === "") return limpiarError("altura");
-    if (v <= 0) return mostrarError("altura", "Debe ser positiva");
-    if (v < 100 || v > 230) return mostrarError("altura", "Entre 100 y 230 cm");
-
-    limpiarError("altura");
-});
-
-// VALIDAR ERRORES
-function hayErrores() {
-    return [...document.querySelectorAll('[id^="error_"]')]
-        .some(e => e.innerText !== "");
-}
-
 // ================= CREAR USUARIO =================
 function crearUsuario() {
+        const modal = document.getElementById("modalUsuario");
+    const inputs = modal.querySelectorAll(".form-control, .form-select");
+    let formularioValido = true;
 
-    if (hayErrores()) {
-
-    // 🔥 cerrar modal antes de mostrar alerta
-    let modal = bootstrap.Modal.getInstance(document.getElementById('modalUsuario'));
-    if (modal) modal.hide();
-
-    // 🔥 alerta importante
-    Swal.fire({
-        icon: "error",
-        title: "Error importante",
-        text: "Corrige los errores antes de guardar",
-        confirmButtonColor: "#d33",
-        backdrop: true,
-        allowOutsideClick: false
+    inputs.forEach(input => {
+        const esValido = validarCampo(input);
+        if (!esValido) {
+            formularioValido = false;
+        }
     });
 
-    return;
-}
+    if (!formularioValido) {
 
+        const primerError = modal.querySelector(".is-invalid");
+        if (primerError) primerError.focus();
+        return; 
+    }
     let data = {
         documento: documento.value,
         nombre: nombre.value,
