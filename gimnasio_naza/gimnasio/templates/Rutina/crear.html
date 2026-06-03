@@ -70,17 +70,28 @@
                 autocomplete="off"
               />
             </div>
+                    <div class="col-md-6 mb-2">
+            <div class="input-group">
 
-            <div class="col-md-6 mb-2">
-              <input
-                type="password"
-                id="password"
-                name="fake_pass"
-                class="form-control"
-                placeholder="Contraseña"
-                autocomplete="new-password"
-              />
-            </div>
+          <input
+            type="password"
+            id="password"
+            class="form-control"
+            placeholder="Contraseña">
+
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            id="btnTogglePassword">
+
+            <i
+              class="ri-eye-line"
+              id="iconPassword">
+            </i>
+
+          </button>
+
+        </div>
           </div>
 
           <!-- PERSONALES -->
@@ -126,10 +137,13 @@
             </div>
 
             <div class="col-md-6 mb-2">
-              <label for="fecha_nacimiento" class="form-label"
-                >Fecha de nacimiento</label
-              >
-              <input id="fecha_nacimiento" type="date" class="form-control" />
+              <input 
+    id="fecha_nacimiento" 
+    type="text" 
+    class="form-control" 
+    placeholder="Fecha de Nacimiento"
+    onfocus="(this.type='date')"
+    onblur="if(!this.value)this.type='text'">
               <small id="error_fecha_nacimiento" class="text-danger"></small>
             </div>
 
@@ -939,6 +953,47 @@ function guardar(){
 }
 
 });
+
+const passwordInput =
+    document.getElementById(
+        "password"
+    );
+
+const btnTogglePassword =
+    document.getElementById(
+        "btnTogglePassword"
+    );
+
+const iconPassword =
+    document.getElementById(
+        "iconPassword"
+    );
+
+if (
+    btnTogglePassword
+) {
+
+    btnTogglePassword
+        .addEventListener(
+            "click",
+            function () {
+
+                const esPassword =
+                    passwordInput.type ===
+                    "password";
+
+                passwordInput.type =
+                    esPassword
+                        ? "text"
+                        : "password";
+
+                iconPassword.className =
+                    esPassword
+                        ? "ri-eye-off-line"
+                        : "ri-eye-line";
+            }
+        );
+}
 </script>
 
 {% endblock %}

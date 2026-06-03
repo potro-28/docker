@@ -1,4 +1,5 @@
 {% extends 'body.html' %}
+{% load static %}
 {% load widget_tweaks %}
 
 {% block contenido %}
@@ -233,82 +234,88 @@ Cancelar
 <div class="modal fade" id="modalUsuario" tabindex="-1">
   <div class="modal-dialog modal-lg"> 
     <div class="modal-content">
+      <div class="modal-header bg-primary text-white py-5">
+        <h5 class="modal-title">
+          <i class="ri-user-add-line me-2"></i>
+         Crear Usuario
+        </h5>
 
-      <div class="modal-header text-white" style="background-color: #267ca7;">
-        <h5 class="modal-title">Crear Usuario</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal">
+        </button>
+      </div>  
       <div class="modal-body">
+        {% csrf_token %}
 
-        <!-- ACCESO -->
-        <h6 class="text-primary fw-bold">Datos de acceso</h6>
-        <hr>
-
-        <div class="modal-body">
-
-
-
-<!-- ACCESO -->
-<h6 class="text-primary fw-bold">Datos de acceso</h6>
-<hr>
-
-<div class="row">
-  <div class="col-md-6 mb-2">
-    <input 
-      type="text"
-      id="username"
-      class="form-control"
-      placeholder="Username"
-      autocomplete="off">
-  </div>
-
-  <div class="col-md-6 mb-2">
-    <input 
-      type="password"
-      id="password"
-      class="form-control"
-      placeholder="Contraseña">
-  </div>
-</div>
-
-        <!-- PERSONALES -->
-        <h6 class="text-success fw-bold mt-3">Datos personales</h6>
+    
+        <h6 class="text-primary fw-bold mb-2">Datos de acceso</h6>
         <hr>
 
         <div class="row">
+        <div class="col-md-6 mb-2">
+          <input 
+            type="text"
+            id="username"
+            name="fake_user"
+            class="form-control"
+            placeholder="Username"
+            autocomplete="off">
+        </div>
 
+        <div class="col-md-6 mb-2">
+            <div class="input-group">
+
+          <input
+            type="password"
+            id="password"
+            class="form-control"
+            placeholder="Contraseña">
+
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            id="btnTogglePassword">
+
+            <i
+              class="ri-eye-line"
+              id="iconPassword">
+            </i>
+
+          </button>
+
+        </div>
+      </div>
+
+
+        <h6 class="text-success fw-bold mt-3 mb-2">Datos personales</h6>
+        <hr>
+
+        <div class="row">
           <div class="col-md-6 mb-2">
             <input type="text" id="documento" class="form-control" placeholder="Documento">
-            <small class="text-danger" id="error_documento"></small>
           </div>
 
           <div class="col-md-6 mb-2">
             <input type="email" id="correo" class="form-control" placeholder="Correo">
-            <small class="text-danger" id="error_correo"></small>
           </div>
 
           <div class="col-md-6 mb-2">
             <input type="text" id="nombre" class="form-control" placeholder="Nombre">
-            <small class="text-danger" id="error_nombre"></small>
           </div>
 
           <div class="col-md-6 mb-2">
             <input type="text" id="apellido" class="form-control" placeholder="Apellido">
-            <small class="text-danger" id="error_apellido"></small>
           </div>
 
           <div class="col-md-6 mb-2">
             <input type="text" id="telefono" class="form-control" placeholder="Teléfono">
-            <small class="text-danger" id="error_telefono"></small>
           </div>
 
           <div class="col-md-6 mb-2">
-            <label for="fecha_nacimiento" class="form-label">Fecha de nacimiento</label>
-            <input id="fecha_nacimiento" type="date" class="form-control">
-            <small id="error_fecha_nacimiento" class="text-danger"></small>
-        </div>
-
+            <input type="date" id="fecha_nacimiento" class="form-control">
+          </div>
 
           <div class="col-md-6 mb-2">
             <select id="genero" class="form-select">
@@ -318,27 +325,31 @@ Cancelar
           </div>
         </div>
 
-        <!-- FISICOS -->
-        <h6 class="text-warning fw-bold mt-3">Datos físicos</h6>
+   
+        <h6 class="text-warning fw-bold mt-3 mb-2">Datos físicos</h6>
         <hr>
 
         <div class="row">
           <div class="col-md-6 mb-2">
-            <input type="number" id="peso" class="form-control" placeholder="Peso (kg)">
-            <small class="text-danger" id="error_peso"></small>
+            <input type="number" id="peso" class="form-control" placeholder="Peso">
           </div>
 
           <div class="col-md-6 mb-2">
-            <input type="number" id="altura" class="form-control" placeholder="Altura (cm)">
-            <small class="text-danger" id="error_altura"></small>
+            <input type="number" id="altura" class="form-control" placeholder="Altura">
           </div>
         </div>
 
       </div>
 
+      <!-- FOOTER -->
       <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button class="btn btn-primary" onclick="crearUsuario()">Guardar</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal">
+          Cancelar
+        </button>
+
+        <button class="btn btn-primary" onclick="crearUsuario()">
+          <i class="ri-save-line me-1"></i>Guardar
+        </button>
       </div>
 
     </div>
@@ -349,162 +360,31 @@ Cancelar
 
 {% block js %}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src = '{% static "js/validation.js" %}'></script>
 <script>
 
 // CSRF
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        for (let cookie of document.cookie.split(';')) {
-            cookie = cookie.trim();
-            if (cookie.startsWith(name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-            }
-        }
-    }
-    return cookieValue;
-}
-
-// ERRORES
-function mostrarError(id, msg) {
-    document.getElementById("error_" + id).innerText = msg;
-}
-
-function limpiarError(id) {
-    document.getElementById("error_" + id).innerText = "";
-}
-
-// ================= VALIDACIONES =================
-
-// DOCUMENTO
-document.getElementById("documento").addEventListener("input", function () {
-    let v = this.value;
-
-    if (!/^\d{7,10}$/.test(v)) {
-        return mostrarError("documento", "Debe tener entre 7 y 10 dígitos");
-    }
-
-    for (let d of new Set(v)) {
-        if (v.split(d).length - 1 > 5) {
-            return mostrarError("documento", `El dígito "${d}" aparece más de 5 veces`);
-        }
-    }
-
-    limpiarError("documento");
-});
-
-// NOMBRE
-document.getElementById("nombre").addEventListener("input", function () {
-    let v = this.value;
-
-    if (v !== v.trim()) return mostrarError("nombre", "Sin espacios al inicio o final");
-    if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(v)) return mostrarError("nombre", "Solo letras");
-    if (v.includes("  ")) return mostrarError("nombre", "No espacios dobles");
-
-    limpiarError("nombre");
-});
-
-// APELLIDO
-document.getElementById("apellido").addEventListener("input", function () {
-    let v = this.value;
-
-    if (v !== v.trim()) return mostrarError("apellido", "Sin espacios al inicio o final");
-    if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(v)) return mostrarError("apellido", "Solo letras");
-    if (v.includes("  ")) return mostrarError("apellido", "No espacios dobles");
-
-    limpiarError("apellido");
-});
-
-// CORREO
-document.getElementById("correo").addEventListener("input", function () {
-    let v = this.value;
-
-    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(v))
-        return mostrarError("correo", "Correo inválido");
-
-    if (/[^a-zA-Z0-9._%+\-@]/.test(v))
-        return mostrarError("correo", "Caracteres no permitidos");
-
-    limpiarError("correo");
-});
-
-// TELEFONO
-document.getElementById("telefono").addEventListener("input", function () {
-    let v = this.value;
-
-    if (v && !/^3\d{9}$/.test(v))
-        return mostrarError("telefono", "Debe iniciar en 3 y tener 10 dígitos");
-
-    limpiarError("telefono");
-});
-
-// FECHA
-document.getElementById("fecha_nacimiento").addEventListener("change", function () {
-    let v = this.value;
-    let f = new Date(v);
-    let hoy = new Date();
-
-    if (!v) return mostrarError("fecha_nacimiento", "Campo obligatorio");
-    if (f >= hoy) return mostrarError("fecha_nacimiento", "No puede ser futura");
-    if (f.getFullYear() < 1900) return mostrarError("fecha_nacimiento", "Año inválido");
-
-    let min = new Date();
-    min.setFullYear(hoy.getFullYear() - 5);
-
-    if (f > min) return mostrarError("fecha_nacimiento", "Edad no válida");
-
-    limpiarError("fecha_nacimiento");
-});
-
-// PESO
-document.getElementById("peso").addEventListener("input", function () {
-    let v = parseFloat(this.value);
-
-    if (this.value === "") return limpiarError("peso");
-    if (v <= 0) return mostrarError("peso", "Debe ser positivo");
-    if (v < 30 || v > 150) return mostrarError("peso", "Entre 30 y 150 kg");
-
-    limpiarError("peso");
-});
-
-// ALTURA
-document.getElementById("altura").addEventListener("input", function () {
-    let v = parseFloat(this.value);
-
-    if (this.value === "") return limpiarError("altura");
-    if (v <= 0) return mostrarError("altura", "Debe ser positiva");
-    if (v < 100 || v > 230) return mostrarError("altura", "Entre 100 y 230 cm");
-
-    limpiarError("altura");
-});
-
-// VALIDAR ERRORES
-function hayErrores() {
-    return [...document.querySelectorAll('[id^="error_"]')]
-        .some(e => e.innerText !== "");
-}
 
 // ================= CREAR USUARIO =================
 function crearUsuario() {
 
-    if (hayErrores()) {
+    const modal = document.getElementById("modalUsuario");
+    const inputs = modal.querySelectorAll(".form-control, .form-select");
+    let formularioValido = true;
 
-    //cerrar modal antes de mostrar alerta
-    let modal = bootstrap.Modal.getInstance(document.getElementById('modalUsuario'));
-    if (modal) modal.hide();
-
-    //alerta importante
-    Swal.fire({
-        icon: "error",
-        title: "Error importante",
-        text: "Corrige los errores antes de guardar",
-        confirmButtonColor: "#d33",
-        backdrop: true,
-        allowOutsideClick: false
+    inputs.forEach(input => {
+        const esValido = validarCampo(input);
+        if (!esValido) {
+            formularioValido = false;
+        }
     });
 
-    return;
-}
+    if (!formularioValido) {
+
+        const primerError = modal.querySelector(".is-invalid");
+        if (primerError) primerError.focus();
+        return; 
+    }
 
     let data = {
         documento: documento.value,

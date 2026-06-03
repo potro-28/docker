@@ -235,12 +235,12 @@ TIPO_NOTIFICACION = [
 ]
 
 DETALLE_NOTIFICACION = [
-    ("BIENVENIDA", "Bienvenida"),
-    ("MEMBRESIA_ACTIVADA", "Membresía activada"),
-    ("VENCIMIENTO", "Próxima a vencer"),
-    ("VENCIDA", "Membresía vencida"),
-    ("INASISTENCIA", "Inasistencia"),
-    ("MANTENIMIENTO_PROGRAMADO", "Mantenimiento programado"),
+    ("Bienvenida", "BIENVENIDA"),
+    ("Membresía_activada", "MEMBRESIA_ACTIVADA"),
+    ("Próxima_a_vencer", "VENCIMIENTO"),
+    ("Membresía_vencida", "VENCIDA"),
+    ("Inasistencia", "INASISTENCIA"),
+    ("Mantenimiento_programado", "MANTENIMIENTO_PROGRAMADO"),
 ]
 CANAL_NOTIFICACION = [
     ("SMS", "SMS"),

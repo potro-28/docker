@@ -6,7 +6,106 @@
 <link rel="stylesheet"
     href="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/css/responsive.bootstrap4.min.css' %}">
 <style>
+    .contenedor-mantenimientos{
+    margin-bottom: 2rem;
+}
 
+.titulo-mantenimiento{
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.card-mini{
+    border: none;
+    border-radius: 16px;
+    transition: all .3s ease;
+    overflow: hidden;
+}
+
+.card-mini:hover{
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0,0,0,.12);
+}
+
+.card-mini .card-body{
+    padding: 1.5rem;
+}
+
+.icon-card{
+    font-size: 2.5rem;
+    margin-bottom: .5rem;
+}
+
+.card-mini h6{
+    font-size: .95rem;
+    margin-bottom: .5rem;
+    font-weight: 500;
+}
+
+.card-mini h3{
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* Colores */
+
+.card-pendiente{
+    background: #fff5f5;
+    border-left: 5px solid #dc3545;
+}
+
+.card-proceso{
+    background: #fff8e6;
+    border-left: 5px solid #ffc107;
+}
+
+.card-completado{
+    background: #eefbf3;
+    border-left: 5px solid #198754;
+}
+
+/* Tablet */
+
+@media (max-width: 768px){
+
+    .card-mini .card-body{
+        padding: 1.25rem;
+    }
+
+    .icon-card{
+        font-size: 2rem;
+    }
+
+    .card-mini h3{
+        font-size: 1.7rem;
+    }
+}
+
+/* Móvil */
+
+@media (max-width: 576px){
+
+    .titulo-mantenimiento{
+        text-align: center;
+    }
+
+    .card-mini .card-body{
+        padding: 1rem;
+    }
+
+    .icon-card{
+        font-size: 1.8rem;
+    }
+
+    .card-mini h3{
+        font-size: 1.5rem;
+    }
+
+    .card-mini h6{
+        font-size: .9rem;
+    }
+}
     .card-dash { background-color: #ffffff; border-radius: 16px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid rgba(255,255,255,0.8); transition: none; }
     .card-dash:hover {transform: none; }
     
@@ -132,15 +231,13 @@
 
         /* contenedor */
     .contenedor-mantenimientos{
-        justify-content:center;
-        align-items:center;
-        margin: auto;
-        background:#f6f8fc;
-        padding:15px;
-        border-radius:10px;
-        margin-top:20px;
-        width:1000px;
-    }
+    width:100%;
+    max-width:100%;
+    background:#f6f8fc;
+    padding:20px;
+    border-radius:12px;
+    margin-top:20px;
+}
 
     /* titulo */
     .titulo-mantenimiento{
@@ -154,11 +251,10 @@
     /* tamaño mucho más pequeño */
 
     .card-mini{
-        height:100px;
-        width: 300px;
-        padding:5px;
-        border-radius:10px;
-    }
+    min-height:120px;
+    width:100%;
+    border-radius:12px;
+}
     .card-mini h3{
         padding:5px;
         font-size:20px;
@@ -298,7 +394,7 @@
     </div>
 
     <div class="card-body">
-
+        <div class="responsive-table">
         <table class="tabla-vencer">
 
             <thead>
@@ -330,7 +426,7 @@
             </tbody>
 
         </table>
-
+    </div>
     </div>
 
 </div>
@@ -340,46 +436,34 @@
         Mantenimientos
     </h4>
 
-    <div class="row cards-mantenimiento">
+    <div class="row g-3 cards-mantenimiento">
 
-        <div class="col-md-4">
-            <div class="card card-mini card-pendiente">
+        <div class="col-12 col-sm-6 col-lg-4">
+            <div class="card card-mini card-pendiente h-100">
                 <div class="card-body text-center">
-
                     <i class="mdi mdi-wrench icon-card"></i>
-
                     <h6>Pendientes</h6>
-
                     <h3>{{ mant_pendientes }}</h3>
-
                 </div>
             </div>
         </div>
 
-        <div class="col-md-4">
-            <div class="card card-mini card-proceso">
+        <div class="col-12 col-sm-6 col-lg-4">
+            <div class="card card-mini card-proceso h-100">
                 <div class="card-body text-center">
-
                     <i class="mdi mdi-cog icon-card"></i>
-
                     <h6>En proceso</h6>
-
                     <h3>{{ mant_proceso }}</h3>
-
                 </div>
             </div>
         </div>
 
-        <div class="col-md-4">
-            <div class="card card-mini card-completado">
+        <div class="col-12 col-sm-6 col-lg-4">
+            <div class="card card-mini card-completado h-100">
                 <div class="card-body text-center">
-
                     <i class="mdi mdi-check-circle icon-card"></i>
-
                     <h6>Completados</h6>
-
                     <h3>{{ mant_completados }}</h3>
-
                 </div>
             </div>
         </div>

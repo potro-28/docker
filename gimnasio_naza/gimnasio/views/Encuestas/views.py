@@ -82,7 +82,6 @@ def enviar_encuesta_usuarios(request):
             messages.error(request, f"Error: {str(e)}")
     return redirect('gimnasio:listar_encuestas')
 
-# --- GESTIÓN AJAX ---
 def crear_usuario_ajax(request):
     if request.method != "POST":
         return JsonResponse({'error': 'Método no permitido'}, status=405)

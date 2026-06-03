@@ -83,28 +83,137 @@
         </div>
 
         <!-- Tarjetas de equipos -->
-        <div class="card-body">
-            <div class="row gx-4">
-                {% for mantenimiento in mantenimientos %}
-                <div class="col-xl-2 col-lg-3 col-sm-4">
-                    <div class="equipment-card text-center">
-                        {% if mantenimiento.nombre_elemento.imagen %}
-                            <img src="{{ mantenimiento.nombre_elemento.imagen.url }}"
-                                 alt="{{ mantenimiento.nombre_elemento.nombre_elemento }}">
-                        {% else %}
-                            <div class="sin-imagen">Sin imagen</div>
-                        {% endif %}
-                        <p class="cantidad">{{ mantenimiento.nombre_elemento.cantidad }}</p>
-                        <p class="nombre">{{ mantenimiento.nombre_elemento.nombre_elemento }}</p>
-                    </div>
-                </div>
-                {% empty %}
-                <div class="col-12 text-center">
-                    <p class="text-muted">No hay mantenimientos registrados.</p>
-                </div>
-                {% endfor %}
+         <div class="card-body border-bottom pb-4">
+         <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+        <h5 class="mb-0">Resumen de mantenimientos</h5>
+        <small class="text-muted">
+            Visualiza rápidamente el estado de los equipos
+        </small>
+    </div>
+
+    <a href="javascript:void(0);"
+       class="text-dark"
+       data-bs-toggle="collapse"
+       data-bs-target="#collapseCards">
+        <i class="ri-arrow-down-s-line fs-4"></i>
+    </a>
+</div>
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-label-primary">
+            <div class="card-body">
+                <h3>{{ total_mantenimientos }}</h3>
+                <small>Total mantenimientos</small>
             </div>
         </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card bg-label-success">
+            <div class="card-body">
+                <h3>{{ completados }}</h3>
+                <small>Completados</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card bg-label-warning">
+            <div class="card-body">
+                <h3>{{ en_proceso }}</h3>
+                <small>En proceso</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card bg-label-danger">
+            <div class="card-body">
+                <h3>{{ pendientes }}</h3>
+                <small>Pendientes</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+          <div class="collapse show" id="collapseCards">
+    <div class="row g-4 cards-container mb-4">
+        {% for mantenimiento in mantenimientos %}
+        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+            <div class="equipment-card w-100 h-100">
+
+                <!-- Estado -->
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <small class="text-muted">
+                        #{{ mantenimiento.id }}
+                    </small>
+
+                    {% if mantenimiento.estado == 'completado' %}
+                        <span class="badge bg-success">Completado</span>
+                    {% elif mantenimiento.estado == 'en_proceso' %}
+                        <span class="badge bg-warning text-dark">En proceso</span>
+                    {% else %}
+                        <span class="badge bg-danger">Pendiente</span>
+                    {% endif %}
+                </div>
+
+                <!-- Imagen -->
+                {% if mantenimiento.nombre_elemento.imagen %}
+                    <img src="{{ mantenimiento.nombre_elemento.imagen.url }}"
+                        alt="{{ mantenimiento.nombre_elemento }}"
+                        class="mx-auto d-block mb-3">
+                {% else %}
+                    <div class="sin-imagen mx-auto mb-3">
+                        <i class="ri ri-tools-line" style="font-size:2rem;"></i>
+                    </div>
+                {% endif %}
+
+                <!-- Equipo -->
+                <h6 class="text-center fw-bold mb-1">
+                    {{ mantenimiento.nombre_elemento }}
+                </h6>
+
+                <!-- Tipo -->
+                <p class="nombre text-center mb-3">
+                    {{ mantenimiento.get_tipo_mantenimiento_display }}
+                </p>
+
+                <hr>
+
+                <!-- Fecha -->
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">
+                        <i class="ri-calendar-line"></i> Fecha
+                    </span>
+                    <span>
+                        {{ mantenimiento.fecha_programada|date:"d/m/Y" }}
+                    </span>
+                </div>
+
+                <!-- Descripción -->
+                <div class="mb-3">
+                    <small class="text-muted">
+                        {{ mantenimiento.descripcion|truncatechars:60 }}
+                    </small>
+                </div>
+
+                <!-- Acciones -->
+
+            </div>
+        </div>
+
+        {% empty %}
+        <div class="col-12 text-center">
+            <p class="text-muted mb-0">
+                No hay mantenimientos registrados.
+            </p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+         </div>
 
         <!-- Tabla -->
         <div class="card-body">

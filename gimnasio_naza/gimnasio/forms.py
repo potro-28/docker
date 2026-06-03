@@ -520,7 +520,7 @@ class MembresiaForm(ModelForm):
             ] = (
                 hoy + timedelta(days=30)
             )
-
+        self.fields['fk_usuario'].queryset = Usuario.objects.filter(rol = 'cliente',estado='activo')
     class Meta:
 
         model = Membresia
@@ -567,10 +567,16 @@ class MembresiaForm(ModelForm):
             self.add_error('fecha_fin','La fecha de finalización no puede ser anterior a la fecha de inicio')
         if fk_usuario and Membresia.objects.filter(fk_usuario=fk_usuario, fecha_inicio__month=fecha_inicio.month).exists():
             raise forms.ValidationError('El usuario ya tuvo una membresia este mismo mes')
+        
         return cleaned_data
     
 
 class NotificacionForm(forms.ModelForm):
+    def __init__(self,*args, **kwargs):
+        super().__init__(*args,**kwargs)
+        self.initial["fecha_envio"] = (
+            timezone.now() + timedelta(minutes=1)
+        ).strftime("%Y-%m-%dT%H:%M")
     class Meta:
         model = Notificacion
         fields = '__all__'
@@ -592,6 +598,10 @@ class NotificacionForm(forms.ModelForm):
             'fk_mantenimiento': forms.Select(attrs={
                 'class': 'form-control',
             }),
+            'fecha_envio': forms.DateTimeInput(attrs={
+                 "class": "form-control",
+                 "type": "datetime-local"
+            })
         }
     
     def clean(self):
@@ -1256,7 +1266,7 @@ class RegistrovisitantetemporalForm(ModelForm):
     
 class TurnodeentrenadorForm(ModelForm):
     administrador = forms.ModelChoiceField(
-        queryset=Usuario.objects.filter(rol='Admin'),
+        queryset=Usuario.objects.filter(rol='Administrador', estado='activo'),
         empty_label="Seleccione un administrador",
         widget=forms.Select(attrs={'class': 'form-control'}),
         label="Administrador",

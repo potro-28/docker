@@ -85,39 +85,39 @@
         <hr>
 
         <div class="row">
-  <div class="col-md-6 mb-2">
-    <input 
-      type="text"
-      id="username"
-      name="fake_user"
-      class="form-control"
-      placeholder="Username"
-      autocomplete="off">
-  </div>
+        <div class="col-md-6 mb-2">
+          <input 
+            type="text"
+            id="username"
+            name="fake_user"
+            class="form-control"
+            placeholder="Username"
+            autocomplete="off">
+        </div>
 
-  <div class="col-md-6 mb-2">
-      <div class="input-group">
+        <div class="col-md-6 mb-2">
+            <div class="input-group">
 
-    <input
-      type="password"
-      id="password"
-      class="form-control"
-      placeholder="Contraseña">
+          <input
+            type="password"
+            id="password"
+            class="form-control"
+            placeholder="Contraseña">
 
-    <button
-      type="button"
-      class="btn btn-outline-secondary"
-      id="btnTogglePassword">
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            id="btnTogglePassword">
 
-      <i
-        class="ri-eye-line"
-        id="iconPassword">
-      </i>
+            <i
+              class="ri-eye-line"
+              id="iconPassword">
+            </i>
 
-    </button>
+          </button>
 
-  </div>
-</div>
+        </div>
+      </div>
 
 
         <h6 class="text-success fw-bold mt-3 mb-2">Datos personales</h6>
@@ -264,37 +264,41 @@ const opciones = {
 
     MEMBRESIA: [
 
-        ["BIENVENIDA","Bienvenida"],
+        ["Bienvenida","BIENVENIDA"],
 
         [
-            "MEMBRESIA_ACTIVADA",
-            "Membresía activada"
+            "Membresía_activada",
+            "MEMBRESIA_ACTIVADA"
         ],
 
         [
-            "VENCIMIENTO",
-            "Próxima a vencer"
+            "Próxima_a_vencer",
+            "VENCIMIENTO"
+
         ],
 
         [
-            "VENCIDA",
-            "Membresía vencida"
+          "Membresía_vencida",
+            "VENCIDA"
+
         ],
     ],
 
     ASISTENCIA: [
 
         [
-            "INASISTENCIA",
-            "Inasistencia"
+            "Inasistencia",
+            "INASISTENCIA"
+
         ],
     ],
 
     MANTENIMIENTO: [
 
         [
-            "MANTENIMIENTO_PROGRAMADO",
-            "Mantenimiento programado"
+            "Mantenimiento_programado",
+            "MANTENIMIENTO_PROGRAMADO"
+            
         ],
     ],
 }

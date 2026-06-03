@@ -31,3 +31,18 @@ def buscar_mantenimiento():
         "-id"
     ).first()
     return mantenimiento
+
+def calcular_dias_restantes(usuario):
+    try:
+        membresia = Membresia.objects.filter(fk_usuario = usuario).first()
+        
+        if membresia:
+            fecha_vencimiento = membresia.fecha_fin
+            fecha_actual = timezone.now().date()
+            
+            dias_restantes = (fecha_vencimiento - fecha_actual).days
+            return dias_restantes
+        else:
+            return None
+    except Exception as e:
+        print("Error" , e)

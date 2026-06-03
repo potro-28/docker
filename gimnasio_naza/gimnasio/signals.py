@@ -4,7 +4,7 @@ from django.contrib.auth.models import Group, Permission
 from datetime import datetime, timedelta
 from gimnasio.models import Usuario, Membresia, Notificacion, Mantenimiento,Notificacion,Asistencia
 from gimnasio.utilities.notificaciones import NotificacionManager
-from gimnasio.utilities.calcular_dias import calcular_dias
+from gimnasio.utilities.calcular_dias import calcular_dias,calcular_dias_restantes,buscar_mantenimiento
 import logging
 
 logger = logging.getLogger(__name__)
@@ -65,7 +65,6 @@ def notificar_cambio_membresia(sender, instance, created, **kwargs):
     Envía notificación cuando cambia el estado de una membresía o se crea una nueva.
     """
     usuario = instance.fk_usuario
-    
     if created:
         # Nueva membresía creada
         try:
@@ -92,7 +91,6 @@ def notificar_mantenimiento(sender, instance, created, **kwargs):
         try:
             # Notificar a todos los usuarios activos
             usuarios = Usuario.objects.filter(estado='activo')
-            
             if usuarios.exists():
                 NotificacionManager.enviar_notificacion_mantenimiento(usuarios, instance)
                 logger.info(f"✓ Notificaciones de mantenimiento enviadas a {usuarios.count()} usuarios")
@@ -105,13 +103,22 @@ def notificar(sender,instance,created,**kwargs):
     if created:
         try:
             notificaciones = instance.tipo_notificacion
-            
+            print(instance.detalle_notificacion)
+            membresia = Membresia.objects.filter(fk_usuario = instance.fk_usuario).first()
             if notificaciones == 'MEMBRESIA':
-                pass
+                if instance.detalle_notificacion == 'Bienvenida':
+                   NotificacionManager.enviar_bienvenida(instance.fk_usuario)
+                elif instance.detalle_notificacion == 'Membresía_activada':
+                    NotificacionManager.enviar_confirmacion_membresia(membresia)
+                elif instance.detalle_notificacion == 'Membresía_vencida':
+                    NotificacionManager.enviar_notificacion_vencida(membresia)
+                else:
+                    NotificacionManager.enviar_alerta_vencimiento(membresia, calcular_dias_restantes(instance.fk_usuario))
             elif notificaciones == 'MANTENIMIENTO':
-                NotificacionManager.enviar_notificacion_mantenimiento(instance.fk_usuario,instance)
+                NotificacionManager.enviar_notificacion_mantenimiento(instance.fk_usuario,buscar_mantenimiento())
             else:
                 usuario = instance.fk_usuario
                 NotificacionManager.enviar_alerta_inasistencia(usuario,calcular_dias(usuario))
         except Exception as e:
             logger.error(f"Error notificando ")
+            

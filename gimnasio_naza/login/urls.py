@@ -6,11 +6,10 @@ app_name = 'login'
 urlpatterns = [
     path('login/', LoginFormView.as_view(), name='login'),
     path('logout/', logoutFormView.as_view(), name='logout'),
-path('recuperar_credenciales/', 
+    path('recuperar_credenciales/', 
          auth_views.PasswordResetView.as_view(
              template_name='login/confirmar_correo.html',
              success_url=reverse_lazy('login:password_reset_done'), # Usa reverse_lazy aquí
-             form_class=CustomPasswordResetForm,
              email_template_name='login/password_reset_email.html'
          ), 
          name="password_reset"),
@@ -19,7 +18,6 @@ path('recuperar_credenciales/',
          auth_views.PasswordResetDoneView.as_view(template_name='login/password_reset_sent.html'), 
          name="password_reset_done"),
     
-    # Esta es la que genera el error al intentar crear el correo:
     path('reset/<uidb64>/<token>/', 
          auth_views.PasswordResetConfirmView.as_view(
              template_name="login/password_reset_form.html",

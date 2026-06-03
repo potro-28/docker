@@ -97,6 +97,11 @@ class Masa_corporalCreateView(CreateView):
         )
 
         return super().form_valid(form)
+    
+    def get_context_data(self,**kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo'] = 'Crear masa corporal'
+        return context
 class Masa_corporalUpdateView(UpdateView):
     model = Masa_corporal
     template_name = 'masa_muscular/crear.html'

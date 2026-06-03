@@ -10,7 +10,7 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from gimnasio.models import Notificacion
 import logging
-
+from django.core.mail import EmailMultiAlternatives
 logger = logging.getLogger(__name__)
 
 
@@ -29,6 +29,7 @@ class NotificacionManager:
         descripcion=None,
         usar_html=False,
         fail_silently=False,
+        archivo_adjunto=None,
     ):
         """
         Envía una notificación por correo al usuario y registra en base de datos.
@@ -41,6 +42,7 @@ class NotificacionManager:
             descripcion: Descripción para guardar en BD (opcional)
             usar_html: Si True, trata el cuerpo como HTML; si False, como texto plano
             fail_silently: Si True, no lanza excepciones si falla el envío
+            archivo_adjunto: Ruta al archivo a adjuntar (opcional)
 
         Returns:
             Tupla (éxito: bool, notificacion: Notificacion object o None)
@@ -53,28 +55,31 @@ class NotificacionManager:
         try:
             # Preparar el mensaje
             if usar_html:
-                html_message = cuerpo
                 message = strip_tags(cuerpo)
+                html_message = cuerpo
             else:
-                message = cuerpo
-                html_message = None
+                    message = cuerpo
+                    html_message = None
+            email = EmailMultiAlternatives(
+                    subject=asunto,
+                    body=message,
+                    from_email=NotificacionManager.EMAIL_FROM,
+                    to=[usuario.correo_usuario],
+                )
 
-            # Enviar correo
-            send_mail(
-                subject=asunto,
-                message=message,
-                from_email=NotificacionManager.EMAIL_FROM,
-                recipient_list=[usuario.correo_usuario],
-                fail_silently=fail_silently,
-                html_message=html_message,
-            )
+            if usar_html and html_message:
+                    email.attach_alternative(html_message, "text/html")
+
+
+            if archivo_adjunto:
+                    email.attach_file(archivo_adjunto)
+            email.send()
 
             notificacion = Notificacion.objects.filter(
                 fk_usuario=usuario,
                 tipo_notificacion=tipo_notificacion,
                 detalle_notificacion = detalle_notificacion
             ).first()
-
             if not notificacion:
 
                 notificacion = Notificacion.objects.create(
@@ -141,6 +146,7 @@ class NotificacionManager:
             asunto=asunto,
             cuerpo=cuerpo,
             descripcion="Correo de bienvenida",
+            usar_html=True,
         )
 
     @staticmethod
@@ -160,7 +166,6 @@ class NotificacionManager:
         • Fecha de Inicio: {membresia.fecha_inicio.strftime('%d de %B de %Y')}
         • Fecha de Vencimiento: {membresia.fecha_fin.strftime('%d de %B de %Y') if membresia.fecha_fin else 'Por definir'}
         • Estado: {membresia.get_estado_display()}
-        
         Ya puedes acceder a nuestras instalaciones con tu QR.
         
         ¡A entrenar! 💪
@@ -172,48 +177,55 @@ class NotificacionManager:
         return NotificacionManager.enviar_notificacion(
             usuario=usuario,
             tipo_notificacion="MEMBRESIA",
-            detalle_notificacion='Membresía activada',
+            detalle_notificacion='Membresía_activada',
             asunto=asunto,
             cuerpo=cuerpo,
             descripcion=f"Activación de membresía - {membresia.id}",
+            archivo_adjunto=membresia.qr_code.path if membresia.qr_code else None,
+            usar_html=True,
         )
 
     @staticmethod
     def enviar_alerta_vencimiento(membresia, dias_faltantes):
-        """Envía alerta cuando la membresía está próxima a vencer"""
+        
+        try:
+            """Envía alerta cuando la membresía está próxima a vencer"""
 
-        usuario = membresia.fk_usuario
-        asunto = f'⏰ Tu membresía vence en {dias_faltantes} día{"s" if dias_faltantes != 1 else ""}'
+            usuario = membresia.fk_usuario
+            asunto = f'⏰ Tu membresía vence en {dias_faltantes} día{"s" if dias_faltantes != 1 else ""}'
 
-        cuerpo = f"""
-        Hola {usuario.nombre_usuario},
-        
-        Tu membresía está próxima a vencer. ¡Por favor, renévala para continuar disfrutando de nuestros servicios!
-        
-        Detalles:
-        • Documento: {usuario.documento}
-        • Fecha de Vencimiento: {membresia.fecha_fin.strftime('%d de %B de %Y')}
-        • Días Faltantes: {dias_faltantes}
-        
-        Acércate a nuestras instalaciones para renovar tu membresía en cualquier momento.
-        
-        Contacto:
-        📞 Teléfono: [Tu número aquí]
-        📧 Email: {NotificacionManager.EMAIL_FROM}
-        
-        Saludos cordiales,
-        Equipo Gimnasio Nazareth
-        """
+            cuerpo = f"""
+            Hola {usuario.nombre_usuario},
+            
+            Tu membresía está próxima a vencer. ¡Por favor, renévala para continuar disfrutando de nuestros servicios!
+            
+            Detalles:
+            • Documento: {usuario.documento}
+            • Fecha de Vencimiento: {membresia.fecha_fin.strftime('%d de %B de %Y')}
+            • Días Faltantes: {dias_faltantes}
+            
+            Acércate a nuestras instalaciones para renovar tu membresía en cualquier momento.
+            
+            Contacto:
+            📞 Teléfono: [Tu número aquí]
+            📧 Email: {NotificacionManager.EMAIL_FROM}
+            
+            Saludos cordiales,
+            Equipo Gimnasio Nazareth
+            """
 
-        return NotificacionManager.enviar_notificacion(
-            usuario=usuario,
-            tipo_notificacion="MEMBRESIA",
-            detalle_notificacion="Próxima a vencer",
-            asunto=asunto,
-            cuerpo=cuerpo,
-            descripcion=f"Alerta de vencimiento - Quedan {dias_faltantes} días",
-        )
-
+            return NotificacionManager.enviar_notificacion(
+                usuario=usuario,
+                tipo_notificacion="MEMBRESIA",
+                detalle_notificacion="Próxima_a_vencer",
+                asunto=asunto,
+                cuerpo=cuerpo,
+                descripcion=f"Alerta de vencimiento - Quedan {dias_faltantes} días",
+                usar_html=True,
+            )
+        except Exception as e:
+            logger.error(f"Error enviando alerta de vencimiento: {e}")
+            return False, None
     @staticmethod
     def enviar_notificacion_vencida(membresia):
         """Envía notificación cuando la membresía ha vencido"""
@@ -244,10 +256,11 @@ class NotificacionManager:
         return NotificacionManager.enviar_notificacion(
             usuario=usuario,
             tipo_notificacion="MEMBRESIA",
-            detalle_notificacion='Membresía vencida',
+            detalle_notificacion='Membresía_vencida',
             asunto=asunto,
             cuerpo=cuerpo,
             descripcion="Membresía vencida",
+            usar_html=True,
         )
 
     @staticmethod
@@ -289,47 +302,52 @@ class NotificacionManager:
             asunto=asunto,
             cuerpo=cuerpo,
             descripcion=f"Alerta de inasistencia - {dias_sin_asistencia} días",
+            usar_html=True,
         )
 
     @staticmethod
     def enviar_notificacion_mantenimiento(usuarios, mantenimiento):
-        """Envía notificación a múltiples usuarios sobre un mantenimiento"""
+        try:
+            """Envía notificación a múltiples usuarios sobre un mantenimiento"""
 
-        asunto = f"⚠️ Notificación de Mantenimiento: {mantenimiento.nombre_elemento.nombre_elemento}"
+            asunto = f"⚠️ Notificación de Mantenimiento: {mantenimiento.nombre_elemento.nombre_elemento}"
 
-        cuerpo = f"""
-        Hola,
-        
-        Informamos que se ha programado un mantenimiento en nuestras instalaciones.
-        
-        Detalles del Mantenimiento:
-        • Elemento: {mantenimiento.nombre_elemento.nombre_elemento}
-        • Tipo: {mantenimiento.get_tipo_mantenimiento_display()}
-        • Fecha Programada: {mantenimiento.fecha_programada.strftime('%d de %B de %Y')}
-        • Estado: {mantenimiento.get_estado_display()}
-        • Descripción: {mantenimiento.descripcion}
-        
-        Durante este período, el equipo no estará disponible para su uso.
-        
-        Gracias por tu comprensión,
-        Equipo Gimnasio Nazareth
-        """
+            cuerpo = f"""
+            Hola,
+            
+            Informamos que se ha programado un mantenimiento en nuestras instalaciones.
+            
+            Detalles del Mantenimiento:
+            • Elemento: {mantenimiento.nombre_elemento.nombre_elemento}
+            • Tipo: {mantenimiento.get_tipo_mantenimiento_display()}
+            • Fecha Programada: {mantenimiento.fecha_programada.strftime('%d de %B de %Y')}
+            • Estado: {mantenimiento.get_estado_display()}
+            • Descripción: {mantenimiento.descripcion}
+            
+            Durante este período, el equipo no estará disponible para su uso.
+            
+            Gracias por tu comprensión,
+            Equipo Gimnasio Nazareth
+            """
 
-        resultados = []
-        for usuario in usuarios:
-            resultado = NotificacionManager.enviar_notificacion(
-                usuario=usuario,
-                tipo_notificacion="MANTENIMIENTO",
-                detalle_notificacion='Mantenimiento programado',
-                asunto=asunto,
-                cuerpo=cuerpo,
-                descripcion=f"Mantenimiento - {mantenimiento.nombre_elemento.nombre_elemento}",
+            resultados = []
+            for usuario in usuarios:
+                resultado = NotificacionManager.enviar_notificacion(
+                    usuario=usuario,
+                    tipo_notificacion="MANTENIMIENTO",
+                    detalle_notificacion='Mantenimiento_programado',
+                    asunto=asunto,
+                    cuerpo=cuerpo,
+                    descripcion=f"Mantenimiento - {mantenimiento.nombre_elemento.nombre_elemento}",
+                )
+                resultados.append(resultado)
+
+            exito_count = sum(1 for r in resultados if r[0])
+            logger.info(
+                f"✓ {exito_count}/{len(usuarios)} notificaciones de mantenimiento enviadas"
             )
-            resultados.append(resultado)
 
-        exito_count = sum(1 for r in resultados if r[0])
-        logger.info(
-            f"✓ {exito_count}/{len(usuarios)} notificaciones de mantenimiento enviadas"
-        )
-
-        return resultados
+            return resultados
+        except Exception as e:
+            logger.error(f"Error enviando notificaciones de mantenimiento: {e}")
+            return [(False, None) for _ in usuarios]
