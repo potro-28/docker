@@ -1,4 +1,5 @@
 {% extends 'body.html' %}
+{% load static %}
 {% load widget_tweaks %}
 
 {% block contenido %}
@@ -86,11 +87,9 @@
                     {% endif %}
 
                     <!-- BOTON MAS -->
-                    <button type="button"
-                            class="btn btn-success ms-2">
-
-                        <i class="fas fa-plus"></i>
-
+                        <button type="button" class="btn btn-success ms-2"
+                        data-bs-toggle="modal" data-bs-target="#modalUsuario">
+                        +
                     </button>
 
                 </div>
@@ -219,10 +218,136 @@
 
 </form>
 
+<div class="modal fade" id="modalUsuario" tabindex="-1">
+  <div class="modal-dialog modal-lg"> 
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white py-5">
+        <h5 class="modal-title">
+          <i class="ri-user-add-line me-2"></i>
+         Crear Usuario
+        </h5>
+
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal">
+        </button>
+      </div>  
+      <div class="modal-body">
+        {% csrf_token %}
+
+    
+        <h6 class="text-primary fw-bold mb-2">Datos de acceso</h6>
+        <hr>
+
+        <div class="row">
+        <div class="col-md-6 mb-2">
+          <input 
+            type="text"
+            id="username"
+            name="fake_user"
+            class="form-control"
+            placeholder="Username"
+            autocomplete="off">
+        </div>
+
+        <div class="col-md-6 mb-2">
+            <div class="input-group">
+
+          <input
+            type="password"
+            id="password"
+            class="form-control"
+            placeholder="Contraseña">
+
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            id="btnTogglePassword">
+
+            <i
+              class="ri-eye-line"
+              id="iconPassword">
+            </i>
+
+          </button>
+
+        </div>
+      </div>
+
+
+        <h6 class="text-success fw-bold mt-3 mb-2">Datos personales</h6>
+        <hr>
+
+        <div class="row">
+          <div class="col-md-6 mb-2">
+            <input type="text" id="documento" class="form-control" placeholder="Documento">
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <input type="email" id="correo" class="form-control" placeholder="Correo">
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <input type="text" id="nombre" class="form-control" placeholder="Nombre">
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <input type="text" id="apellido" class="form-control" placeholder="Apellido">
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <input type="text" id="telefono" class="form-control" placeholder="Teléfono">
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <input type="date" id="fecha_nacimiento" class="form-control">
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <select id="genero" class="form-select">
+              <option value="M">Masculino</option>
+              <option value="F">Femenino</option>
+            </select>
+          </div>
+        </div>
+
+   
+        <h6 class="text-warning fw-bold mt-3 mb-2">Datos físicos</h6>
+        <hr>
+
+        <div class="row">
+          <div class="col-md-6 mb-2">
+            <input type="number" id="peso" class="form-control" placeholder="Peso">
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <input type="number" id="altura" class="form-control" placeholder="Altura">
+          </div>
+        </div>
+
+      </div>
+
+      <!-- FOOTER -->
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">
+          Cancelar
+        </button>
+
+        <button class="btn btn-primary" onclick="crearUsuario()">
+          <i class="ri-save-line me-1"></i>Guardar
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
 {% endblock %}
 
 {% block js %}
-
+<script src="{% static 'js/validation.js' %}"></script>
 <!-- SWEET ALERT -->
 
 {% if form.errors %}
@@ -403,6 +528,68 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 
+function crearUsuario() {
+
+    const modal = document.getElementById("modalUsuario");
+    const inputs = modal.querySelectorAll(".form-control, .form-select");
+    let formularioValido = true;
+
+    inputs.forEach(input => {
+        const esValido = validarCampo(input);
+        if (!esValido) {
+            formularioValido = false;
+        }
+    });
+
+    if (!formularioValido) {
+
+        const primerError = modal.querySelector(".is-invalid");
+        if (primerError) primerError.focus();
+        return; 
+    }
+
+    let data = {
+        documento: documento.value,
+        nombre: nombre.value,
+        apellido: apellido.value,
+        correo: correo.value,
+        password: password.value,
+        username: username.value,
+        telefono: telefono.value,
+        fecha_nacimiento: fecha_nacimiento.value,
+        peso: peso.value,
+        altura: altura.value,
+        genero: genero.value
+    };
+
+    fetch("{% url 'gimnasio:crear_usuario_ajax' %}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": '{{csrf_token}}'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        if (data.error) {
+            return Swal.fire("Error", data.error, "error");
+        }
+
+        let select = document.querySelector('[name="fk_usuario"]');
+        if (!select.querySelector(`option[value="${data.id}"]`)) {
+            select.add(new Option(data.nombre, data.id, true, true));
+        }
+
+
+        document.querySelectorAll('#modalUsuario input').forEach(i => i.value = '');
+        document.querySelectorAll('[id^="error_"]').forEach(e => e.innerText = '');
+
+        Swal.fire("Correcto", "Usuario creado correctamente", "success");
+        bootstrap.Modal.getInstance(document.getElementById('modalUsuario')).hide();
+    });
+}
 </script>
 
 {% endblock %}

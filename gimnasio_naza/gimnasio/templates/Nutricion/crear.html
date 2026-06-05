@@ -245,6 +245,7 @@ function crearUsuario() {
       console.log(data.error);
         if (data.error) {
             Swal.fire("Error", data.error, "error");
+            document.getElementById("btnGuardar").disabled = false;
             return;
         }
 

@@ -17,18 +17,20 @@ def crear_nutricion_ajax(request):
     import json
 
     data = json.loads(request.body)
+    try:
+        nutricion = Nutricion.objects.create(
+            nivel_actividad_fisica=data['nivel_actividad'],
+            objetivo_nutricional=data['tipo_objetivo'],
+            tipo_plan_alimenticio=data['tipo_dieta'],
+            fk_Usuario_id=data['fk_usuario']
+        )
 
-    nutricion = Nutricion.objects.create(
-        nivel_actividad=data['nivel_actividad'],
-        tipo_objetivo=data['tipo_objetivo'],
-        tipo_dieta=data['tipo_dieta'],
-        fk_Usuario_id=data['fk_usuario']
-    )
-
-    return JsonResponse({
-        'id': nutricion.id,
-        'nombre': f" {nutricion.id} - {nutricion.fk_Usuario.nombre_usuario} - {nutricion.fk_Usuario.documento}"
-    })
+        return JsonResponse({
+            'id': nutricion.id,
+            'nombre': f" {nutricion.id} - {nutricion.fk_Usuario.nombre_usuario} - {nutricion.fk_Usuario.documento}"
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
 
 #Listar asistencia 
 def Listar_masa_corporal(request):
@@ -101,6 +103,10 @@ class Masa_corporalCreateView(CreateView):
     def get_context_data(self,**kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Crear masa corporal'
+        #Usuarios filtrados por membresia activa
+        print(Usuario.objects.filter(membresia__estado = 'Activo'))
+        context['usuarios'] = Usuario.objects.filter(membresia__estado = 'Activo')
+        print("Usuarios en contexto:", context['usuarios'])
         return context
 class Masa_corporalUpdateView(UpdateView):
     model = Masa_corporal

@@ -15,59 +15,76 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.db import transaction
+from django.db import IntegrityError
 
 @csrf_exempt
 def wizard_crear_todo(request):
     if request.method == "POST":
 
         data = json.loads(request.body)
-        print(data)
+        try:
+            with transaction.atomic():
 
-        with transaction.atomic():
+                fecha_nacimiento = datetime.strptime(data['fecha_nacimiento'], '%Y-%m-%d').date()
+                fecha_control = datetime.strptime(data['fecha_control'], '%Y-%m-%d').date()
 
-            fecha_nacimiento = datetime.strptime(data['fecha_nacimiento'], '%Y-%m-%d').date()
-            fecha_control = datetime.strptime(data['fecha_control'], '%Y-%m-%d').date()
+                user = User.objects.create_user(
+                    username=data['username'],
+                    password=data['password']
+                )
+                print(user)
+                print("Creando Usuario")
+                usuario = Usuario.objects.create(
+                    user=user,
+                    documento=data['documento'],
+                    nombre_usuario=data['nombre'],
+                    apellido_usuario=data['apellido'],
+                    correo_usuario=data['correo'],
+                    telefono_usuario=data['telefono'],
+                    fecha_nacimiento=fecha_nacimiento,
+                    peso_usuario=data['peso_usuario'],
+                    altura_usuario=data['altura_usuario'],
+                    genero_usuario=data['genero'],
+                    estado='activo',
+                    rol='cliente'
+                )
+                print(usuario)
+                print("Creando nutricion")
+                nutricion = Nutricion.objects.create(
+                    nivel_actividad_fisica=data['nivel_actividad'],
+                    objetivo_nutricional=data['tipo_objetivo'],
+                    tipo_plan_alimenticio=data['tipo_dieta'],
+                    fk_Usuario=usuario
+                )
+                print(nutricion)
+                masa = Masa_corporal.objects.create(
+                    peso_cliente=data['peso_cliente'],
+                    altura_cliente=data['altura_cliente'],
+                    fecha_control=fecha_control,
+                    fk_Nutricion=nutricion
+                )
+                print(masa)
+            return JsonResponse({
+                "id": masa.id,
+                "nombre": f"IMC {masa.id}"
+            })
+        except IntegrityError as e:
+            error_msg = str(e).lower()
+            
 
-            user = User.objects.create_user(
-                username=data['username'],
-                password=data['password']
-            )
-            print(user)
-            print("Creando Usuario")
-            usuario = Usuario.objects.create(
-                user=user,
-                documento=data['documento'],
-                nombre_usuario=data['nombre'],
-                apellido_usuario=data['apellido'],
-                correo_usuario=data['correo'],
-                telefono_usuario=data['telefono'],
-                fecha_nacimiento=fecha_nacimiento,
-                peso_usuario=data['peso_usuario'],
-                altura_usuario=data['altura_usuario'],
-                genero_usuario=data['genero'],
-                estado='activo',
-                rol='cliente'
-            )
-            print(usuario)
-            print("Creando nutricion")
-            nutricion = Nutricion.objects.create(
-                nivel_actividad_fisica=data['nivel_actividad'],
-                objetivo_nutricional=data['tipo_objetivo'],
-                tipo_plan_alimenticio=data['tipo_dieta'],
-                fk_Usuario=usuario
-            )
-            print(nutricion)
-            masa = Masa_corporal.objects.create(
-                peso_cliente=data['peso_cliente'],
-                altura_cliente=data['altura_cliente'],
-                fecha_control=fecha_control,
-                fk_Nutricion=nutricion
-            )
-            print(masa)
-        return JsonResponse({
-            "id": masa.id,
-            "nombre": f"IMC {masa.id}"
-        })
+            errores_duplicados = {
+                'documento': "El número de documento ya se encuentra registrado.",
+                'username': "El nombre de usuario ya está en uso por otra persona.",
+                'correo': "Este correo electrónico ya está registrado."
+            }
+            
+            for campo, mensaje in errores_duplicados.items():
+                if campo in error_msg:
+                    return JsonResponse({"error": mensaje}, status=200)
+            
+            return JsonResponse({
+                "error": "Ocurrió un conflicto de integridad al guardar los datos."
+            }, status=200)
 #Listar rutinas
 def listar_rutinas(request):
     nombre ={

@@ -404,7 +404,7 @@ function crearUsuario() {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            "X-CSRFToken": getCookie('csrftoken')
+            "X-CSRFToken": '{{csrf_token}}'
         },
         body: JSON.stringify(data)
     })

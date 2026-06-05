@@ -42,958 +42,716 @@
 </form>
 <!-- ================= MODAL ================= -->
 <div class="modal fade" id="modalWizard">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header text-white" style="background-color: #267ca7">
-        <h5>Wizard Completo</h5>
-        <button
-          class="btn-close btn-close-white"
-          data-bs-dismiss="modal"
-        ></button>
-      </div>
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
 
-      <div class="modal-body">
-        <!-- PASO 1 -->
-        <div id="paso1">
-          <!-- ACCESO -->
-          <h6 class="text-primary fw-bold">Datos de acceso</h6>
-          <hr />
+            <div class="modal-header text-white py-5" style="background-color:#267ca7;">
+                <h5 class="modal-title">
+                    <i class="fa-solid fa-box me-2"></i>
+                    Wizard Completo
+                 </h5>
 
-          <div class="row">
-            <div class="col-md-6 mb-2">
-              <input
-                type="text"
-                id="username"
-                name="fake_user"
-                class="form-control"
-                placeholder="Username"
-                autocomplete="off"
-              />
+                <button
+                    type="button"
+                    class="btn-close btn-close-white"
+                    data-bs-dismiss="modal">
+                </button>
             </div>
-                    <div class="col-md-6 mb-2">
-            <div class="input-group">
 
-          <input
-            type="password"
-            id="password"
-            class="form-control"
-            placeholder="Contraseña">
+            <div class="modal-body">
 
-          <button
-            type="button"
-            class="btn btn-outline-secondary"
-            id="btnTogglePassword">
+                <!-- PASO 1 -->
+                <div id="paso1">
 
-            <i
-              class="ri-eye-line"
-              id="iconPassword">
-            </i>
+                    <!-- DATOS DE ACCESO -->
+                    <h6 class="text-primary fw-bold">
+                        Datos de acceso
+                    </h6>
+                    <hr>
 
-          </button>
+                    <div class="row">
+
+                        <div class="col-md-6 mb-2">
+                            <input
+                                type="text"
+                                id="username"
+                                name="fake_user"
+                                class="form-control"
+                                placeholder="Username"
+                                autocomplete="off">
+
+                            <small
+                                id="error_username"
+                                class="text-danger">
+                            </small>
+                        </div>
+
+                        <div class="col-md-6 mb-2">
+
+                            <div class="input-group">
+
+                                <input
+                                    type="password"
+                                    id="password"
+                                    class="form-control"
+                                    placeholder="Contraseña">
+
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-secondary"
+                                    id="btnTogglePassword">
+
+                                    <i
+                                        class="ri-eye-line"
+                                        id="iconPassword">
+                                    </i>
+
+                                </button>
+
+                            </div>
+
+                            <small
+                                id="error_password"
+                                class="text-danger">
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                    <!-- DATOS PERSONALES -->
+                    <h6 class="text-success fw-bold mt-3">
+                        Datos personales
+                    </h6>
+                    <hr>
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-2">
+                            <input
+                                id="documento"
+                                class="form-control"
+                                placeholder="Documento">
+
+                            <small
+                                id="error_documento"
+                                class="text-danger">
+                            </small>
+                        </div>
+
+                        <div class="col-md-6 mb-2">
+                            <input
+                                id="correo"
+                                class="form-control"
+                                placeholder="Correo">
+
+                            <small
+                                id="error_correo"
+                                class="text-danger">
+                            </small>
+                        </div>
+
+                        <div class="col-md-6 mb-2">
+                            <input
+                                id="nombre"
+                                class="form-control"
+                                placeholder="Nombre">
+
+                            <small
+                                id="error_nombre"
+                                class="text-danger">
+                            </small>
+                        </div>
+
+                        <div class="col-md-6 mb-2">
+                            <input
+                                id="apellido"
+                                class="form-control"
+                                placeholder="Apellido">
+
+                            <small
+                                id="error_apellido"
+                                class="text-danger">
+                            </small>
+                        </div>
+
+                        <div class="col-md-6 mb-2">
+                            <input
+                                id="telefono"
+                                class="form-control"
+                                placeholder="Teléfono">
+
+                            <small
+                                id="error_telefono"
+                                class="text-danger">
+                            </small>
+                        </div>
+
+                        <div class="col-md-6 mb-2">
+
+                            <input
+                                id="fecha_nacimiento"
+                                type="text"
+                                class="form-control"
+                                placeholder="Fecha de Nacimiento"
+                                onfocus="(this.type='date')"
+                                onblur="if(!this.value)this.type='text'">
+
+                            <small
+                                id="error_fecha_nacimiento"
+                                class="text-danger">
+                            </small>
+
+                        </div>
+
+                        <div class="col-md-6 mb-2">
+
+                            <select
+                                id="genero"
+                                class="form-select">
+
+                                <option value="">
+                                    Género
+                                </option>
+
+                                <option value="M">
+                                    Masculino
+                                </option>
+
+                                <option value="F">
+                                    Femenino
+                                </option>
+
+                            </select>
+
+                            <small
+                                id="error_genero"
+                                class="text-danger">
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                    <!-- DATOS FÍSICOS -->
+                    <h6 class="text-warning fw-bold mt-3">
+                        Datos físicos
+                    </h6>
+                    <hr>
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-2">
+
+                            <input
+                                id="peso_usuario"
+                                type="number"
+                                class="form-control"
+                                placeholder="Peso (kg)">
+
+                            <small
+                                id="error_peso_usuario"
+                                class="text-danger">
+                            </small>
+
+                        </div>
+
+                        <div class="col-md-6 mb-2">
+
+                            <input
+                                id="altura_usuario"
+                                type="number"
+                                class="form-control"
+                                placeholder="Altura (cm)">
+
+                            <small
+                                id="error_altura_usuario"
+                                class="text-danger">
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- PASO 2 -->
+                <div id="paso2" style="display:none;">
+
+                    <h6>Nutrición</h6>
+
+                    <select
+                        id="nivel_actividad"
+                        class="form-control mb-1">
+
+                        <option value="">
+                            Nivel Actividad Física
+                        </option>
+
+                        <option value="bajo">
+                            Bajo
+                        </option>
+
+                        <option value="medio">
+                            Medio
+                        </option>
+
+                        <option value="alto">
+                            Alto
+                        </option>
+
+                    </select>
+
+                    <small
+                        id="error_nivel_actividad"
+                        class="text-danger">
+                    </small>
+
+                    <select
+                        id="tipo_objetivo"
+                        class="form-control mb-1">
+
+                        <option value="">
+                            Objetivo Nutricional
+                        </option>
+
+                        <option value="perder_peso">
+                            Perder Peso
+                        </option>
+
+                        <option value="mantener">
+                            Mantener Peso
+                        </option>
+
+                        <option value="ganar_masa">
+                            Ganar Masa
+                        </option>
+
+                    </select>
+
+                    <small
+                        id="error_tipo_objetivo"
+                        class="text-danger">
+                    </small>
+
+                    <select
+                        id="tipo_dieta"
+                        class="form-control mb-1">
+
+                        <option value="">
+                            Tipo Plan Alimenticio
+                        </option>
+
+                        <option value="keto">
+                            Keto
+                        </option>
+
+                        <option value="balanceada">
+                            Balanceada
+                        </option>
+
+                    </select>
+
+                    <small
+                        id="error_tipo_dieta"
+                        class="text-danger">
+                    </small>
+
+                </div>
+
+                <!-- PASO 3 -->
+                <div id="paso3" style="display:none;">
+
+                    <h6>Masa Corporal</h6>
+
+                    <input
+                        id="peso_cliente"
+                        class="form-control mb-1"
+                        placeholder="Peso">
+
+                    <small
+                        id="error_peso_cliente"
+                        class="text-danger">
+                    </small>
+
+                    <input
+                        id="altura_cliente"
+                        class="form-control mb-1"
+                        placeholder="Altura">
+
+                    <small
+                        id="error_altura_cliente"
+                        class="text-danger">
+                    </small>
+
+                    <label
+                        for="fecha_control"
+                        class="form-label">
+
+                        Fecha de control
+
+                    </label>
+
+                    <input
+                        id="fecha_control"
+                        type="date"
+                        class="form-control mb-1">
+
+                    <small
+                        id="error_fecha_control"
+                        class="text-danger">
+                    </small>
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    onclick="prevPaso()">
+
+                    Anterior
+
+                </button>
+
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    onclick="nextPaso()"
+                    id="Siguiente">
+
+                    Siguiente
+
+                </button>
+
+            </div>
 
         </div>
-          </div>
-
-          <!-- PERSONALES -->
-          <h6 class="text-success fw-bold mt-3">Datos personales</h6>
-          <hr />
-
-          <div class="row">
-            <div class="col-md-6 mb-2">
-              <input
-                id="documento"
-                class="form-control"
-                placeholder="Documento"
-              />
-              <small id="error_documento" class="text-danger"></small>
-            </div>
-
-            <div class="col-md-6 mb-2">
-              <input id="correo" class="form-control" placeholder="Correo" />
-              <small id="error_correo" class="text-danger"></small>
-            </div>
-
-            <div class="col-md-6 mb-2">
-              <input id="nombre" class="form-control" placeholder="Nombre" />
-              <small id="error_nombre" class="text-danger"></small>
-            </div>
-
-            <div class="col-md-6 mb-2">
-              <input
-                id="apellido"
-                class="form-control"
-                placeholder="Apellido"
-              />
-              <small id="error_apellido" class="text-danger"></small>
-            </div>
-
-            <div class="col-md-6 mb-2">
-              <input
-                id="telefono"
-                class="form-control"
-                placeholder="Teléfono"
-              />
-              <small id="error_telefono" class="text-danger"></small>
-            </div>
-
-            <div class="col-md-6 mb-2">
-              <input 
-    id="fecha_nacimiento" 
-    type="text" 
-    class="form-control" 
-    placeholder="Fecha de Nacimiento"
-    onfocus="(this.type='date')"
-    onblur="if(!this.value)this.type='text'">
-              <small id="error_fecha_nacimiento" class="text-danger"></small>
-            </div>
-
-            <div class="col-md-6 mb-2">
-              <select id="genero" class="form-select">
-                <option value="">Género</option>
-                <option value="M">Masculino</option>
-                <option value="F">Femenino</option>
-              </select>
-              <small id="error_genero" class="text-danger"></small>
-            </div>
-          </div>
-
-          <!-- FÍSICOS -->
-          <h6 class="text-warning fw-bold mt-3">Datos físicos</h6>
-          <hr />
-
-          <div class="row">
-            <div class="col-md-6 mb-2">
-              <input
-                id="peso_usuario"
-                type="number"
-                class="form-control"
-                placeholder="Peso (kg)"
-              />
-              <small id="error_peso_usuario" class="text-danger"></small>
-            </div>
-
-            <div class="col-md-6 mb-2">
-              <input
-                id="altura_usuario"
-                type="number"
-                class="form-control"
-                placeholder="Altura (cm)"
-              />
-              <small id="error_altura_usuario" class="text-danger"></small>
-            </div>
-          </div>
-        </div>
-        <!-- PASO 2 -->
-        <div id="paso2" style="display: none">
-          <h6>Nutrición</h6>
-
-          <select id="nivel_actividad" class="form-control mb-1">
-            <option value="">Nivel Actividad Fisica</option>
-            <option value="bajo">Bajo</option>
-            <option value="medio">Medio</option>
-            <option value="alto">Alto</option>
-          </select>
-          <small id="error_nivel_actividad" class="text-danger"></small>
-
-          <select id="tipo_objetivo" class="form-control mb-1">
-            <option value="">Objetivo Nutricional</option>
-            <option value="perder_peso">Perder</option>
-            <option value="mantener">Mantener</option>
-            <option value="ganar_masa">Ganar</option>
-          </select>
-          <small id="error_tipo_objetivo" class="text-danger"></small>
-
-          <select id="tipo_dieta" class="form-control mb-1">
-            <option value="">Tipo Plan Alimenticio</option>
-            <option value="keto">Keto</option>
-            <option value="balanceada">Balanceada</option>
-          </select>
-          <small id="error_tipo_dieta" class="text-danger"></small>
-        </div>
-
-        <!-- PASO 3 -->
-        <div id="paso3" style="display: none">
-          <h6>Masa Corporal</h6>
-
-          <input
-            id="peso_cliente"
-            class="form-control mb-1"
-            placeholder="Peso"
-          />
-          <small id="error_peso_cliente" class="text-danger"></small>
-
-          <input
-            id="altura_cliente"
-            class="form-control mb-1"
-            placeholder="Altura"
-          />
-          <small id="error_altura_cliente" class="text-danger"></small>
-
-          <label for="fecha_nacimiento" class="form-label"
-            >Fecha de control</label
-          >
-          <input id="fecha_control" type="date" class="form-control mb-1" />
-          <small id="error_fecha_control" class="text-danger"></small>
-        </div>
-      </div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" onclick="prevPaso()">
-          Anterior
-        </button>
-        <button
-          type="button"
-          class="btn btn-primary"
-          onclick="nextPaso()"
-          id="Siguiente"
-        >
-          Siguiente
-        </button>
-      </div>
     </div>
-  </div>
 </div>
-
-{% endblock %} {% block js %}
-
+{% endblock %} 
+{% block js %}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-document.addEventListener("DOMContentLoaded", function(){
+document.addEventListener("DOMContentLoaded", function() {
 
-/* ========= ELEMENTOS ========= */
+    /* ========= ELEMENTOS ========= */
+    const nombreUsuario = document.getElementById("username");
+    const password = document.getElementById("password");
+    const documento = document.getElementById("documento");
+    const nombre = document.getElementById("nombre");
+    const apellido = document.getElementById("apellido");
+    const correo = document.getElementById("correo");
+    const telefono = document.getElementById("telefono");
+    const fecha_nacimiento = document.getElementById("fecha_nacimiento");
+    const peso_usuario = document.getElementById("peso_usuario");
+    const altura_usuario = document.getElementById("altura_usuario");
+    const genero = document.getElementById("genero");
+    
+    const nivel_actividad = document.getElementById("nivel_actividad");
+    const tipo_objetivo = document.getElementById("tipo_objetivo");
+    const tipo_dieta = document.getElementById("tipo_dieta");
+    
+    const peso_cliente = document.getElementById("peso_cliente");
+    const altura_cliente = document.getElementById("altura_cliente");
+    const fecha_control = document.getElementById("fecha_control");
+    
+    const Siguiente = document.getElementById("Siguiente");
+    const passwordInput = document.getElementById("password");
+    const btnTogglePassword = document.getElementById("btnTogglePassword");
+    const iconPassword = document.getElementById("iconPassword");
 
-const nombreUsuario = document.getElementById("username");
-const password = document.getElementById("password");
+    let paso = 1;
 
-const documento = document.getElementById("documento");
-const nombre = document.getElementById("nombre");
-const apellido = document.getElementById("apellido");
-const correo = document.getElementById("correo");
-const telefono = document.getElementById("telefono");
-
-const fecha_nacimiento =
-document.getElementById("fecha_nacimiento");
-
-const peso_usuario =
-document.getElementById("peso_usuario");
-
-const altura_usuario =
-document.getElementById("altura_usuario");
-
-const genero =
-document.getElementById("genero");
-
-const nivel_actividad =
-document.getElementById("nivel_actividad");
-
-const tipo_objetivo =
-document.getElementById("tipo_objetivo");
-
-const tipo_dieta =
-document.getElementById("tipo_dieta");
-
-const peso_cliente =
-document.getElementById("peso_cliente");
-
-const altura_cliente =
-document.getElementById("altura_cliente");
-
-const fecha_control =
-document.getElementById("fecha_control");
-
-const Siguiente =
-document.getElementById("Siguiente");
-
-let paso = 1;
-
-
-/* ========= HELPERS ========= */
-
-function mostrarError(id,msg){
-
-    const el =
-    document.getElementById("error_"+id);
-
-    if(el){
-        el.innerText = msg;
+    /* ========= HELPERS ========= */
+    function mostrarError(id, msg) {
+        const el = document.getElementById("error_" + id);
+        if (el) el.innerText = msg;
     }
-}
 
-function limpiarError(id){
-
-    const el =
-    document.getElementById("error_"+id);
-
-    if(el){
-        el.innerText = "";
+    function limpiarError(id) {
+        const el = document.getElementById("error_" + id);
+        if (el) el.innerText = "";
     }
-}
 
-function hayErroresPaso(p){
+    function hayErroresPaso(p) {
+        return [...document.querySelectorAll(`#paso${p} small`)].some(
+            e => e.innerText !== ""
+        );
+    }
 
-    return [
-        ...document.querySelectorAll(
-            "#paso"+p+" small"
-        )
-    ].some(
-        e => e.innerText !== ""
-    );
-}
+    function validarVaciosPaso(p) {
+        const campos = document.querySelectorAll(`#paso${p} input, #paso${p} select`);
 
-function validarVaciosPaso(p){
-
-    const campos =
-    document.querySelectorAll(
-        "#paso"+p+" input, #paso"+p+" select"
-    );
-
-    for(const campo of campos){
-
-        if(
-            campo.type !== "button" &&
-            !campo.value.trim()
-        ){
-
-            Swal.fire(
-                "Campo obligatorio",
-                "Completa todos los campos",
-                "warning"
-            );
-
-            campo.focus();
-
-            return false;
+        for (const campo of campos) {
+            if (campo.type !== "button" && !campo.value.trim()) {
+                console.log(campo);
+                Swal.fire(
+                    "Campo obligatorio",
+                    "Completa todos los campos",
+                    "warning"
+                );
+                campo.focus();
+                return false;
+            }
         }
+        return true;
     }
 
-    return true;
-}
+    /* ========= VALIDACIONES INPUTS ========= */
 
+    if (nombreUsuario) {
+        nombreUsuario.addEventListener("input", () => {
+            nombreUsuario.value.length < 4 
+                ? mostrarError("username", "Mínimo 4 caracteres") 
+                : limpiarError("username");
+        });
+    }
 
-/* ========= VALIDACIONES ========= */
+    if (password) {
+        password.addEventListener("input", () => {
+            password.value.length < 6 
+                ? mostrarError("password", "Mínimo 6 caracteres") 
+                : limpiarError("password");
+        });
+    }
 
-/* usuario */
+    if (documento) {
+        documento.addEventListener("input", () => {
+            /^\d{7,10}$/.test(documento.value)
+                ? limpiarError("documento")
+                : mostrarError("documento", "Debe tener 7 a 10 dígitos");
+        });
+    }
 
-nombreUsuario.addEventListener(
-"input",
-()=>{
-
-    nombreUsuario.value.length < 4
-
-    ? mostrarError(
-        "username",
-        "Mínimo 4 caracteres"
-    )
-
-    : limpiarError(
-        "username"
-    );
-
-}
-);
-
-/* password */
-
-password.addEventListener(
-"input",
-()=>{
-
-    password.value.length < 6
-
-    ? mostrarError(
-        "password",
-        "Mínimo 6 caracteres"
-    )
-
-    : limpiarError(
-        "password"
-    );
-
-}
-);
-
-/* documento */
-
-documento.addEventListener(
-"input",
-()=>{
-
-    /^\d{7,10}$/.test(
-        documento.value
-    )
-
-    ? limpiarError(
-        "documento"
-    )
-
-    : mostrarError(
-        "documento",
-        "Debe tener 7 a 10 dígitos"
-    );
-
-}
-);
-
-/* nombre y apellido */
-
-[nombre,apellido].forEach(
-campo=>{
-
-    campo.addEventListener(
-    "input",
-    ()=>{
-
-        /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(
-            campo.value
-        )
-
-        ? limpiarError(
-            campo.id
-        )
-
-        : mostrarError(
-            campo.id,
-            "Solo letras"
-        );
-
+    [nombre, apellido].forEach(campo => {
+        if (campo) {
+            campo.addEventListener("input", () => {
+                /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(campo.value)
+                    ? limpiarError(campo.id)
+                    : mostrarError(campo.id, "Solo letras");
+            });
+        }
     });
 
-}
-);
+    if (correo) {
+        correo.addEventListener("input", () => {
+            /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo.value)
+                ? limpiarError("correo")
+                : mostrarError("correo", "Correo inválido");
+        });
+    }
 
-/* correo */
+    if (telefono) {
+        telefono.addEventListener("input", () => {
+            /^3\d{9}$/.test(telefono.value)
+                ? limpiarError("telefono")
+                : mostrarError("telefono", "Debe iniciar en 3");
+        });
+    }
 
-correo.addEventListener(
-"input",
-()=>{
+    if (fecha_nacimiento) {
+        fecha_nacimiento.addEventListener("change", () => {
+            const f = new Date(fecha_nacimiento.value);
+            f >= new Date()
+                ? mostrarError("fecha_nacimiento", "Fecha inválida")
+                : limpiarError("fecha_nacimiento");
+        });
+    }
 
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
-        correo.value
-    )
+    if (peso_usuario) {
+        peso_usuario.addEventListener("input", () => {
+            (peso_usuario.value < 30 || peso_usuario.value > 200)
+                ? mostrarError("peso_usuario", "Valor inválido")
+                : limpiarError("peso_usuario");
+        });
+    }
 
-    ? limpiarError(
-        "correo"
-    )
+    if (altura_usuario) {
+        altura_usuario.addEventListener("input", () => {
+            (altura_usuario.value < 100 || altura_usuario.value > 250)
+                ? mostrarError("altura_usuario", "Valor inválido")
+                : limpiarError("altura_usuario");
+        });
+    }
 
-    : mostrarError(
-        "correo",
-        "Correo inválido"
-    );
+    if (genero) {
+        genero.addEventListener("change", () => {
+            !genero.value ? mostrarError("genero", "Selecciona uno") : limpiarError("genero");
+        });
+    }
 
-}
-);
-
-/* telefono */
-
-telefono.addEventListener(
-"input",
-()=>{
-
-    /^3\d{9}$/.test(
-        telefono.value
-    )
-
-    ? limpiarError(
-        "telefono"
-    )
-
-    : mostrarError(
-        "telefono",
-        "Debe iniciar en 3"
-    );
-
-}
-);
-
-/* fecha nacimiento */
-
-fecha_nacimiento.addEventListener(
-"change",
-()=>{
-
-    const f =
-    new Date(
-        fecha_nacimiento.value
-    );
-
-    f >= new Date()
-
-    ? mostrarError(
-        "fecha_nacimiento",
-        "Fecha inválida"
-    )
-
-    : limpiarError(
-        "fecha_nacimiento"
-    );
-
-}
-);
-
-/* peso */
-
-peso_usuario.addEventListener(
-"input",
-()=>{
-
-    (
-        peso_usuario.value < 30 ||
-        peso_usuario.value > 200
-    )
-
-    ? mostrarError(
-        "peso_usuario",
-        "Valor inválido"
-    )
-
-    : limpiarError(
-        "peso_usuario"
-    );
-
-}
-);
-
-/* altura */
-
-altura_usuario.addEventListener(
-"input",
-()=>{
-
-    (
-        altura_usuario.value < 100 ||
-        altura_usuario.value > 250
-    )
-
-    ? mostrarError(
-        "altura_usuario",
-        "Valor inválido"
-    )
-
-    : limpiarError(
-        "altura_usuario"
-    );
-
-}
-);
-
-/* genero */
-
-genero.addEventListener(
-"change",
-()=>{
-
-    !genero.value
-
-    ? mostrarError(
-        "genero",
-        "Selecciona uno"
-    )
-
-    : limpiarError(
-        "genero"
-    );
-
-}
-);
-
-/* paso 2 */
-
-[
-nivel_actividad,
-tipo_objetivo,
-tipo_dieta
-
-].forEach(campo=>{
-
-    campo.addEventListener(
-    "change",
-    ()=>{
-
-        !campo.value
-
-        ? mostrarError(
-            campo.id,
-            "Campo obligatorio"
-        )
-
-        : limpiarError(
-            campo.id
-        );
-
+    /* Paso 2 */
+    [nivel_actividad, tipo_objetivo, tipo_dieta].forEach(campo => {
+        if (campo) {
+            campo.addEventListener("change", () => {
+                !campo.value ? mostrarError(campo.id, "Campo obligatorio") : limpiarError(campo.id);
+            });
+        }
     });
 
-});
-
-/* paso 3 */
-
-peso_cliente.addEventListener(
-"input",
-()=>{
-
-    (
-        peso_cliente.value < 30 ||
-        peso_cliente.value > 200
-    )
-
-    ? mostrarError(
-        "peso_cliente",
-        "Valor inválido"
-    )
-
-    : limpiarError(
-        "peso_cliente"
-    );
-
-}
-);
-
-altura_cliente.addEventListener(
-"input",
-()=>{
-
-    (
-        altura_cliente.value < 100 ||
-        altura_cliente.value > 250
-    )
-
-    ? mostrarError(
-        "altura_cliente",
-        "Valor inválido"
-    )
-
-    : limpiarError(
-        "altura_cliente"
-    );
-
-}
-);
-
-fecha_control.addEventListener(
-"change",
-()=>{
-
-    !fecha_control.value
-
-    ? mostrarError(
-        "fecha_control",
-        "Campo obligatorio"
-    )
-
-    : limpiarError(
-        "fecha_control"
-    );
-
-}
-);
-
-
-/* ========= WIZARD ========= */
-
-window.abrirWizard =
-function(){
-
-    paso = 1;
-
-    mostrarPaso();
-
-    new bootstrap.Modal(
-        document.getElementById(
-            "modalWizard"
-        )
-    ).show();
-};
-
-function mostrarPaso(){
-
-    for(
-        let i=1;
-        i<=3;
-        i++
-    ){
-
-        document.getElementById(
-            "paso"+i
-        ).style.display =
-        i===paso
-        ? "block"
-        : "none";
+    /* Paso 3 */
+    if (peso_cliente) {
+        peso_cliente.addEventListener("input", () => {
+            (peso_cliente.value < 30 || peso_cliente.value > 200)
+                ? mostrarError("peso_cliente", "Valor inválido")
+                : limpiarError("peso_cliente");
+        });
     }
 
-    Siguiente.innerText =
-    paso===3
-    ? "Guardar"
-    : "Siguiente";
-}
-
-window.nextPaso =
-function(){
-
-    if(
-        !validarVaciosPaso(
-            paso
-        )
-    ){
-        return;
+    if (altura_cliente) {
+        altura_cliente.addEventListener("input", () => {
+            (altura_cliente.value < 100 || altura_cliente.value > 250)
+                ? mostrarError("altura_cliente", "Valor inválido")
+                : limpiarError("altura_cliente");
+        });
     }
 
-    if(
-        hayErroresPaso(
-            paso
-        )
-    ){
-
-        Swal.fire(
-            "Error",
-            "Corrige los errores",
-            "error"
-        );
-
-        return;
+    if (fecha_control) {
+        fecha_control.addEventListener("change", () => {
+            !fecha_control.value ? mostrarError("fecha_control", "Campo obligatorio") : limpiarError("fecha_control");
+        });
     }
 
-    if(
-        paso===3
-    ){
-
-        guardar();
-
-        return;
-    }
-
-    paso++;
-
-    mostrarPaso();
-};
-
-window.prevPaso =
-function(){
-
-    if(
-        paso>1
-    ){
-
-        paso--;
-
+    /* ========= WIZARD CONTROLES ========= */
+    window.abrirWizard = function() {
+        paso = 1;
         mostrarPaso();
-    }
-
-};
-
-
-/* ========= CSRF ========= */
-
-function getCookie(name){
-
-    let valor = null;
-
-    document.cookie
-    .split(";")
-    .forEach(c=>{
-
-        if(
-            c.trim().startsWith(
-                name+"="
-            )
-        ){
-
-            valor =
-            decodeURIComponent(
-                c.split("=")[1]
-            );
+        const modalEl = document.getElementById("modalWizard");
+        if (modalEl) {
+            new bootstrap.Modal(modalEl).show();
         }
-
-    });
-
-    return valor;
-}
-
-
-/* ========= GUARDAR ========= */
-
-function guardar(){
-
-    const data = {
-
-        username:
-        nombreUsuario.value,
-
-        password:
-        password.value,
-
-        documento:
-        documento.value,
-
-        nombre:
-        nombre.value,
-
-        apellido:
-        apellido.value,
-
-        correo:
-        correo.value,
-
-        telefono:
-        telefono.value,
-
-        fecha_nacimiento:
-        fecha_nacimiento.value,
-
-        peso_usuario:
-        peso_usuario.value,
-
-        altura_usuario:
-        altura_usuario.value,
-
-        genero:
-        genero.value,
-
-        nivel_actividad:
-        nivel_actividad.value,
-
-        tipo_objetivo:
-        tipo_objetivo.value,
-
-        tipo_dieta:
-        tipo_dieta.value,
-
-        peso_cliente:
-        peso_cliente.value,
-
-        altura_cliente:
-        altura_cliente.value,
-
-        fecha_control:
-        fecha_control.value
     };
 
-    Swal.fire({
-        title:"Guardando...",
-        allowOutsideClick:false,
-        didOpen:()=>{
-            Swal.showLoading();
+    function mostrarPaso() {
+        for (let i = 1; i <= 3; i++) {
+            const pasoEl = document.getElementById("paso" + i);
+            if (pasoEl) {
+                pasoEl.style.display = i === paso ? "block" : "none";
+            }
         }
-    });
-
-    fetch(
-        "/gimnasio/wizard/crear-todo/",
-        {
-            method:"POST",
-            headers:{
-                "Content-Type":"application/json",
-                "X-CSRFToken":
-                getCookie(
-                    "csrftoken"
-                )
-            },
-            body:
-            JSON.stringify(
-                data
-            )
+        if (Siguiente) {
+            Siguiente.innerText = paso === 3 ? "Guardar" : "Siguiente";
         }
-    )
-    .then(r=>r.json())
-    .then(r=>{
+    }
 
-        if(r.error){
-
-            Swal.fire(
-                "Error",
-                r.error,
-                "error"
-            );
-
+    window.nextPaso = function() {
+        if (!validarVaciosPaso(paso)) return;
+        if (hayErroresPaso(paso)) {
+            Swal.fire("Error", "Corrige los errores", "error");
             return;
         }
 
-        const selectImc =
-        document.querySelector(
-            "[name='fk_imc']"
-        );
-
-        if(selectImc){
-
-            if(
-                !selectImc.querySelector(
-                    `option[value="${r.id}"]`
-                )
-            ){
-
-                selectImc.add(
-                    new Option(
-                        r.nombre ||
-                        "Registro creado",
-                        r.id,
-                        true,
-                        true
-                    )
-                );
-            }
-
-            selectImc.value = r.id;
+        if (paso === 3) {
+            guardar();
+            return;
         }
 
-        bootstrap
-        .Modal
-        .getInstance(
-            document.getElementById(
-                "modalWizard"
-            )
-        )
-        .hide();
+        paso++;
+        mostrarPaso();
+    };
 
-        Swal.fire(
-            "Correcto",
-            "Guardado exitosamente",
-            "success"
-        );
+    window.prevPaso = function() {
+        if (paso > 1) {
+            paso--;
+            mostrarPaso();
+        }
+    };
 
-    });
-
-}
-
-});
-
-const passwordInput =
-    document.getElementById(
-        "password"
-    );
-
-const btnTogglePassword =
-    document.getElementById(
-        "btnTogglePassword"
-    );
-
-const iconPassword =
-    document.getElementById(
-        "iconPassword"
-    );
-
-if (
-    btnTogglePassword
-) {
-
-    btnTogglePassword
-        .addEventListener(
-            "click",
-            function () {
-
-                const esPassword =
-                    passwordInput.type ===
-                    "password";
-
-                passwordInput.type =
-                    esPassword
-                        ? "text"
-                        : "password";
-
-                iconPassword.className =
-                    esPassword
-                        ? "ri-eye-off-line"
-                        : "ri-eye-line";
+    /* ========= CSRF COOKIE ========= */
+    function getCookie(name) {
+        let valor = null;
+        document.cookie.split(";").forEach(c => {
+            if (c.trim().startsWith(name + "=")) {
+                valor = decodeURIComponent(c.split("=")[1]);
             }
-        );
-}
-</script>
+        });
+        return valor;
+    }
 
+    /* ========= AJAX GUARDAR ========= */
+    function guardar() {
+        document.getElementById("Siguiente").disabled = true;
+        const data = {
+            username: nombreUsuario?.value || "",
+            password: password?.value || "",
+            documento: documento?.value || "",
+            nombre: nombre?.value || "",
+            apellido: apellido?.value || "",
+            correo: correo?.value || "",
+            telefono: telefono?.value || "",
+            fecha_nacimiento: fecha_nacimiento?.value || "",
+            peso_usuario: peso_usuario?.value || "",
+            altura_usuario: altura_usuario?.value || "",
+            genero: genero?.value || "",
+            nivel_actividad: nivel_actividad?.value || "",
+            tipo_objetivo: tipo_objetivo?.value || "",
+            tipo_dieta: tipo_dieta?.value || "",
+            peso_cliente: peso_cliente?.value || "",
+            altura_cliente: altura_cliente?.value || "",
+            fecha_control: fecha_control?.value || ""
+        };
+
+        Swal.fire({
+            title: "Guardando...",
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        fetch("/gimnasio/wizard/crear-todo/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCookie("csrftoken")
+            },
+            body: JSON.stringify(data)
+        })
+        .then(r => r.json())
+        .then(r => {
+            if (r.error) {
+                Swal.fire("Error", r.error, "error");
+                return;
+            }
+
+            const selectImc = document.querySelector("[name='fk_imc']");
+            if (selectImc) {
+                if (!selectImc.querySelector(`option[value="${r.id}"]`)) {
+                    selectImc.add(
+                        new Option(r.nombre || "Registro creado", r.id, true, true)
+                    );
+                }
+                selectImc.value = r.id;
+            }
+
+            const modalElement = document.getElementById("modalWizard");
+            if (modalElement) {
+                const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                if (modalInstance) modalInstance.hide();
+            }
+
+            Swal.fire("Correcto", "Guardado exitosamente", "success");
+        })
+        .catch(e => {
+            console.error(e);
+            Swal.fire("Error", "Ocurrió un error", "error");
+        });
+    }
+
+    /* ========= TOGGLE PASSWORD ========= */
+    if (btnTogglePassword && passwordInput && iconPassword) {
+        btnTogglePassword.addEventListener("click", function() {
+            const esPassword = passwordInput.type === "password";
+            passwordInput.type = esPassword ? "text" : "password";
+            iconPassword.className = esPassword ? "ri-eye-off-line" : "ri-eye-line";
+        });
+    }
+
+}); // <-- Ahora DOMContentLoaded encierra TODO el código de manera segura.
+</script>
 {% endblock %}

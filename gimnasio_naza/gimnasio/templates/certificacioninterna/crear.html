@@ -140,14 +140,10 @@ function validarCampo(input){
             return false;
         }
 
-        let fecha =
-        new Date(input.value);
+        let fecha = new Date(input.value) + new Date().getTimezoneOffset() * 60000; // Ajustar por zona horaria
 
-        let hoy =
-        new Date();
-
-        hoy.setHours(0,0,0,0);
-
+        let hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
         if(fecha < hoy){
             console.log("Fecha ingresada:", fecha);
             console.log("Fecha actual:", hoy);
