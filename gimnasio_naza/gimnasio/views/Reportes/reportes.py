@@ -402,7 +402,7 @@ class ExportarTurnodeentrenadorPDF(DjangoView):
         
         # Preparar los datos en formato de tuplas
         datos = [
-            (turno.id, turno.administrador.get_full_name() if turno.administrador else "Sin administrador", turno.fecha_turno_inicio, turno.fecha_turno_final, turno.jornada)
+            (turno.id, turno.administrador.nombre_usuario if turno.administrador else "Sin administrador", turno.fecha_turno_inicio, turno.fecha_turno_final, turno.jornada)
             for turno in registro
         ]
         
@@ -433,7 +433,7 @@ class ExportarTurnodeentrenadorExcel(DjangoView):
         
         # Preparar los datos en  tuplas
         datos = [
-            (turno.id, turno.administrador.get_full_name() if turno.administrador else "Sin administrador", turno.fecha_turno_inicio, turno.fecha_turno_final, turno.jornada)
+            (turno.id, turno.administrador.nombre_usuario if turno.administrador else "Sin administrador", turno.fecha_turno_inicio, turno.fecha_turno_final, turno.jornada)
             for turno in registro
         ]
         
@@ -464,7 +464,7 @@ class ExportarCertificacioninternaPDF(DjangoView):
         
         # Preparar los datos en formato de tuplas
         datos = [
-            (turno.id, turno.descripcion_certificacion, turno.fecha_certificacion, turno.fk_Asistencia)
+            (turno.id, turno.descripcion_certificacion, turno.fecha_certificacion, turno.fk_membresia)
             for turno in registro
         ]
         
@@ -495,7 +495,7 @@ class ExportarCertificacioninternaExcel(DjangoView):
         
         # Preparar los datos en  tuplas
         datos = [
-            (turno.id, turno.descripcion_certificacion, turno.fecha_certificacion, turno.fk_Asistencia)
+            (turno.id, turno.descripcion_certificacion, turno.fecha_certificacion, turno.fk_membresia)
             for turno in registro
         ]
         

@@ -111,8 +111,14 @@
     </li>
 
     {% endif %}
-
-
+  {% if user.usuario.rol == 'Administrador' or user.is_superuser %}
+    <li class="{% if request.resolver_match.url_name == 'listar_Reportes_estadisticas' %}active{% endif %}">
+      <a href="{% url 'gimnasio:listar_Reportes_estadisticas' %}">
+        <div class="icon-circle"><i class="fas fa-chart-bar"></i></div>
+        <span>Reportes</span>
+      </a>
+    </li>
+    {% endif %}
     {% if user.usuario.rol == 'Administrador' or user.is_superuser %}
 
     <li class="{% if request.resolver_match.url_name == 'listar_categorias' %}active{% endif %}">

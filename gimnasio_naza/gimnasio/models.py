@@ -473,7 +473,7 @@ class Turnosentrenadores(models.Model):
     ]
 
     administrador = models.ForeignKey(
-        User,
+        Usuario,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,

@@ -52,7 +52,7 @@
                             <td>{{ turno.id }}</td>
                             <td>
                                 {% if turno.administrador %}
-                                    {{ turno.administrador.get_full_name|default:turno.administrador.username }}
+                                    {{ turno.administrador.nombre_usuario|default:turno.administrador.nombre_usuario }}
                                 {% else %}
                                     Sin administrador
                                 {% endif %}
