@@ -1,0 +1,179 @@
+{% extends 'body.html' %}
+{% load static %}
+
+{% block contenido %}
+<style>
+  :root {
+    --primary-dark: #2c3e50;
+    --text-muted: #6c757d;
+    --border-radius-custom: 16px;
+  }
+
+  body {
+    background-color: #f4f6f9;
+  }
+
+  /* Título principal */
+  .pqrs-box-header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Contenedor principal */
+  .custom-main-card {
+    background: #ffffff;
+    border: none;
+    border-radius: var(--border-radius-custom);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+
+  .custom-main-card .card-header {
+    background-color: #e9ecef !important; /* Cabecera gris plana minimalista */
+    border-bottom: none;
+    padding: 1rem 1.5rem;
+  }
+
+  .custom-main-card .card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #343a40;
+    margin: 0;
+  }
+
+  /* Tabla de PQRS */
+  .custom-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    border: 1px solid #edf2f7;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .custom-table th,
+  .custom-table td {
+    border: none !important;
+    border-bottom: 1px solid #edf2f7 !important;
+    padding: 1.1rem 1.25rem;
+    vertical-align: middle !important;
+  }
+
+  .custom-table thead th {
+    background-color: #f8f9fa;
+    color: #495057;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+  }
+</style>
+
+<div class="container-fluid pqrs-box-header">
+  <!-- Encabezado -->
+  <div class="row mb-2">
+    <div class="col-sm-12">
+      <h1 class="text-white">
+        <i class="fas fa-comments-toggle mr-2 text-dark"></i>
+        Mis Peticiones, Quejas y Reclamos (PQRS)
+      </h1>
+    </div>
+  </div>
+
+
+  <div class="card custom-main-card">
+    <div class="card-header">
+      <h3 class="card-title">
+        <i class="fas fa-history mr-2 text-primary"></i>
+        Historial de Radicados
+      </h3>
+    </div>
+    
+    <div class="card-body table-responsive">
+      <table class="table custom-table table-hover m-0">
+        <thead>
+          <tr>
+            <th width="12%">Código</th>
+            <th width="15%">Clasificación</th>
+            <th width="40%">Descripción del Caso</th>
+            <th>Fecha de Ingreso</th>
+            <th class="text-center">Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Recorremos la variable 'lista_pqr' definida en tu context_object_name -->
+          {% for pqrs in lista_pqr %}
+          <tr>
+            <!-- ID del radicado -->
+            <td class="font-weight-bold text-secondary">
+              #PQRS-{{ pqrs.id }}
+            </td>
+
+            <!-- Tipo de PQRS con Badges de color plano -->
+            <td>
+              {% if pqrs.tipo == 'peticion' %}
+                <span class="badge px-2 py-1 text-primary" style="background-color: #e3f2fd; color: #0d47a1; border-radius: 6px;">
+                  {{ pqrs.get_tipo_display }}
+                </span>
+              {% elif pqrs.tipo == 'queja' %}
+                <span class="badge px-2 py-1 text-warning" style="background-color: #fff3e0; color: #e65100; border-radius: 6px;">
+                  {{ pqrs.get_tipo_display }}
+                </span>
+              {% elif pqrs.tipo == 'reclamo' %}
+                <span class="badge px-2 py-1 text-danger" style="background-color: #ffebee; color: #b71c1c; border-radius: 6px;">
+                  {{ pqrs.get_tipo_display }}
+                </span>
+              {% else %}
+                <span class="badge px-2 py-1 text-info" style="background-color: #e0f7fa; color: #006064; border-radius: 6px;">
+                  {{ pqrs.get_tipo_display }}
+                </span>
+              {% endif %}
+            </td>
+
+            <!-- Descripción limpia de la solicitud -->
+            <td>
+              <div class="text-dark text-wrap" style="font-size: 0.95rem; line-height: 1.4; max-width: 500px;">
+                {{ pqrs.descripcion }}
+              </div>
+            </td>
+
+            <!-- Fecha de Ingreso -->
+            <td class="text-muted">
+              <i class="far fa-calendar-alt mr-1"></i> {{ pqrs.fecha_ingreso|date:"d/m/Y" }}
+            </td>
+
+            <!-- Estado del Trámite -->
+            <td class="text-center">
+              {% if pqrs.estado == 'pendiente' %}
+                <span class="badge px-3 py-2 text-warning" style="background-color: #fffde7; color: #f57f17; border-radius: 30px; font-weight: 600;">
+                  <i class="fas fa-clock mr-1"></i> Pendiente
+                </span>
+              {% elif pqrs.estado == 'en_proceso' %}
+                <span class="badge px-3 py-2 text-info" style="background-color: #e0f7fa; color: #00838f; border-radius: 30px; font-weight: 600;">
+                  <i class="fas fa-spinner fa-spin mr-1"></i> En Proceso
+                </span>
+              {% else %}
+                <span class="badge px-3 py-2 text-success" style="background-color: #e8f5e9; color: #2e7d32; border-radius: 30px; font-weight: 600;">
+                  <i class="fas fa-check-circle mr-1"></i> Solucionada
+                </span>
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" class="text-center text-muted py-5">
+              <i class="fas fa-clipboard-check d-block mb-3 fa-3x" style="color: #dee2e6"></i>
+              <span class="d-block font-weight-bold text-dark">No tienes PQRS registradas</span>
+              <small class="text-muted">Si tienes alguna solicitud, reclamo o sugerencia, puedes radicarla directamente en la administración.</small>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

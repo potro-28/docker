@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import DashboardUsuarioView, MiNutricionView,MiRutinaView,MiCertificacionView,MisSancionesView
+from .views import DashboardUsuarioView, MiNutricionView,MiRutinaView,MiCertificacionView,MisSancionesView,MiPqrs
 
 app_name = 'usuarios'
 
@@ -8,5 +8,6 @@ urlpatterns = [
     path('mi-nutricion/', MiNutricionView.as_view(), name='mi_nutricion'),
     path('mi-rutina/',MiRutinaView.as_view(),name='mi_rutina'),
     path('mi-certificacion/',MiCertificacionView.as_view(),name='mi_certificacion'),
-    path('mis-sanciones',MisSancionesView.as_view(),name='mi_sancion')
+    path('mis-sanciones',MisSancionesView.as_view(),name='mi_sancion'),
+    path('mis-pqrs',MiPqrs.as_view(),name='miPqrs'),
 ]

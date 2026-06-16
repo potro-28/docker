@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from gimnasio.models import Usuario,Membresia,Asistencia,Nutricion,Masa_corporal,Rutina,Certificacion_interna,Encuesta,Sancion
+from gimnasio.models import Usuario,Membresia,Asistencia,Nutricion,Masa_corporal,Rutina,Certificacion_interna,Encuesta,Sancion,Soporte_PQRS
 from datetime import date,timedelta
 from django.views.generic import ListView
 import json
@@ -157,3 +157,14 @@ class MisSancionesView(LoginRequiredMixin,ListView):
             sancion = Sancion.objects.filter(fk_usuario = usuario.usuario)
             context['sancion'] = sancion
         return context
+
+
+class MiPqrs(LoginRequiredMixin, ListView):
+    model = Soporte_PQRS
+    template_name = 'usuario/pqrs.html'
+    context_object_name = 'lista_pqr'
+
+    def get_queryset(self):
+        return Soporte_PQRS.objects.filter(
+            fk_usuario=self.request.user.usuario
+        ).order_by('-fecha_ingreso', '-id')

@@ -144,16 +144,12 @@
       </a>
     </li>
 
-    {% if user.usuario.rol == 'Administrador' or user.is_superuser %}
-
     <li class="{% if request.resolver_match.url_name == 'listar_Soporte_PQRS' %}active{% endif %}">
-      <a href="{% url 'gimnasio:listar_Soporte_PQRS' %}">
+        <a href="{% if user.usuario.rol == 'Administrador' or user.is_superuser %}{% url "gimnasio:listar_Soporte_PQRS" %}{% else %}{% url "usuarios:miPqrs" %}{% endif %}">
         <div class="icon-circle"><i class="fas fa-headset"></i></div>
         <span>Soporte PQRS</span>
       </a>
     </li>
-
-    {% endif %}
 
     <li class="{% if request.resolver_match.url_name == 'listar_sanciones_clas' %}active{% endif %}">
        <a href="{% if user.usuario.rol == 'Administrador' or user.is_superuser %}{% url "gimnasio:listar_sanciones_clas" %}{% else %}{% url "usuarios:mi_sancion" %}{% endif %}">

@@ -119,21 +119,25 @@
                         <div class="col-12 col-lg-6 mb-3">
 
                             <label class="form-label">
-
                                 {{ field.label }}
-
                             </label>
 
-                            {% render_field field class="form-control" required="required" %}
+                            {% if field.id_for_label == 'id_password' %}
+                                <div class="input-group">
+                                    {% render_field field class="form-control" required="required" id="password-field" %}
+                                    <button class="btn btn-outline-secondary" type="button" id="toggle-password">
+                                        <i class="fa-solid fa-eye" id='eye-icon'></i>
+                                    </button>
+                                </div>
+                            {% else %}
+                                <!-- Diseño normal para los demás campos -->
+                                {% render_field field class="form-control" required="required" %}
+                            {% endif %}
 
                             {% if field.errors %}
-
                                 <div class="text-danger small mt-1">
-
                                     {{ field.errors }}
-
                                 </div>
-
                             {% endif %}
 
                         </div>
@@ -231,6 +235,20 @@
 {% block js %}
 
 <script>
+document.getElementById('toggle-password').addEventListener('click', function(){
+  const passwordInput = document.getElementById('password-field');
+  const IconEye = document.getElementById('eye-icon');
+
+  if (passwordInput.type === 'password'){
+    passwordInput.type = 'text';
+    IconEye.classList.remove('fa-eye')
+    IconEye.classList.add('fa-eye-slash');
+  }else{
+    passwordInput.type = 'password';
+    IconEye.classList.remove('fa-eye-slash');
+    IconEye.classList.add('fa-eye')
+  }
+})
 document.addEventListener('DOMContentLoaded', function () {
 
     // ─── Utilidades ───────────────────────────────────────────────

@@ -1,179 +1,165 @@
 {% extends 'body.html' %}
 {% load static %}
 
-{% block body %}
+{% block contenido %}
 <style>
     :root {
-        --azul-primary: #011e5c;
-        --azul-medio: #1a3a7c;
-        --azul-claro: #e8edf7;
-        --azul-borde: #2d5be3;
+        --primary-dark: #2c3e50;
+        --text-muted: #6c757d;
+        --azul-claro: #f4f6f9;
+        --border-radius-custom: 16px;
+        --primary-white:white;
+    }
+
+    body {
+        background-color: #f4f6f9;
     }
 
     .backup-page {
-        background-color: #f0f4ff;
-        min-height: 100vh;
         padding: 2rem;
     }
 
+    /* Título principal con la línea izquierda característica */
     .backup-titulo {
-        color: #267ca7 ;
+        font-size: 1.8rem;
         font-weight: 700;
-        border-left: 5px solid var(--azul-borde);
+        color: var(--primary-white);
+        border-left: 5px solid var( --primary-white);
         padding-left: 12px;
         margin-bottom: 2rem;
     }
 
-    /* Card estado */
-    .card-estado {
-        border: 2px solid var(--azul-borde);
-        border-radius: 12px;
-        background: white;
-    }
-
-    .card-estado .card-header {
-        background: #267ca7;
-        color: white;
-        border-radius: 10px 10px 0 0;
-        font-weight: 600;
-    }
-
-    /* Cards principales */
-    .card-accion {
-        border: 2px solid var(--azul-borde);
-        border-radius: 12px;
-        background: white;
+    /* Cards Estilizadas Minimalistas */
+    .custom-main-card {
+        background: #ffffff;
+        border: none;
+        border-radius: var(--border-radius-custom);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+        margin-bottom: 2rem;
+        overflow: hidden;
         height: 100%;
         transition: transform 0.2s, box-shadow 0.2s;
     }
 
+    /* Hover interactivo solo en las tarjetas de acción */
     .card-accion:hover {
         transform: translateY(-4px);
-        box-shadow: 0 8px 24px rgba(1, 30, 92, 0.15) !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
     }
 
-    .card-accion .card-header {
-        background: #267ca7;
-        color: white;
-        border-radius: 10px 10px 0 0;
+    /* Cabeceras Gris Plana Tipo Gym Nazareth */
+    .custom-main-card .card-header {
+        background-color: #e9ecef !important;
+        border-bottom: none;
+        padding: 1.1rem 1.5rem;
+    }
+
+    .custom-main-card .card-title {
+        font-size: 1.1rem;
         font-weight: 600;
-        font-size: 1.05rem;
-        padding: 1rem 1.25rem;
+        color: #343a40;
+        margin: 0;
     }
 
-    .card-accion .card-body {
+    .custom-main-card .card-body {
         padding: 1.75rem;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: space-between;
-        min-height: 220px;
     }
 
-    .card-accion .card-body p {
-        color: #333;
-    }
-
-    /* Botón descargar */
+    /* Botones Modernos Redondeados */
     .btn-backup {
-        background: #267ca7;
+        background: var(--primary-dark);
         color: white;
         border: none;
-        border-radius: 8px;
-        padding: 10px 0;
+        border-radius: 30px;
+        padding: 10px 24px;
         width: 100%;
         font-weight: 600;
-        font-size: 1rem;
-        transition: background 0.2s;
+        font-size: 0.95rem;
+        transition: background 0.2s, transform 0.1s;
     }
 
     .btn-backup:hover {
-        background: var(--azul-medio);
+        background: #1a252f;
         color: white;
     }
 
-    /* Zona drop */
+    .btn-backup:active {
+        transform: scale(0.98);
+    }
+
+    /* Zona Drop (Carga de archivos) */
     #zona-carga {
-        border: 2px dashed var(--azul-borde) !important;
-        background-color: var(--azul-claro) !important;
-        border-radius: 10px;
+        border: 2px dashed #cbd5e1 !important;
+        background-color: #f8fafc !important;
+        border-radius: 12px;
         cursor: pointer;
         width: 100%;
-        padding: 1.5rem;
-        transition: background 0.2s;
+        padding: 1.75rem 1.5rem;
+        transition: all 0.2s ease;
     }
 
     #zona-carga:hover {
-        background-color: #d0daf7 !important;
+        background-color: #f1f5f9 !important;
+        border-color: var(--primary-dark) !important;
     }
 
-    #zona-carga i {
-        color: var(--azul-primary);
-    }
-
-    /* Card info */
-    .card-info {
-        border: 2px solid var(--azul-borde);
-        border-radius: 12px;
-        background: white;
-    }
-
-    .card-info .card-header {
-        background: #267ca7;
-        color: white;
-        border-radius: 10px 10px 0 0;
-        font-weight: 600;
-    }
-
-    .card-info ul li {
-        color: #222;
-        margin-bottom: 4px;
-    }
-
-    /* Badge estado */
+    /* Badges de Conexión */
     .badge-conectado {
-        background: #e6f4ea;
-        color: #1a7a3a;
-        border: 1px solid #1a7a3a;
-        border-radius: 20px;
-        padding: 4px 14px;
+        background: #e8f5e9;
+        color: #2e7d32;
+        border-radius: 30px;
+        padding: 6px 16px;
         font-size: 0.9rem;
         font-weight: 600;
+        display: inline-block;
     }
 
     .badge-desconectado {
-        background: #fdecea;
-        color: #b71c1c;
-        border: 1px solid #b71c1c;
-        border-radius: 20px;
-        padding: 4px 14px;
+        background: #ffebee;
+        color: #c62828;
+        border-radius: 30px;
+        padding: 6px 16px;
         font-size: 0.9rem;
         font-weight: 600;
+        display: inline-block;
+    }
+
+    /* Listas de información limpias */
+    .info-list {
+        padding-left: 1.2rem;
+        margin-bottom: 0;
+    }
+
+    .info-list li {
+        color: #4a5568;
+        margin-bottom: 8px;
+        font-size: 0.9rem;
     }
 </style>
 
-<div class="backup-page">
+<div class="container-fluid backup-page">
+    <!-- TITULO DE LA PÁGINA -->
     <h2 class="backup-titulo">
         <i class="bi bi-database me-2"></i>Respaldo y Restauración de BD
     </h2>
 
     <!-- ESTADO DE CONEXIÓN -->
     <div class="row justify-content-center mb-4">
-        <div class="col-md-8">
-            <div class="card-estado card">
+        <div class="col-md-10">
+            <div class="card custom-main-card m-0">
                 <div class="card-header text-center">
-                    <i class="bi bi-hdd-network me-2"></i>Estado de Conexión MySQL
+                    <h3 class="card-title"><i class="bi bi-hdd-network me-2 text-secondary"></i>Estado de Conexión MySQL</h3>
                 </div>
-                <div class="card-body text-center py-3">
+                <div class="card-body text-center py-4">
                     {% if mysql_conectado %}
                         <span class="badge-conectado">
-                            <i class="bi bi-check-circle-fill me-1"></i>Conectado correctamente
+                            <i class="bi bi-check-circle-fill me-1"></i> El servidor se encuentra conectado correctamente
                         </span>
                     {% else %}
                         <span class="badge-desconectado">
-                            <i class="bi bi-x-circle-fill me-1"></i>No se puede conectar a MySQL
+                            <i class="bi bi-x-circle-fill me-1"></i> No se puede establecer conexión con MySQL
                         </span>
-                        <p class="small text-muted mt-2 mb-0">Verifica que MySQL esté ejecutándose o que el usuario y contraseña sean válidos</p>
+                        <p class="small text-muted mt-2 mb-0">Por favor verifica que el servicio de MySQL esté ejecutándose o que las credenciales locales sean válidas.</p>
                     {% endif %}
                 </div>
             </div>
@@ -181,22 +167,24 @@
     </div>
 
     <!-- CARDS PRINCIPALES -->
-    <div class="row justify-content-center mb-4">
+    <div class="row justify-content-center mb-2">
 
         <!-- DESCARGAR RESPALDO -->
         <div class="col-md-5 mb-4">
-            <div class="card-accion card shadow-sm {% if not mysql_conectado %}opacity-50{% endif %}">
+            <div class="card custom-main-card card-accion {% if not mysql_conectado %}opacity-50{% endif %}">
                 <div class="card-header">
-                    <i class="bi bi-download me-2"></i>Descargar Respaldo
+                    <h3 class="card-title"><i class="bi bi-download me-2 text-primary"></i>Descargar Respaldo</h3>
                 </div>
-                <div class="card-body text-center">
-                    <div>
-                        <p class="mb-1 fw-semibold">Descarga un respaldo completo</p>
-                        <p class="small text-muted">Incluye todas las tablas y datos</p>
+                <div class="card-body d-flex flex-column justify-content-between align-items-center" style="min-height: 250px;">
+                    <div class="text-center">
+                        <p class="mb-1 font-weight-bold text-dark" style="font-size: 1.05rem;">Copia de Seguridad Completa</p>
+                        <p class="small text-muted">Genera y descarga un archivo estructurado con todas las tablas y registros.</p>
                     </div>
-                    <i class="bi bi-file-earmark-arrow-down" style="font-size:3rem; color: var(--azul-primary);"></i>
+                    
+                    <i class="bi bi-file-earmark-arrow-down text-secondary" style="font-size: 3.5rem;"></i>
+                    
                     {% if mysql_conectado %}
-                        <form method="post" action="{% url 'gimnasio:backup' %}" class="w-100 mt-3">
+                        <form method="post" action="{% url 'gimnasio:backup' %}" class="w-100">
                             {% csrf_token %}
                             <input type="hidden" name="accion" value="backup_completo">
                             <button type="submit" class="btn-backup">
@@ -204,8 +192,8 @@
                             </button>
                         </form>
                     {% else %}
-                        <button class="btn-backup mt-3" disabled style="background:#aaa; cursor:not-allowed;">
-                            <i class="bi bi-x-circle me-2"></i>MySQL No Conectado
+                        <button class="btn-backup w-100" disabled style="background:#cbd5e1; color:#94a3b8; cursor:not-allowed;">
+                            <i class="bi bi-x-circle me-2"></i>Servicio no disponible
                         </button>
                     {% endif %}
                 </div>
@@ -214,26 +202,27 @@
 
         <!-- RESTAURAR DATOS -->
         <div class="col-md-5 mb-4">
-            <div class="card-accion card shadow-sm {% if not mysql_conectado %}opacity-50{% endif %}">
+            <div class="card custom-main-card card-accion {% if not mysql_conectado %}opacity-50{% endif %}">
                 <div class="card-header">
-                    <i class="bi bi-upload me-2"></i>Restaurar Base de Datos
+                    <h3 class="card-title"><i class="bi bi-upload me-2 text-danger"></i>Restaurar Base de Datos</h3>
                 </div>
-                <div class="card-body text-center">
-                    <div>
-                        <p class="mb-1 fw-semibold">Restaura la BD desde un archivo SQL</p>
-                        <p class="small text-danger"><strong>⚠ Cuidado:</strong> Esto sobrescribe todos los datos</p>
+                <div class="card-body d-flex flex-column justify-content-between align-items-center" style="min-height: 250px;">
+                    <div class="text-center">
+                        <p class="mb-1 font-weight-bold text-dark" style="font-size: 1.05rem;">Cargar Archivo de Respaldo</p>
+                        <p class="small text-danger fw-semibold"><i class="bi bi-exclamation-triangle-fill me-1"></i> Advertencia: Esto sobrescribirá el estado actual de la BD.</p>
                     </div>
+                    
                     {% if mysql_conectado %}
-                        <div id="zona-carga" class="text-center mt-2">
+                        <div id="zona-carga" class="text-center">
                             <input type="file" id="archivo-respaldo" accept=".sql" style="display: none;">
-                            <i class="bi bi-cloud-upload" style="font-size: 3rem;"></i>
-                            <p class="mb-0 mt-2 fw-bold" style="color: var(--azul-primary);">Arrastra un archivo .sql aquí</p>
-                            <p class="small text-muted mt-1">o haz clic para seleccionar</p>
+                            <i class="bi bi-cloud-upload text-muted" style="font-size: 2.5rem;"></i>
+                            <p class="mb-0 mt-2 font-weight-bold text-dark" style="font-size: 0.9rem;">Arrastra tu archivo .sql aquí</p>
+                            <p class="small text-muted mb-0">o haz clic para explorar tus archivos</p>
                         </div>
                     {% else %}
-                        <div class="text-center mt-2 p-4 rounded" style="background: #f0f4ff; border: 2px dashed #aaa;">
-                            <i class="bi bi-x-circle text-secondary" style="font-size: 3rem;"></i>
-                            <p class="mb-0 mt-2 fw-bold text-muted">MySQL No Conectado</p>
+                        <div class="text-center w-100 p-4 rounded" style="background: #f8fafc; border: 2px dashed #cbd5e1;">
+                            <i class="bi bi-x-circle text-muted" style="font-size: 2.5rem;"></i>
+                            <p class="mb-0 mt-2 font-weight-bold text-muted">Función Deshabilitada</p>
                         </div>
                     {% endif %}
                 </div>
@@ -241,31 +230,29 @@
         </div>
     </div>
 
-    <!-- INFORMACIÓN -->
+    <!-- SECCIÓN DE INFORMACIÓN -->
     <div class="row justify-content-center">
         <div class="col-md-10">
-            <div class="card-info card">
+            <div class="card custom-main-card">
                 <div class="card-header">
-                    <i class="bi bi-info-circle me-2"></i>Información
+                    <h3 class="card-title"><i class="bi bi-info-circle me-2 text-info"></i>Guía y Especificaciones del Sistema</h3>
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-6">
-                            <h6 class="fw-bold" style="color: var(--azul-primary);">Requisitos:</h6>
-                            <ul class="small">
-                                <li>MySQL instalado localmente</li>
-                                <li>Acceso al servidor de base de datos</li>
-                                <li>Permisos de lectura/escritura</li>
-                                <li>Usuario y contraseña configurados</li>
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <h6 class="font-weight-bold text-dark mb-3"><i class="bi bi-shield-check me-2 text-success"></i>Requisitos Técnicos:</h6>
+                            <ul class="info-list">
+                                <li>Instancia de MySQL Server activa y accesible.</li>
+                                <li>El usuario configurado debe poseer privilegios globales de lectura y escritura (`GRANT ALL PRIVILEGES`).</li>
+                                <li>Asegurar espacio en disco suficiente antes de restaurar volcados masivos.</li>
                             </ul>
                         </div>
                         <div class="col-md-6">
-                            <h6 class="fw-bold" style="color: var(--azul-primary);">Archivos generados:</h6>
-                            <ul class="small">
-                                <li>backup_completo_YYYYMMDD_HHMMSS.sql</li>
-                                <li>Contiene toda la estructura y datos</li>
-                                <li>Editable con cualquier editor de texto</li>
-                                <li>Reutilizable para restaurar en otro servidor</li>
+                            <h6 class="font-weight-bold text-dark mb-3"><i class="bi bi-filetype-sql me-2 text-primary"></i>Estructura de Archivos:</h6>
+                            <ul class="info-list">
+                                <li>Nomenclatura automática: `backup_completo_YYYYMMDD_HHMMSS.sql`.</li>
+                                <li>Formato plano estándar compatible con cualquier gestor (DBMS).</li>
+                                <li>Mantiene íntegras las restricciones transaccionales y llaves foráneas (`FK`).</li>
                             </ul>
                         </div>
                     </div>
@@ -285,16 +272,19 @@
 
         zonaC.addEventListener('dragover', (e) => {
             e.preventDefault();
-            zonaC.style.backgroundColor = '#d0daf7';
+            zonaC.style.backgroundColor = '#f1f5f9';
+            zonaC.style.borderColor = 'var(--primary-dark)';
         });
 
         zonaC.addEventListener('dragleave', () => {
-            zonaC.style.backgroundColor = '#e8edf7';
+            zonaC.style.backgroundColor = '#f8fafc';
+            zonaC.style.borderColor = '#cbd5e1';
         });
 
         zonaC.addEventListener('drop', (e) => {
             e.preventDefault();
-            zonaC.style.backgroundColor = '#e8edf7';
+            zonaC.style.backgroundColor = '#f8fafc';
+            zonaC.style.borderColor = '#cbd5e1';
             if (e.dataTransfer.files.length > 0) subirArchivo(e.dataTransfer.files[0]);
         });
 
@@ -309,12 +299,12 @@
             return;
         }
         if (archivo.size > 100 * 1024 * 1024) {
-            alert('El archivo es muy grande (máx 100MB)');
+            alert('El archivo supera el límite permitido (máx 100MB)');
             return;
         }
 
         const textoOriginal = zonaC.innerHTML;
-        zonaC.innerHTML = '<div class="text-center py-2"><i class="bi bi-hourglass-split" style="font-size:3rem; color:#011e5c;"></i><p class="mt-3 fw-bold" style="color:#011e5c;">Restaurando...</p></div>';
+        zonaC.innerHTML = '<div class="text-center py-2"><i class="bi bi-hourglass-split fa-spin" style="font-size:2.5rem; color:var(--primary-dark);"></i><p class="mt-2 mb-0 font-weight-bold text-dark">Procesando restauración...</p></div>';
         zonaC.style.opacity = '0.7';
 
         const formData = new FormData();
@@ -339,10 +329,9 @@
         .catch(error => {
             zonaC.innerHTML = textoOriginal;
             zonaC.style.opacity = '1';
-            alert('Error en la conexión: ' + error);
+            alert('Error en la conexión con el servidor: ' + error);
         });
     }
 </script>
 {% endif %}
-
 {% endblock %}

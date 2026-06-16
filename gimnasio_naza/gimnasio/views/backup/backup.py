@@ -87,11 +87,11 @@ def restaurar_datos(request):
         # Validar que sea .sql
         if not archivo.name.endswith('.sql'):
             return JsonResponse({'error': 'El archivo debe tener extension .sql'}, status=400)
-
-        # Leer contenido del archivo
         contenido_sql = archivo.read().decode('utf-8')
-
-        # Restaurar la BD desde el SQL
+        if "DROP DATABASE" in contenido_sql:
+            Mensaje = "No se puede borrar la base de datos"
+            return JsonResponse({'error':f'{Mensaje}'},status=400)
+        
         restaurar_bd_desde_sql(contenido_sql)
 
         mensaje = " Base de datos restaurada correctamente"
