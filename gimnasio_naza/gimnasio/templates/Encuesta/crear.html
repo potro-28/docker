@@ -837,6 +837,15 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 });
-
+ {% if messages %}
+    {% for message in messages %}
+        Swal.fire({
+            title: "{% if message.tags == 'success' %}Correcto{% elif message.tags == 'error' %}Error{% else %}Aviso{% endif %}",
+            text: "{{ message|safe }}",
+            icon: "{% if message.tags == 'success' %}success{% elif message.tags == 'error' %}error{% else %}warning{% endif %}",
+            confirmButtonText: "OK"
+        });
+    {% endfor %}
+{% endif %}
 </script>
 {% endblock %}
