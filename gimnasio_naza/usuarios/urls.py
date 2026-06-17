@@ -1,6 +1,5 @@
 from django.urls import path
-from .views import DashboardUsuarioView, MiNutricionView,MiRutinaView,MiCertificacionView,MisSancionesView,MiPqrs
-
+from .views import DashboardUsuarioView, MiNutricionView,MiRutinaView,MiCertificacionView,MisSancionesView,MiPqrs,MisEncuestasListView
 app_name = 'usuarios'
 
 urlpatterns = [
@@ -10,4 +9,5 @@ urlpatterns = [
     path('mi-certificacion/',MiCertificacionView.as_view(),name='mi_certificacion'),
     path('mis-sanciones',MisSancionesView.as_view(),name='mi_sancion'),
     path('mis-pqrs',MiPqrs.as_view(),name='miPqrs'),
+    path('mis-encuestas', MisEncuestasListView.as_view(), name='mis_encuestas'),
 ]

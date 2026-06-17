@@ -3,14 +3,14 @@ from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from gimnasio.models import Usuario,Membresia,Asistencia,Nutricion,Masa_corporal,Rutina,Certificacion_interna,Encuesta,Sancion,Soporte_PQRS
 from datetime import date,timedelta
-from django.views.generic import ListView
+from django.views.generic import ListView,DetailView
 import json
 
 from gimnasio.utilities.calcular_dias import calcular_dias
 # Create your views here.
 
 from datetime import date
-
+from django.http import Http404
 class DashboardUsuarioView(LoginRequiredMixin, TemplateView):
     template_name = 'dashboard/index.html'
 
@@ -168,3 +168,18 @@ class MiPqrs(LoginRequiredMixin, ListView):
         return Soporte_PQRS.objects.filter(
             fk_usuario=self.request.user.usuario
         ).order_by('-fecha_ingreso', '-id')
+
+
+class MisEncuestasListView(LoginRequiredMixin, ListView):
+    model = Encuesta
+    template_name = "usuario/mis_encuestas.html"
+    context_object_name = "lista_encuestas"  
+
+    def get_queryset(self):
+        """
+        Trae únicamente las encuestas donde el alumno logueado 
+        haya sido asignado en la relación ManyToMany (miembros).
+        """
+        return Encuesta.objects.filter(
+            miembros=self.request.user.usuario
+        ).order_by('-fecha_envio', '-fecha_creacion')
