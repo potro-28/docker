@@ -11,6 +11,7 @@ from django.views.decorators.csrf import csrf_exempt
 from gimnasio.models import *
 from gimnasio.forms import ElementoForm
 from django.db import IntegrityError
+from django.contrib import messages
 
 @require_POST
 @csrf_exempt
@@ -93,7 +94,12 @@ class ElementoCreateView(CreateView):
         context['titulo'] = 'Crear Elemento'
         context['list_url'] = reverse_lazy('gimnasio:listar_elementos')
         return context
-
+    def form_valid(self, form):
+        messages.success(
+            self.request,
+            "elemento creado correctamente"
+        )
+        return super().form_valid(form)
 
 # ==============================
 # MODIFICAR ELEMENTO
@@ -110,6 +116,13 @@ class ElementoUpdateView(UpdateView):
         context['titulo'] = 'Editar Elemento'
         context['list_url'] = reverse_lazy('gimnasio:listar_elementos')
         return context
+    
+    def form_valid(self, form):
+        messages.success(
+            self.request,
+            "elemento editado correctamente "
+        )
+        return super().form_valid(form)
 
 
 # ==============================
@@ -126,6 +139,13 @@ class ElementoDeleteView(DeleteView):
         context['titulo'] = 'Eliminar Elemento'
         context['list_url'] = reverse_lazy('gimnasio:listar_elementos')
         return context
+    
+    def form_valid(self, form):
+        messages.success(
+            self.request,
+            "elemento eliminado  correctamente"
+        )
+        return super().form_valid(form)
 
 
 # ==============================

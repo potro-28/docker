@@ -118,12 +118,18 @@ class AsistenciaCreateView(CreateView):
     template_name = 'Asistencia/crear.html'
     form_class = AsistenciaForm
     success_url = reverse_lazy('gimnasio:listar_asistencia')
-    # @method_decorator(csrf_exempt)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Crear asistencia'
         return context
+
+    def form_valid(self, form):
+        messages.success(
+            self.request,
+            "Asistencia registrada correctamente"
+        )
+        return super().form_valid(form)
     
     
 class AsistenciaUpdateView(UpdateView):
@@ -135,7 +141,7 @@ class AsistenciaUpdateView(UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Editar Asistencia'
-        context['listar_url'] = reverse_lazy('gimnasio:listar_asistencia')
+        context['listar_url'] = reverse_lazy('gimnasio:listar_asistencia') 
         return context
     
     def form_valid(self, form):
@@ -152,6 +158,13 @@ class AsistenciaDeleteView(DeleteView):
         context['titulo'] = 'Eliminar Asistencia'
         context['listar_url'] = reverse_lazy('gimnasio:listar_asistencia')
         return context
+
+    def form_valid(self, form):
+        messages.success(
+            self.request,
+            "Asistencia eliminada correctamente"
+        )
+        return super().form_valid(form)
 
 
 def Qr(request):

@@ -124,11 +124,16 @@
 
                             {% if field.id_for_label == 'id_password' %}
                                 <div class="input-group">
-                                    {% render_field field class="form-control" required="required" id="password-field" %}
-                                    <button class="btn btn-outline-secondary" type="button" id="toggle-password">
-                                        <i class="fa-solid fa-eye" id='eye-icon'></i>
-                                    </button>
-                                </div>
+    {% render_field field class="form-control" required="required" id="password-field" %}
+    <button class="btn btn-outline-secondary" type="button" id="toggle-password">
+        <i class="fa-solid fa-eye" id="eye-icon"></i>
+    </button>
+</div>
+
+<div id="password-feedback"
+     class="small mt-2"
+     style="display:none;">
+</div>
                             {% else %}
                                 <!-- Diseño normal para los demás campos -->
                                 {% render_field field class="form-control" required="required" %}
@@ -164,29 +169,27 @@
 
                     {% for field in form.visible_fields %}
 
-                        <div class="col-12 col-md-6 mb-3">
+    <div class="col-12 col-md-6 mb-3">
 
-                            <label class="form-label">
+        <label class="form-label">
+            {{ field.label }}
+        </label>
 
-                                {{ field.label }}
+        {% if field.name == 'foto' %}
+            {% render_field field class="form-control" %}
+        {% else %}
+            {% render_field field class="form-control" required="required" %}
+        {% endif %}
 
-                            </label>
+        {% if field.errors %}
+            <div class="text-danger small mt-1">
+                {{ field.errors }}
+            </div>
+        {% endif %}
 
-                            {% render_field field class="form-control" required="required" %}
+    </div>
 
-                            {% if field.errors %}
-
-                                <div class="text-danger small mt-1">
-
-                                    {{ field.errors }}
-
-                                </div>
-
-                            {% endif %}
-
-                        </div>
-
-                    {% endfor %}
+{% endfor %}
 
                 </div>
 
@@ -460,6 +463,63 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
 });
+const passwordField = document.getElementById('password-field');
+const passwordFeedback = document.getElementById('password-feedback');
+
+if (passwordField) {
+
+    passwordField.addEventListener('input', function () {
+
+        const valor = this.value;
+
+        // Ocultar mensaje cuando está vacío
+        if (valor.trim() === '') {
+
+            passwordFeedback.style.display = 'none';
+
+            this.classList.remove('is-valid');
+            this.classList.remove('is-invalid');
+
+            return;
+        }
+
+        let mensaje = '';
+
+        if (valor.length < 6) {
+            mensaje = 'Mínimo 8 caracteres';
+        }
+        else if (!/[A-Z]/.test(valor)) {
+            mensaje = 'Debe contener una letra mayúscula';
+        }
+        else if (!/[a-z]/.test(valor)) {
+            mensaje = 'Debe contener una letra minúscula';
+        }
+        else if (!/[0-9]/.test(valor)) {
+            mensaje = 'Debe contener un número';
+        }
+
+        if (mensaje !== '') {
+
+            passwordFeedback.style.display = 'block';
+            passwordFeedback.className = 'small mt-2 text-danger';
+            passwordFeedback.innerHTML =  mensaje;
+
+            this.classList.remove('is-valid');
+            this.classList.add('is-invalid');
+
+        } else {
+
+            passwordFeedback.style.display = 'block';
+            passwordFeedback.className = 'small mt-2 text-success';
+            passwordFeedback.innerHTML = ' Contraseña segura';
+
+            this.classList.remove('is-invalid');
+            this.classList.add('is-valid');
+        }
+
+    });
+
+}
 </script>
 
 {% endblock %}

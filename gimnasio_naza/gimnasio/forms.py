@@ -148,6 +148,10 @@ from .models import Usuario
 
 
 class UsuarioForm(forms.ModelForm):
+    
+    foto = forms.ImageField(
+        required=False
+    )
 
     class Meta:
         model = Usuario

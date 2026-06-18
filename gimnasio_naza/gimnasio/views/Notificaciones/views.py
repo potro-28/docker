@@ -9,6 +9,7 @@ from gimnasio.forms import NotificacionForm
 from django.http import HttpResponse,JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib import messages
 
 
 def crear_usuario_ajax(request):
@@ -113,6 +114,13 @@ class NotificacionCreateView(CreateView):
         context['titulo'] = 'Crear notificacion'
         return context
     
+    def form_valid(self, form):
+        messages.success(
+            self.request,
+            "notificacion registrada correctamente"
+        )
+        return super().form_valid(form)
+    
 class NotificacionUpdateView(UpdateView):
     model = Notificacion
     template_name = 'Notificacion/crear.html'
@@ -124,6 +132,13 @@ class NotificacionUpdateView(UpdateView):
         context['titulo'] = 'Editar notificacion'
         context['listar_url'] = reverse_lazy('gimnasio:listar_notificacion')
         return super().get_context_data(**kwargs)
+    
+    def form_valid(self, form):
+        messages.success(
+            self.request,
+            "notificacion registrada correctamente"
+        )
+        return super().form_valid(form)
 
 class NotificacionDeleteView(DeleteView):
     model = Notificacion
@@ -135,6 +150,13 @@ class NotificacionDeleteView(DeleteView):
         context['titulo'] = 'Eliminar notificacion'
         context['listar_url'] = reverse_lazy('gimnasio:listar_notificacion')
         return context
+    
+    def form_valid(self, form):
+        messages.success(
+            self.request,
+            "notificacion registrada correctamente"
+        )
+        return super().form_valid(form)
 
 
 

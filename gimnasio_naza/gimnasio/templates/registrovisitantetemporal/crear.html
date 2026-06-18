@@ -51,7 +51,7 @@
                 Guardar
             </button>
 
-            <a href="{% url 'gimnasio:listar_masa_corporal_clas' %}" class="btn btn-danger">
+            <a href="{% url 'gimnasio:listar_registrovisitante' %}" class="btn btn-danger">
                 Cancelar
             </a>
         </div>
@@ -257,6 +257,7 @@ function crearUsuario() {
         Swal.fire("Error", "Ocurrió un error en la petición", "error");
     });
 }
+
 </script>
 
 {% endblock %}

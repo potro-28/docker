@@ -125,17 +125,7 @@
         });
     });
 
-    {% if messages %}
-        {% for message in messages %}
-            Swal.fire({
-                title: "Correcto",
-                text: "{{ message }}",
-                icon: "success",
-                confirmButtonText: "OK"
-            });
-        {% endfor %}
-    {% endif %}
-
+    
         
 </script>
   <script>
@@ -162,5 +152,17 @@
         var html5QrcodeScanner = new Html5QrcodeScanner('qr-reader', { fps: 3, qrbox: 260 })
         html5QrcodeScanner.render(onScanSuccess)
       
+        {% if messages %}
+        {% for message in messages %}
+            Swal.fire({
+                title: "Correcto",
+                text: "{{ message }}",
+                icon: "success",
+                confirmButtonText: "OK"
+            });
+        {% endfor %}
+        {% endif %}
+
 </script>
+
 {% endblock %}

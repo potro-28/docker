@@ -134,12 +134,26 @@
                                     class="btn btn-sm btn-text-secondary rounded-pill btn-icon item-edit">
                                     <i class="icon-base ri ri-edit-box-line icon-22px"></i>
                                 </a>
-                                <form action="{% url 'gimnasio:eliminar_usuario' u.id %}" method="post" class="d-inline">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-sm btn-text-secondary rounded-pill btn-icon item-trash" onclick="return confirm('¿Estás seguro de eliminar este usuario {{u.nombre}}');">
-                                        <i class="icon-base ri ri-delete-bin-line icon-22px"></i>
-                                    </button>
-                                </form>
+                                <form action="{% url 'gimnasio:eliminar_usuario' u.id %}"
+      method="post"
+      class="d-inline form-eliminar">
+
+    {% csrf_token %}
+
+    <button type="submit"
+        class="btn btn-sm btn-text-secondary rounded-pill btn-icon item-estado"
+        data-nombre="{{ u.nombre_usuario }} {{ u.apellido_usuario }}"
+        data-estado="{{ u.estado }}">
+
+    {% if u.estado == 'activo' %}
+        <i class="icon-base ri ri-delete-bin-line icon-22px text-danger"></i>
+    {% else %}
+        <i class="icon-base ri ri-refresh-line icon-22px text-success"></i>
+    {% endif %}
+
+</button>
+
+</form>
                             </td>
                         </tr>
                         {% empty %}
@@ -161,7 +175,6 @@
 <script src="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/js/dataTables.responsive.min.js' %}"></script>
 <script src="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/js/responsive.bootstrap4.min.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 <script>
     $(function () {
         $('#tabla-usuarios').DataTable({
@@ -176,6 +189,8 @@
         });
     });
 
+    
+
     {% if messages %}
         {% for message in messages %}
             Swal.fire({
@@ -186,5 +201,36 @@
             });
         {% endfor %}
     {% endif %}
+</script>
+<script>
+$(document).on('submit', '.form-eliminar', function(e){
+
+    e.preventDefault();
+
+    let form = this;
+    let boton = $(this).find('.item-estado');
+
+    let nombre = boton.data('nombre');
+    let estado = boton.data('estado');
+
+    let accion = estado === 'activo' ? 'desactivar' : 'activar';
+    let icono = estado === 'activo' ? 'warning' : 'question';
+
+    Swal.fire({
+        title: `¿Deseas ${accion} este usuario?`,
+        html: `<b>${nombre}</b>`,
+        icon: icono,
+        showCancelButton: true,
+        confirmButtonText: `Sí, ${accion}`,
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+
+        if(result.isConfirmed){
+            form.submit();
+        }
+
+    });
+
+});
 </script>
 {% endblock %} 

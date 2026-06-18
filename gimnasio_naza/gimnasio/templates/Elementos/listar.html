@@ -372,6 +372,7 @@
 {% endblock %}
 
 {% block js %}
+
   <script src="{% static 'lib/datatables-1.10.20/js/jquery.dataTables.min.js' %}"></script>
   <script src="{% static 'lib/datatables-1.10.20/js/dataTables.bootstrap4.min.js' %}"></script>
 
@@ -399,8 +400,8 @@
             targets: -1
           }
         ]
+        });
       });
-    
       // Confirmación eliminar
       $('.btn-eliminar').on('click', function (e) {
         e.preventDefault();
@@ -433,4 +434,6 @@
         {% endfor %}
       {% endif %}
   </script>
+
 {% endblock %}
+
