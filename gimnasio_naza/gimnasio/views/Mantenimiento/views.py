@@ -43,18 +43,40 @@ def crear_categoria_ajax(request):
 def crear_elemento_ajax(request):
     try:
         with transaction.atomic():
+
             serial = request.POST.get('serial')
             marca = request.POST.get('marca')
             nombre = request.POST.get('nombre')
             peso = request.POST.get('peso')
             estado = request.POST.get('estado')
-            categoria_id = request.POST.get('categoria')
             cantidad = request.POST.get('cantidad')
 
+            nombre_categoria = request.POST.get('nombre_categoria')
+            descripcion = request.POST.get('descripcion_categoria')
+
             foto = request.FILES.get('foto')
-            if not all([serial, marca, nombre, peso, estado, categoria_id, cantidad]):
-                return JsonResponse({'error': 'Todos los campos son obligatorios'}, status=400)
-            categoria = Categoria.objects.get(id=categoria_id)        
+
+            if not all([
+                serial,
+                marca,
+                nombre,
+                peso,
+                estado,
+                cantidad,
+                nombre_categoria
+            ]):
+                return JsonResponse(
+                    {'error': 'Todos los campos son obligatorios'},
+                    status=400
+                )
+
+            categoria, creada = Categoria.objects.get_or_create(
+                nombre_categoria=nombre_categoria,
+                defaults={
+                    'descripcion': descripcion
+                }
+            )
+
             elemento = Elemento.objects.create(
                 serial=serial,
                 marca=marca,
@@ -64,14 +86,20 @@ def crear_elemento_ajax(request):
                 nombre_categoria=categoria,
                 cantidad=cantidad,
                 imagen=foto,
-                fecha_ingreso = timezone.now()
+                fecha_ingreso=timezone.now()
             )
+
             return JsonResponse({
                 'id': elemento.id,
                 'nombre': elemento.nombre_elemento,
+                'categoria_id': categoria.id,
+                'categoria_creada': creada
             })
-    except Categoria.DoesNotExist:
-        return JsonResponse({'error': 'Categoría no encontrada'}, status=404)
+
+    except Exception as e:
+        return JsonResponse({
+            'error': str(e)
+        }, status=500)
     except Exception as e:
         print("Error al crear elemento:", str(e))
         return JsonResponse({'error': str(e)}, status=500)

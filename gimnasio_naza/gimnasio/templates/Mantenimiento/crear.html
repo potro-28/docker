@@ -152,138 +152,218 @@
   </form>
 </div>
 <div class="modal fade" id="modalElemento" tabindex="-1">
-  <div class="modal-dialog modal-lg"> 
-    <div class="modal-content">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
 
-      <div class="modal-header bg-primary text-white py-5">
-        <h5 class="modal-title">
-          <i class="fa-solid fa-box me-2"></i>
-          Crear Elemento 
-        </h5>
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fa-solid fa-box me-2 py-3"></i>
+                    Crear Categoría y Elemento
+                </h5>
 
-        <button
-          type="button"
-          class="btn-close btn-close-white"
-          data-bs-dismiss="modal">
-        </button>
-      </div>
+                <button
+                    type="button"
+                    class="btn-close btn-close-white"
+                    data-bs-dismiss="modal">
+                </button>
+            </div>
 
-      <div class="modal-body">
-        <!-- PERSONALES -->
-        <h6 class="text-success fw-bold mt-3">Datos Elemento</h6>
-        <hr>
+            <div class="modal-body">
 
-        <div class="row">
+                <!-- PASO 1 -->
+                <div id="paso1">
 
+                    <h5 class="text-success">
+                        Paso 1 - Categoría
+                    </h5>
 
-          <div class="col-md-6 mb-2">
-            <input type="text" id="serial" class="form-control" placeholder="Serial">
-            <small class="text-danger" id="error_serial"></small>
-          </div>
+                    <hr>
 
-          <div class="col-md-6 mb-2">
-            <input type="text" id="marca" class="form-control" placeholder="Marca">
-            <small class="text-danger" id="error_marca"></small>
-          </div>
+                    <div class="mb-3">
+                        <input
+                            type="text"
+                            id="nombre_categoria"
+                            class="form-control"
+                            placeholder="Nombre de la categoría">
+                    </div>
 
-          <div class="col-md-6 mb-2">
-            <input type="text" id="nombre_elemento" class="form-control" placeholder="Nombre">
-            <small class="text-danger" id="error_nombre"></small>
-          </div>
+                    <div class="mb-3">
+                        <textarea
+                            id="descripcion_categoria"
+                            class="form-control"
+                            rows="4"
+                            placeholder="Descripción">
+                        </textarea>
+                    </div>
 
-          <div class="col-md-6 mb-2">
-            <input type="text" id="peso" class="form-control" placeholder="Peso">
-            <small class="text-danger" id="error_peso"></small>
-          </div>
-          <div class="col-md-6 mb-2">
-            <select id="Estado" class="form-select">
-              <option value="M">Activo</option>
-              <option value="F">Inactivo</option>
-            </select>
-          </div>
-          <div class="col-md-6 mb-2">
-            <select id="categoria" class="form-select">
-              <option value="">Seleccione una categoría</option>
+                </div>
 
-              {% for categoria in categorias %}
-              <option value="{{ categoria.id}}">
-                {{ categoria.nombre_categoria}}
-              </option>
-              {% endfor %}
-            </select>
+                <!-- PASO 2 -->
+                <div id="paso2" style="display:none;">
+
+                    <h5 class="text-success">
+                        Paso 2 - Datos del Elemento
+                    </h5>
+
+                    <hr>
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-2">
+                            <input type="text"
+                                   id="serial"
+                                   class="form-control"
+                                   placeholder="Serial">
+                        </div>
+
+                        <div class="col-md-6 mb-2">
+                            <input type="text"
+                                   id="marca"
+                                   class="form-control"
+                                   placeholder="Marca">
+                        </div>
+
+                        <div class="col-md-6 mb-2">
+                            <input type="text"
+                                   id="nombre_elemento"
+                                   class="form-control"
+                                   placeholder="Nombre">
+                        </div>
+
+                        <div class="col-md-6 mb-2">
+                            <input type="text"
+                                   id="peso"
+                                   class="form-control"
+                                   placeholder="Peso">
+                        </div>
+
+                        <div class="col-md-6 mb-2">
+                            <select id="Estado"
+                                    class="form-select">
+                                <option value="M">Activo</option>
+                                <option value="F">Inactivo</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 mb-2">
+                            <input type="number"
+                                   id="cantidad"
+                                   class="form-control"
+                                   placeholder="Cantidad">
+                        </div>
+
+                        <div class="col-md-12 mb-2">
+
+                            <div class="text-center mb-2">
+                                <img id="preview"
+                                     src=""
+                                     class="img-thumbnail"
+                                     style="max-width:200px;display:none;">
+                            </div>
+
+                            <input type="file"
+                                   id="foto"
+                                   class="form-control">
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+
+                <button
+                    class="btn btn-primary"
+                    id="btnSiguiente">
+                    Siguiente
+                </button>
+
+                <button
+                    class="btn btn-success"
+                    id="btnGuardar"
+                    onclick = 'crearElemento()'
+                    style="display:none;">
+                    Guardar Todo
+                </button>
+
+            </div>
+
         </div>
-        <div class = "col-md-6 mb-2">
-          <input type="number" id="cantidad" class="form-control" placeholder="Cantidad">
-          <small class="text-danger" id="error_cantidad"></small>
-        </div>
-        <div class = "col-md-6 mb-2">
-          <div class = "text-center">
-            <img id="preview" src="" alt="Vista previa" class="img-thumbnail" style="max-width: 200px; display: none;">
-          </div>
-          <input type="file" id="foto" class="form-control">
-          <small class="text-danger" id="error_foto"></small>
-      </div>
-
-      <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button class="btn btn-primary" onclick="crearElemento()" id = "btnGuardar">Guardar</button>
-      </div>
-
     </div>
-  </div>
 </div>
 {% endblock %}
 
 {% block js %}
 <script src = '{% static "js/validation.js" %}'></script>
 <script>
-  const inputFoto = document.getElementById('foto');
-  const preview = document.getElementById('preview');
+function crearElemento() {
 
-  inputFoto.addEventListener('change', function(){
-    const file = this.files[0];
-    if (!file){
-      preview.style.display = 'none';
-      return;
-    }
-    const tiposPermitidos = ['image/jpeg', 'image/png', 'image/gif'];
-    if (!tiposPermitidos.includes(file.type)){
-      alert('Archivo no permitido. Solo se permiten imágenes JPEG, PNG o GIF.');
-      this.value = '';
-      preview.style.display = 'none';
-      this.value = '';
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = function(e){
-      preview.src = e.target.result;
-      preview.style.display = 'block';
-    }
-      reader.readAsDataURL(file);
-  })
-
-  function crearElemento() {
-      if(!validarFormulario("modalElemento")){
+    if (!validarFormulario("modalElemento")) {
         return;
     }
+
     const formData = new FormData();
-    formData.append("serial", document.getElementById("serial").value);
-    formData.append("marca", document.getElementById("marca").value);
-    formData.append("nombre", document.getElementById("nombre_elemento").value);
-    formData.append("peso", document.getElementById("peso").value);
-    formData.append("estado", document.getElementById("Estado").value);
-    formData.append("categoria", document.getElementById("categoria").value);
-    formData.append("cantidad", document.getElementById("cantidad").value);
+
+    // Datos categoría
+    formData.append(
+        "nombre_categoria",
+        document.getElementById("nombre_categoria").value
+    );
 
     formData.append(
-        "foto",
-        document.getElementById("foto").files[0]
+        "descripcion_categoria",
+        document.getElementById("descripcion_categoria").value
     );
+
+    // Datos elemento
+    formData.append(
+        "serial",
+        document.getElementById("serial").value
+    );
+
+    formData.append(
+        "marca",
+        document.getElementById("marca").value
+    );
+
+    formData.append(
+        "nombre",
+        document.getElementById("nombre_elemento").value
+    );
+
+    formData.append(
+        "peso",
+        document.getElementById("peso").value
+    );
+
+    formData.append(
+        "estado",
+        document.getElementById("Estado").value
+    );
+
+    formData.append(
+        "cantidad",
+        document.getElementById("cantidad").value
+    );
+
+    const foto = document.getElementById("foto").files[0];
+
+    if (foto) {
+        formData.append("foto", foto);
+    }
 
     fetch("{% url 'gimnasio:crear_elemento_ajax' %}", {
         method: "POST",
         headers: {
-            "X-CSRFToken": '{{ csrf_token }}'
+            "X-CSRFToken": "{{ csrf_token }}"
         },
         body: formData
     })
@@ -291,9 +371,13 @@
     .then(data => {
 
         if (data.error) {
-            return Swal.fire("Error", data.error, "error");
+            Swal.fire(
+                "Error",
+                data.error,
+                "error"
+            );
+            return;
         }
-
         let select = document.querySelector('[name="nombre_elemento"]');
         if (!select.querySelector(`option[value="${data.id}"]`)) {
             select.add(new Option(data.nombre, data.id, true, true));
@@ -304,10 +388,25 @@
         document.querySelectorAll('[id^="error_"]').forEach(e => e.innerText = '');
 
         Swal.fire("Correcto", "Elemento creado correctamente", "success");
+        
+        document.getElementById("modalElemento")
+            .querySelectorAll("input, textarea")
+            .forEach(campo => campo.value = "");
+
+        preview.style.display = "none";
         bootstrap.Modal.getInstance(document.getElementById('modalElemento')).hide();
     });
 }
+const btnSiguiente = document.getElementById("btnSiguiente");
+const btnGuardar = document.getElementById("btnGuardar");
 
+btnSiguiente.addEventListener("click", () => {
 
+    document.getElementById("paso1").style.display = "none";
+    document.getElementById("paso2").style.display = "block";
+
+    btnSiguiente.style.display = "none";
+    btnGuardar.style.display = "inline-block";
+});
 </script>
 {% endblock %}

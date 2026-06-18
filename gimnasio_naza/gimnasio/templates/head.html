@@ -4,7 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gimnasio Nazá</title>
-  <link href='{% static "js/css/all.min.css" %}' rel="stylesheet" />
+  <link href='{% static "js/all.min.css" %}' rel="stylesheet" />
+
   <link rel="stylesheet" href='{% static "js/css/css2.css" %}' />
   <link rel="stylesheet" href="/static/js/css/titulo.css" />
   <script>
@@ -12,11 +13,9 @@ window.FontAwesomeConfig = {
     autoReplaceSvg: false
 };
 </script>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css' rel='stylesheet' />
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+  <link href="{% static "css2.css" %}" rel="stylesheet" />
+    <script src='{% static "js/index.global.min.js" %}'></script>
+    <link href="{% static "remixicon.css" %}" rel="stylesheet">
 
   <style>
     :root {
@@ -380,9 +379,6 @@ window.FontAwesomeConfig = {
   <link rel="icon" type="image/png" sizes="64x64" href="{% static 'assets/img/favicon/gym.jpeg' %}" />
 
   <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
   <!-- Vendor CSS -->
   <link rel="stylesheet" href="{% static '/assets/vendor/fonts/iconify-icons.css' %}" />
@@ -400,6 +396,7 @@ window.FontAwesomeConfig = {
   <script src="{% static 'lib/sweetalert2/sweetalert2.all.min.js' %}"></script>
   <script src="{% static 'html5-qrcode-master/minified/html5-qrcode.min.js' %}"></script>
   <script src = '{% static "js/all.min.js" %}' ></script>
-  
+  <script src="{% static "js/chart.js" %}"></script>
+  <script src="{% static "js/sweetalert2@11.js" %}"></script>
 </head>
 {% endblock head %}

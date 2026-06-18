@@ -156,7 +156,13 @@
           </div>
 
           <div class="col-md-6 mb-2">
-            <input type="date" id="fecha_nacimiento" class="form-control">
+            <input
+              type="text"
+              id="fecha_nacimiento"
+              class="form-control"
+              placeholder="Fecha de nacimiento"
+              onfocus="this.type='date'"
+              onblur="if(!this.value)this.type='text'">
           </div>
 
           <div class="col-md-6 mb-2">
@@ -233,7 +239,7 @@ function crearUsuario() {
         peso: document.getElementById("peso").value,
         altura: document.getElementById("altura").value,
     };
-    fetch("{% url 'gimnasio:crear_usuario_ajax' %}", {
+    fetch("{% url 'gimnasio:crear_usuario_ajax_limpio' %}", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

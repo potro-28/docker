@@ -89,7 +89,6 @@ def notificar_mantenimiento(sender, instance, created, **kwargs):
     """
     if created:
         try:
-            # Notificar a todos los usuarios activos
             usuarios = Usuario.objects.filter(estado='activo')
             if usuarios.exists():
                 NotificacionManager.enviar_notificacion_mantenimiento(usuarios, instance)
