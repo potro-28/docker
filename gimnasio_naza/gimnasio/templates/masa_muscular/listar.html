@@ -2,6 +2,8 @@
 {% load static %}
 
 {% block contenido %}
+<link rel="stylesheet" href="{% static 'lib/datatables-1.10.20/css/dataTables.bootstrap4.min.css' %}">
+<link rel="stylesheet" href="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/css/responsive.bootstrap4.min.css' %}">
 <style>
   /* Evita que la fila principal se vea mal al hacer click en móviles */
   .table tbody tr[data-bs-toggle="collapse"] {
@@ -19,6 +21,22 @@
       white-space: nowrap; 
     }
   }
+  #data-table td,
+#data-table th{
+    vertical-align: middle;
+}
+
+#data-table tbody tr:hover{
+    cursor:pointer;
+}
+
+#data-table .badge{
+    font-size: .85rem;
+}
+
+#data-table thead th{
+    white-space: nowrap;
+}
 </style>
   <link rel="stylesheet" href="{% static 'lib/datatables-1.10.20/css/dataTables.bootstrap4.min.css' %}" />
   <link rel="stylesheet" href="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/css/responsive.bootstrap4.min.css' %}" />
@@ -27,94 +45,154 @@
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center bg-white py-3">
         <h5 class="mb-0"><i class="fa-solid fa-list"></i> {{ titulo }}</h5>
-        <a href="{{ crear_url }}" class="btn btn-primary rounded-pill"><i class="fa-solid fa-plus me-1"></i> Agregar masa muscular</a>
+        <a href="{{ crear_url }}" class="btn btn-primary"><i class="fa-solid fa-plus me-1"></i> Agregar masa muscular</a>
       </div>
 
       <div class="card-body">
         <div class="table-responsive">
-          <table class="table table-bordered table-striped w-100" id="data-table">
-            <thead>
-              <tr>
+    <table id="data-table"
+           class="table table-bordered table-striped table-hover align-middle w-100">
+
+        <thead>
+            <tr>
                 <th class="ps-4">Usuario</th>
                 <th class="text-center">IMC</th>
                 <th class="text-center">Estado</th>
                 <th class="text-center">Fecha</th>
-                <th class="text-end pe-4">Detalles</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for m in object_list %}
-                <tr data-bs-toggle="collapse" data-bs-target="#collapse{{ m.id }}">
-                  <td>
+                <th class="text-center">Detalles</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for m in object_list %}
+            <tr data-bs-toggle="collapse"
+                data-bs-target="#collapse{{ m.id }}"
+                style="cursor:pointer;">
+
+                <td class="ps-4">
                     <div class="d-flex align-items-center">
-                      <div class="avatar-sm me-3 bg-light rounded-circle p-2 text-center" style="width: 35px;">
-                        <i class="fa-solid fa-user text-secondary"></i>
-                      </div>
-                      <span class="fw-bold">{{ m.fk_Nutricion.fk_Usuario.nombre_usuario }}</span>
-                    </div>
-                  </td>
-                  <td class="text-center fw-bold text-dark fs-5">{{ m.imc }}</td>
-                  <td class="text-center">
-                    {% if m.estado_imc == 'Normal' %}
-                      <span class="badge rounded-pill bg-success badge-custom">Normal</span>
-                    {% elif m.estado_imc == 'Sobrepeso' %}
-                      <span class="badge rounded-pill bg-warning text-dark badge-custom">Sobrepeso</span>
-                    {% elif m.estado_imc == 'Obesidad' %}
-                      <span class="badge rounded-pill bg-danger badge-custom">Obesidad</span>
-                    {% else %}
-                      <span class="badge rounded-pill bg-info badge-custom">{{ m.estado_imc }}</span>
-                    {% endif %}
-                  </td>
-                  <td class="text-center text-muted small">{{ m.fecha_control }}</td>
-                  <td class="text-end pe-4">
-                    <button class="btn btn-sm btn-icon text-primary"><i class="fa-solid fa-circle-chevron-down fs-5"></i></button>
-                  </td>
-                </tr>
-
-                <tr>
-                  <td colspan="5" class="p-0 border-0">
-                    <div class="collapse" id="collapse{{ m.id }}">
-                      <div class="expandable-content p-4 shadow-inner">
-                        <div class="row align-items-center">
-                          <div class="col-lg-7 mb-3 mb-lg-0">
-                            <div class="bg-white p-3 rounded-4 border center" style="height:280px;">
-                              <div class="d-flex align-items-center justify-content-center" style="height: 250px; width: 100%;">
-                                <canvas id="chart{{ m.id }}"></canvas>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div class="col-lg-5">
-                            <div class="ps-lg-3 text-center text-lg-start">
-                              <h4 class="fw-bold mb-3">Resumen de Medición</h4>
-
-                              <div class="d-flex justify-content-around bg-white p-3 rounded-3 border mb-4">
-                                <div class="text-center">
-                                  <p class="text-muted small mb-1 uppercase fw-bold">Peso</p>
-                                  <span class="h5 fw-black">{{ m.peso_cliente }} <small>kg</small></span>
-                                </div>
-                                <div class="vr text-light"></div>
-                                <div class="text-center">
-                                  <p class="text-muted small mb-1 uppercase fw-bold">Altura</p>
-                                  <span class="h5 fw-black">{{ m.altura_cliente }} <small>m</small></span>
-                                </div>
-                              </div>
-
-                              <div class="d-flex gap-2 justify-content-center justify-content-lg-start">
-                                <a href="{% url 'gimnasio:editar_masa_corporal' m.id %}" class="btn btn-warning rounded-pill px-4"><i class="fas fa-edit me-1"></i> Editar</a>
-                                <a href="{% url 'gimnasio:eliminar_masa_corporal' m.id %}" class="btn btn-danger rounded-pill px-4"><i class="fas fa-trash me-1"></i> Eliminar</a>
-                              </div>
-                            </div>
-                          </div>
+                        <div class="avatar-sm me-3 bg-light rounded-circle p-2 text-center"
+                             style="width:35px;height:35px;">
+                            <i class="fa-solid fa-user text-secondary"></i>
                         </div>
-                      </div>
+
+                        <span class="fw-bold">
+                            {{ m.fk_Nutricion.fk_Usuario.nombre_usuario }}
+                        </span>
                     </div>
-                  </td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
+                </td>
+
+                <td class="text-center">
+                    <strong>{{ m.imc }}</strong>
+                </td>
+
+                <td class="text-center">
+                    {% if m.estado_imc == 'Normal' %}
+                        <span class="badge bg-success">
+                            {{ m.estado_imc }}
+                        </span>
+
+                    {% elif m.estado_imc == 'Sobrepeso' %}
+                        <span class="badge bg-warning text-dark">
+                            {{ m.estado_imc }}
+                        </span>
+
+                    {% elif m.estado_imc == 'Obesidad' %}
+                        <span class="badge bg-danger">
+                            {{ m.estado_imc }}
+                        </span>
+
+                    {% else %}
+                        <span class="badge bg-info">
+                            {{ m.estado_imc }}
+                        </span>
+                    {% endif %}
+                </td>
+
+                <td class="text-center">
+                    {{ m.fecha_control }}
+                </td>
+
+                <td class="text-center">
+                    <button class="btn btn-sm btn-text-secondary rounded-pill btn-icon">
+                        <i class="fa-solid fa-circle-chevron-down"></i>
+                    </button>
+                </td>
+            </tr>
+
+            <tr>
+                <td colspan="5" class="p-0 border-0">
+                    <div class="collapse" id="collapse{{ m.id }}">
+                        <div class="expandable-content p-4 shadow-inner">
+
+                            <!-- NO CAMBIAR NADA DE AQUÍ HACIA ABAJO -->
+
+                            <div class="row align-items-center">
+                                <div class="col-lg-7 mb-3 mb-lg-0">
+                                    <div class="bg-white p-3 rounded-4 border center" style="height:280px;">
+                                        <div class="d-flex align-items-center justify-content-center"
+                                             style="height:250px;width:100%;">
+                                            <canvas id="chart{{ m.id }}"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-5">
+                                    <div class="ps-lg-3 text-center text-lg-start">
+                                        <h4 class="fw-bold mb-3">Resumen de Medición</h4>
+
+                                        <div class="d-flex justify-content-around bg-white p-3 rounded-3 border mb-4">
+                                            <div class="text-center">
+                                                <p class="text-muted small mb-1 uppercase fw-bold">
+                                                    Peso
+                                                </p>
+                                                <span class="h5 fw-black">
+                                                    {{ m.peso_cliente }}
+                                                    <small>kg</small>
+                                                </span>
+                                            </div>
+
+                                            <div class="vr text-light"></div>
+
+                                            <div class="text-center">
+                                                <p class="text-muted small mb-1 uppercase fw-bold">
+                                                    Altura
+                                                </p>
+                                                <span class="h5 fw-black">
+                                                    {{ m.altura_cliente }}
+                                                    <small>m</small>
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex gap-2 justify-content-center justify-content-lg-start">
+                                            <a href="{% url 'gimnasio:editar_masa_corporal' m.id %}"
+                                               class="btn btn-warning rounded-pill px-4">
+                                                <i class="fas fa-edit me-1"></i>
+                                                Editar
+                                            </a>
+
+                                            <a href="{% url 'gimnasio:eliminar_masa_corporal' m.id %}"
+                                               class="btn btn-danger rounded-pill px-4">
+                                                <i class="fas fa-trash me-1"></i>
+                                                Eliminar
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- FIN DEL DESPLEGABLE -->
+
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+
+    </table>
+</div>
       </div>
     </div>
   </div>
@@ -134,19 +212,23 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <script>
-    $(function () {
-        $('#tabla-masas-musculares').DataTable({
-            responsive: true,
-            autoWidth: false,
-            language: {
-                url: "{% static 'lib/datatables-1.10.20/spanish.txt' %}"
-            },
-            columnDefs: [
-                { orderable: false, targets: 5 }
-            ]
-        });
+$(function () {
+
+    $('#data-table').DataTable({
+        responsive: true,
+        autoWidth: false,
+        language: {
+            url: "{% static 'lib/datatables-1.10.20/spanish.txt' %}"
+        },
+        columnDefs: [
+            {
+                orderable: false,
+                targets: [4]
+            }
+        ]
     });
 
+});
     {% if messages %}
         {% for message in messages %}
             Swal.fire({
