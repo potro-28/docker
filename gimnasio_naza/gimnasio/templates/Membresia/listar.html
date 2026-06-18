@@ -228,7 +228,7 @@ $(function () {
 {% if messages %}
     {% for message in messages %}
         Swal.fire({
-            title: "Notificación",
+            title: "Membresia",
             text: "{{ message }}",
             icon: "{% if message.tags == 'error' %}error{% else %}success{% endif %}",
             confirmButtonColor: '#5b73e8'

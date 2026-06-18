@@ -151,7 +151,6 @@ def crear_encuesta(request):
                 except Exception as e:
                     messages.error(request, f"Error API: {str(e)}")
     else:
-        # Petición GET: Aquí se inicializan los formularios vacíos para abrir la vista
         form = EncuestaForm()
         formset = PreguntaFormSet()
     
