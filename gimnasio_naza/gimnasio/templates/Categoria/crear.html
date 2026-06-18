@@ -71,25 +71,69 @@ Swal.fire({
 {% endif %}
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
 
-    const input = document.querySelector("input[name='peso_equipo']");
+    const nombre = document.querySelector("input[name='nombre_categoria']");
+    const descripcion = document.querySelector("input[name='descripcion']");
 
-    if (input) {
+    function setValid(el, mensaje = "") {
+        el.classList.remove("is-invalid");
+        el.classList.add("is-valid");
 
-        input.addEventListener("input", function() {
-            this.value = this.value.replace(",", ".");
-        });
+        let feedback = el.nextElementSibling;
+        if (!feedback || !feedback.classList.contains("live-feedback")) {
+            feedback = document.createElement("div");
+            feedback.className = "invalid-feedback live-feedback d-block";
+            el.parentNode.appendChild(feedback);
+        }
 
-        input.addEventListener("blur", function() {
-            if (parseFloat(this.value) < 1) {
-                this.value = "1";
+        feedback.style.color = "green";
+        feedback.innerText = mensaje;
+    }
+
+    function setInvalid(el, mensaje) {
+        el.classList.remove("is-valid");
+        el.classList.add("is-invalid");
+
+        let feedback = el.nextElementSibling;
+        if (!feedback || !feedback.classList.contains("live-feedback")) {
+            feedback = document.createElement("div");
+            feedback.className = "invalid-feedback live-feedback d-block";
+            el.parentNode.appendChild(feedback);
+        }
+
+        feedback.style.color = "red";
+        feedback.innerText = mensaje;
+    }
+
+    // VALIDAR NOMBRE
+    if (nombre) {
+        nombre.addEventListener("input", function () {
+            const valor = this.value.trim();
+
+            if (valor.length < 3) {
+                setInvalid(this, "El nombre debe tener al menos 3 caracteres.");
+            } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(valor)) {
+                setInvalid(this, "Solo se permiten letras.");
+            } else {
+                setValid(this, "Nombre válido");
             }
         });
+    }
 
+    // VALIDAR DESCRIPCIÓN
+    if (descripcion) {
+        descripcion.addEventListener("input", function () {
+            const valor = this.value.trim();
+
+            if (valor.length < 10) {
+                setInvalid(this, "La descripción debe tener mínimo 10 caracteres.");
+            } else {
+                setValid(this, "Descripción válida");
+            }
+        });
     }
 
 });
 </script>
-
 {% endblock %}

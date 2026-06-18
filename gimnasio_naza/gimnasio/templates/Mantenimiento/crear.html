@@ -274,27 +274,34 @@
 
             <div class="modal-footer">
 
-                <button
-                    class="btn btn-secondary"
-                    data-bs-dismiss="modal">
-                    Cancelar
-                </button>
+    <button
+        class="btn btn-secondary"
+        data-bs-dismiss="modal">
+        Cancelar
+    </button>
 
-                <button
-                    class="btn btn-primary"
-                    id="btnSiguiente">
-                    Siguiente
-                </button>
+    <button
+        class="btn btn-warning"
+        id="btnAtras"
+        style="display:none;">
+        Atrás
+    </button>
 
-                <button
-                    class="btn btn-success"
-                    id="btnGuardar"
-                    onclick = 'crearElemento()'
-                    style="display:none;">
-                    Guardar Todo
-                </button>
+    <button
+        class="btn btn-primary"
+        id="btnSiguiente">
+        Siguiente
+    </button>
 
-            </div>
+    <button
+        class="btn btn-success"
+        id="btnGuardar"
+        onclick="crearElemento()"
+        style="display:none;">
+        Guardar Todo
+    </button>
+
+</div>
 
         </div>
     </div>
@@ -399,14 +406,39 @@ function crearElemento() {
 }
 const btnSiguiente = document.getElementById("btnSiguiente");
 const btnGuardar = document.getElementById("btnGuardar");
+const btnAtras = document.getElementById("btnAtras");
+
+const paso1 = document.getElementById("paso1");
+const paso2 = document.getElementById("paso2");
 
 btnSiguiente.addEventListener("click", () => {
 
-    document.getElementById("paso1").style.display = "none";
-    document.getElementById("paso2").style.display = "block";
+    // VALIDACIÓN SIMPLE PASO 1
+    const nombre = document.getElementById("nombre_categoria").value.trim();
+    const desc = document.getElementById("descripcion_categoria").value.trim();
+
+    if (nombre.length < 3 || desc.length < 5) {
+        Swal.fire("Error", "Completa correctamente la categoría", "error");
+        return;
+    }
+
+    paso1.style.display = "none";
+    paso2.style.display = "block";
 
     btnSiguiente.style.display = "none";
+    btnAtras.style.display = "inline-block";
     btnGuardar.style.display = "inline-block";
 });
+
+btnAtras.addEventListener("click", () => {
+
+    paso1.style.display = "block";
+    paso2.style.display = "none";
+
+    btnSiguiente.style.display = "inline-block";
+    btnAtras.style.display = "none";
+    btnGuardar.style.display = "none";
+});
+
 </script>
 {% endblock %}
