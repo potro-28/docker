@@ -8,37 +8,70 @@
     .stagger-2 { animation: revealBounce 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-delay: 0.2s; opacity: 0; }
     @keyframes revealBounce { 0% { opacity: 0; transform: translateY(30px) scale(0.97); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
 
-    /* TARJETA DASHBOARD */
+    /* =======================================================
+       TARJETA DASHBOARD: FIX FRANJA Y FULL RESPONSIVE
+       ======================================================= */
     .card-dash { 
-        position: relative; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(10px); 
-        border-radius: 15px; padding: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.9); 
-        border: 1px solid rgba(255,215,0,0.1); margin-bottom: 25px;
+        position: relative; 
+        background: rgba(10, 10, 10, 0.95); 
+        backdrop-filter: blur(10px); 
+        border-radius: 15px; 
+        padding: 20px; /* Padding base móvil */
+        box-shadow: 0 15px 35px rgba(0,0,0,0.9); 
+        border: 1px solid rgba(255,215,0,0.1); 
+        margin-bottom: 25px;
+        overflow: hidden; /* FIX: Corta la franja para que no rompa el ancho en móviles */
+        width: 100%;
     }
-    .card-dash::before {
-        content: ''; position: absolute; top: 0; left: -15px; width: 20px; height: 100%;
-        background: #ffd700; transform: skewX(-15deg); box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+    @media (min-width: 768px) {
+        .card-dash { padding: 25px 25px 25px 40px; }
     }
 
-    .header-title { color: #fff; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; margin: 0;}
+    .card-dash::before {
+        content: ''; 
+        position: absolute; 
+        top: -10%; 
+        left: -15px; 
+        width: 30px; 
+        height: 120%;
+        background: #ffd700; 
+        transform: skewX(-15deg); 
+        box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+        z-index: 0; /* FIX: Franja al fondo */
+    }
     
-    /* BOTONES DORADOS */
+    /* FIX: Capa de protección. Todo el contenido va aquí dentro */
+    .card-dash-content {
+        position: relative; 
+        z-index: 10; /* Texto y tablas siempre arriba */
+        width: 100%;
+    }
+
+    /* ENCABEZADOS Y BOTONES RESPONSIVOS */
+    .header-mobile-wrap { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
+    @media (min-width: 992px) { .header-mobile-wrap { flex-direction: row; justify-content: space-between; align-items: center; } }
+    
+    .btn-mobile-wrap { display: flex; flex-wrap: wrap; gap: 10px; width: 100%; }
+    .btn-mobile-wrap > * { flex: 1 1 auto; justify-content: center; text-align: center; }
+
     .btn-hero-gold { background: #ffd700; color: #000; border: none; font-weight: 900; padding: 10px 20px; font-size: 13px; text-transform: uppercase; display: inline-flex; align-items: center; gap: 8px; transform: skewX(-10deg); transition: 0.3s; text-decoration: none;}
     .btn-hero-gold span { transform: skewX(10deg); display: block; }
     .btn-hero-gold:hover { transform: skewX(-10deg) scale(1.05); box-shadow: 0 0 25px #ffd700; background: #fff; color: #000;}
 
-    /* DATATABLES OVERRIDES */
-    .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_paginate { color: #a0a0a0 !important; font-weight: 600; font-size: 12px; text-transform: uppercase;}
-    .dataTables_wrapper .dataTables_filter input { background: #000 !important; border: 1px solid rgba(255,215,0,0.3) !important; color: #fff !important; border-radius: 5px;}
+    .btn-hero-outline { background: rgba(255,215,0,0.05); color: #ffd700; border: 1px solid #ffd700; font-weight: 900; padding: 10px 20px; font-size: 13px; text-transform: uppercase; display: inline-flex; align-items: center; gap: 8px; transform: skewX(-10deg); transition: 0.3s; border-radius: 0;}
+    .btn-hero-outline span { transform: skewX(10deg); display: block; }
+    .btn-hero-outline:hover { background: #ffd700; color: #000; box-shadow: 0 0 20px rgba(255,215,0,0.5); }
+
+    /* TABLA DARK GOLD ESTRICTO */
+    .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_paginate { color: #ffffff !important; font-weight: 600; font-size: 12px; text-transform: uppercase; margin-bottom: 10px;}
+    .dataTables_wrapper .dataTables_filter input { background: #000 !important; border: 1px solid rgba(255,215,0,0.3) !important; color: #fff !important; border-radius: 5px; padding: 4px 10px;}
     .dataTables_wrapper .dataTables_filter input:focus { border-color: #ffd700 !important; box-shadow: 0 0 10px rgba(255,215,0,0.3) !important; outline: none;}
     
-    table.dataTable, .table-dark-gold { width: 100% !important; border-collapse: separate !important; border-spacing: 0 5px !important; margin-top: 15px !important; border: none !important;}
-    table.dataTable thead th, .table-dark-gold thead th { 
-        background: #000 !important; color: #ffd700 !important; border-bottom: 2px solid #ffd700 !important; border-top: none !important; 
-        padding: 15px !important; text-transform: uppercase; font-size: 12px; font-weight: 900; letter-spacing: 1px;
-    }
+    table.dataTable { width: 100% !important; border-collapse: separate !important; border-spacing: 0 5px !important; margin-top: 15px !important; border: none !important;}
+    table.dataTable thead th { background: #000 !important; color: #ffd700 !important; border-bottom: 2px solid #ffd700 !important; border-top: none !important; padding: 12px !important; text-transform: uppercase; font-size: 11px; font-weight: 900; letter-spacing: 1px; white-space: nowrap;}
     table.dataTable tbody tr { background: rgba(0,0,0,0.5) !important; transition: 0.3s; }
     table.dataTable tbody tr:hover { background-color: rgba(255, 215, 0, 0.05) !important; border-left: 3px solid #ffd700 !important;}
-    table.dataTable tbody td { padding: 15px !important; border: none !important; vertical-align: middle; color: #fff !important;}
+    table.dataTable tbody td { padding: 12px !important; border: none !important; vertical-align: middle; color: #ffffff !important; font-size: 13px; white-space: nowrap;} /* Blanco Estricto */
     
     .page-item.active .page-link { background-color: #ffd700 !important; border-color: #ffd700 !important; color: #000 !important; font-weight: 900; box-shadow: 0 0 15px rgba(255, 215, 0, 0.5); }
     .page-item .page-link { background-color: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); color: #fff;}
