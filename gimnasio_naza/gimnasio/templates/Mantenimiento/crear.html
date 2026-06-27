@@ -4,441 +4,271 @@
  
 {% block contenido %}
 <style>
-  .swal2-container {
-    z-index: 20000 !important;
-  }
+    .stagger-1 { animation: revealBounce 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-delay: 0.1s; opacity: 0; }
+    .stagger-2 { animation: revealBounce 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-delay: 0.2s; opacity: 0; }
+    @keyframes revealBounce { 0% { opacity: 0; transform: translateY(30px) scale(0.97); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
 
-  .wizard-step-indicator {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    margin-bottom: 20px;
-  }
+    /* TARJETA FORMULARIO */
+    .card-dash { 
+        position: relative; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(10px); 
+        border-radius: 15px; padding: 0; box-shadow: 0 15px 35px rgba(0,0,0,0.9); 
+        border: 1px solid rgba(255,215,0,0.1); transition: 0.3s; overflow: hidden; margin-bottom: 25px;
+    }
+    .card-dash::before {
+        content: ''; position: absolute; top: 0; left: -15px; width: 20px; height: 100%;
+        background: #ffd700; transform: skewX(-15deg); box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); z-index: 0;
+    }
 
-  .step-dot {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background-color: #ccc;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 14px;
-    transition: background-color 0.3s;
-  }
+    .header-neon { background: rgba(0,0,0,0.5); padding: 25px 35px; border-bottom: 1px solid rgba(255,255,255,0.05); position: relative; z-index: 2;}
+    .header-neon h3 { margin: 0; font-weight: 900; font-size: 1.5rem; text-transform: uppercase; color: #fff; letter-spacing: 1px;}
+    .header-neon h3 i { color: #ffd700; }
 
-  .step-dot.active {
-    background-color: #267ca7;
-  }
+    /* INPUTS OSCUROS */
+    .form-label-custom { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #a0a0a0; font-weight: 800; margin-bottom: 8px; position: relative; z-index: 2;}
+    .input-dark { background: rgba(0,0,0,0.6) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: #fff !important; border-radius: 6px; transition: 0.3s; padding: 12px 15px; font-family: 'Poppins', sans-serif; position: relative; z-index: 2;}
+    .input-dark:focus { background: #000 !important; border-color: #ffd700 !important; box-shadow: 0 0 15px rgba(255, 215, 0, 0.3) !important; outline: none;}
+    .input-dark::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer;}
+    
+    /* BOTONES HERO */
+    .btn-hero-gold { background: #ffd700; color: #000; border: none; font-weight: 900; padding: 12px 25px; font-size: 13px; text-transform: uppercase; box-shadow: 0 0 15px rgba(255,215,0,0.3); transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; transform: skewX(-10deg); position: relative; z-index: 2; text-decoration: none; cursor: pointer; }
+    .btn-hero-gold span { transform: skewX(10deg); display: block; }
+    .btn-hero-gold:hover { transform: skewX(-10deg) scale(1.05); box-shadow: 0 0 25px #ffd700; background: #fff; color: #000;}
 
-  .step-dot.done {
-    background-color: #28a745;
-  }
-
-  .step-line {
-    flex: 1;
-    height: 2px;
-    background-color: #ccc;
-    align-self: center;
-    max-width: 60px;
-    transition: background-color 0.3s;
-  }
-
-  .step-line.done {
-    background-color: #28a745;
-  }
-
-  .alert-info {
-    border-left: 5px solid #267ca7;
-  }
+    /* MODAL OSCURO */
+    .modal-dark .modal-content { background: #0a0a0a; border: 1px solid #ffd700; color: #fff; box-shadow: 0 0 50px rgba(0,0,0,0.9); }
+    
+    /* INFO ELEMENTO PRE-SELECCIONADO */
+    .alert-amber { background: rgba(255, 215, 0, 0.05); border-left: 4px solid #ffd700; border-radius: 8px; padding: 20px; border-top: 1px solid rgba(255,215,0,0.1); border-right: 1px solid rgba(255,215,0,0.1); border-bottom: 1px solid rgba(255,215,0,0.1); }
 </style>
 
-<div class="container-xxl flex-grow-1 container-p-y">
-  <form method="POST" action="." enctype="multipart/form-data">
+<div class="container mt-4" style="max-width: 800px;">
+  <form method="POST" action="." enctype="multipart/form-data" class="card-dash stagger-1" id="mantenimientoForm">
     {% csrf_token %}
 
-    <div class="card">
+    <div class="header-neon">
+        <h3><i class="ri-tools-fill"></i> {{ titulo }}</h3>
+    </div>
 
-      <div class="header-encuesta">
-        <h3>
-            <i class="fas fa-edit"></i>
-            {{ titulo }}
-        </h3>
-      </div>
-
-      <div class="card-body">
-
+    <div class="card-body p-4 p-md-5" style="position: relative; z-index: 2;">
+        
         {% if form.errors %}
-        <div class="alert alert-danger">
-          <strong>Error:</strong> Verifica los campos.
+        <div class="alert mb-4" style="background: rgba(255,77,79,0.1); border: 1px solid #ff4d4f; color: #fff; border-radius: 8px;">
+            <h6 class="fw-bold" style="color: #ff4d4f;"><i class="ri-error-warning-line me-2"></i> ¡Atención! Verifica los campos.</h6>
+            <ul class="mb-0">
+                {% for field in form %} {% for error in field.errors %} <li style="font-size: 13px;">{{ field.label }}: {{ error }}</li> {% endfor %} {% endfor %}
+            </ul>
         </div>
         {% endif %}
 
-        <!-- ================= INFORMACIÓN DEL ELEMENTO ================= -->
         {% if elemento_pre %}
-        <div class="alert alert-info mb-4 shadow-sm">
-          <div class="row">
-
-            <div class="col-md-3 mb-2">
-              <small class="text-muted d-block">Elemento</small>
-              <strong>{{ elemento_pre.nombre_elemento }}</strong>
+        <div class="alert-amber mb-4 stagger-2">
+            <h6 class="fw-bold text-uppercase mb-3" style="color: #ffd700; font-size: 12px; letter-spacing: 1px;"><i class="ri-information-line me-1"></i> Equipo Seleccionado</h6>
+            <div class="row">
+                <div class="col-md-3 mb-2">
+                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 10px;">Elemento</small>
+                    <strong class="text-white">{{ elemento_pre.nombre_elemento }}</strong>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 10px;">Serial</small>
+                    <strong class="text-white">{{ elemento_pre.serial }}</strong>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 10px;">Peso</small>
+                    <strong class="text-white">{{ elemento_pre.peso_elemento }} {{ elemento_pre.unidad_peso }}</strong>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 10px;">Categoría</small>
+                    <strong class="text-white">{{ elemento_pre.nombre_categoria.get_nombre_categoria_display }}</strong>
+                </div>
             </div>
-
-            <div class="col-md-3 mb-2">
-              <small class="text-muted d-block">Serial</small>
-              <strong>{{ elemento_pre.serial }}</strong>
-            </div>
-
-            <div class="col-md-3 mb-2">
-              <small class="text-muted d-block">Peso</small>
-              <strong>
-                {{ elemento_pre.peso_elemento }}
-                {{ elemento_pre.unidad_peso }}
-              </strong>
-            </div>
-
-            <div class="col-md-3 mb-2">
-              <small class="text-muted d-block">Categoría</small>
-              <strong>
-                {{ elemento_pre.nombre_categoria.get_nombre_categoria_display }}
-              </strong>
-            </div>
-
-          </div>
         </div>
         {% endif %}
-        <!-- ========================================================== -->
 
         {% for field in form.visible_fields %}
-        <div class="form-group mb-3">
+        <div class="form-group mb-4 stagger-2">
+            <label class="form-label-custom">
+                {% if field.name == 'nombre_elemento' %} Equipo Asociado {% else %} {{ field.label }} {% endif %}
+            </label>
 
-          <label>{{ field.label }}</label>
+            {% if field.name == 'nombre_elemento' %}
+            <div class="d-flex align-items-center gap-2">
+                {{ field|add_class:'form-select input-dark' }}
+                <button type="button" class="btn" style="background: rgba(255, 215, 0, 0.1); color: #ffd700; border: 1px solid #ffd700; padding: 12px 18px; border-radius: 6px; transition: 0.3s;" data-bs-toggle="modal" data-bs-target="#modalElemento" title="Registrar Nuevo Equipo">
+                    <i class="ri-add-line"></i>
+                </button>
+            </div>
+            {% else %}
+                {{ field|add_class:'form-control input-dark' }}
+            {% endif %}
 
-          {% if field.name == 'nombre_elemento' %}
-          <div class="d-flex">
-            {{ field|add_class:'form-control' }}
-              <button type="button" class="btn btn-success ms-2" data-bs-toggle="modal" data-bs-target="#modalElemento">
-              +
-              </button>
-          </div>
-
-          {% else %}
-            {{ field|add_class:'form-control' }}
-          {% endif %}
-
-          {% for error in field.errors %}
-            <div class="text-danger">{{ error }}</div>
-          {% endfor %}
-
+            {% for error in field.errors %}
+                <div class="text-danger small mt-2 fw-bold" style="color: #ff4d4f !important;"><i class="fas fa-exclamation-triangle"></i> {{ error }}</div>
+            {% endfor %}
         </div>
         {% endfor %}
+    </div>
 
-      </div>
-
-      <div class="card-footer">
-        <button type="submit" class="btn btn-primary">
-          Guardar
-        </button>
-
-        <a href="{% url 'gimnasio:listar_mantenimiento' %}"
-           class="btn btn-danger ms-2">
-          Cancelar
+    <div class="card-footer border-0 p-4 p-md-5 pt-0 d-flex gap-3" style="background: transparent; position: relative; z-index: 2;">
+        <button type="submit" class="btn-hero-gold"><span><i class="ri-save-line me-1"></i> Guardar</span></button>
+        <a href="{% url 'gimnasio:listar_mantenimiento' %}" class="btn fw-bold px-4 py-2" style="background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.2); text-transform: uppercase; font-size: 13px; transform: skewX(-10deg); display: inline-flex; text-decoration: none;">
+            <span style="transform: skewX(10deg);"><i class="ri-close-line me-1"></i> Cancelar</span>
         </a>
-      </div>
-
     </div>
   </form>
 </div>
-<div class="modal fade" id="modalElemento" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
 
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">
-                    <i class="fa-solid fa-box me-2 py-3"></i>
-                    Crear Categoría y Elemento
-                </h5>
+<div class="modal fade modal-dark" id="modalElemento" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered"> 
+    <div class="modal-content">
 
-                <button
-                    type="button"
-                    class="btn-close btn-close-white"
-                    data-bs-dismiss="modal">
-                </button>
+      <div class="modal-header border-0" style="background: #000; border-bottom: 1px solid rgba(255,215,0,0.2) !important; padding: 20px 30px;">
+        <h5 class="fw-bold text-uppercase m-0" style="color: #ffd700; font-size: 16px; letter-spacing: 1px;"><i class="ri-box-3-line me-2"></i> Registrar Nuevo Elemento</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body p-4 p-md-5">
+        <h6 class="fw-bold text-uppercase mb-3 border-bottom pb-2" style="color: #fff; border-color: rgba(255,255,255,0.05) !important; font-size: 13px;"><i class="ri-information-line me-2" style="color: #ffd700;"></i> Datos del Equipo</h6>
+        
+        <div class="row g-3">
+          <div class="col-md-6 mb-2">
+            <input type="text" id="serial" class="form-control input-dark" placeholder="Serial">
+            <small class="text-danger fw-bold mt-1" id="error_serial" style="color: #ff4d4f !important;"></small>
+          </div>
+          <div class="col-md-6 mb-2">
+            <input type="text" id="marca" class="form-control input-dark" placeholder="Marca">
+            <small class="text-danger fw-bold mt-1" id="error_marca" style="color: #ff4d4f !important;"></small>
+          </div>
+          <div class="col-md-6 mb-2">
+            <input type="text" id="nombre_elemento" class="form-control input-dark" placeholder="Nombre Elemento">
+            <small class="text-danger fw-bold mt-1" id="error_nombre" style="color: #ff4d4f !important;"></small>
+          </div>
+          <div class="col-md-6 mb-2">
+            <input type="number" id="peso" class="form-control input-dark" placeholder="Peso (kg)">
+            <small class="text-danger fw-bold mt-1" id="error_peso" style="color: #ff4d4f !important;"></small>
+          </div>
+          <div class="col-md-6 mb-2">
+            <select id="Estado" class="form-select input-dark">
+              <option value="M">Activo</option>
+              <option value="F">Inactivo</option>
+            </select>
+          </div>
+          <div class="col-md-6 mb-2">
+            <select id="categoria" class="form-select input-dark">
+              <option value="">Seleccione una categoría</option>
+              {% for categoria in categorias %}
+              <option value="{{ categoria.id}}">{{ categoria.nombre_categoria}}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-6 mb-2">
+            <input type="number" id="cantidad" class="form-control input-dark" placeholder="Cantidad">
+            <small class="text-danger fw-bold mt-1" id="error_cantidad" style="color: #ff4d4f !important;"></small>
+          </div>
+          <div class="col-md-6 mb-2">
+            <input type="file" id="foto" class="form-control input-dark" style="margin-bottom: 10px;">
+            <div class="text-center">
+                <img id="preview" src="" alt="Vista previa" class="img-thumbnail" style="max-width: 150px; display: none; background: #000; border-color: rgba(255,215,0,0.5);">
             </div>
-
-            <div class="modal-body">
-
-                <!-- PASO 1 -->
-                <div id="paso1">
-
-                    <h5 class="text-success">
-                        Paso 1 - Categoría
-                    </h5>
-
-                    <hr>
-
-                    <div class="mb-3">
-                        <input
-                            type="text"
-                            id="nombre_categoria"
-                            class="form-control"
-                            placeholder="Nombre de la categoría">
-                    </div>
-
-                    <div class="mb-3">
-                        <textarea
-                            id="descripcion_categoria"
-                            class="form-control"
-                            rows="4"
-                            placeholder="Descripción">
-                        </textarea>
-                    </div>
-
-                </div>
-
-                <!-- PASO 2 -->
-                <div id="paso2" style="display:none;">
-
-                    <h5 class="text-success">
-                        Paso 2 - Datos del Elemento
-                    </h5>
-
-                    <hr>
-
-                    <div class="row">
-
-                        <div class="col-md-6 mb-2">
-                            <input type="text"
-                                   id="serial"
-                                   class="form-control"
-                                   placeholder="Serial">
-                        </div>
-
-                        <div class="col-md-6 mb-2">
-                            <input type="text"
-                                   id="marca"
-                                   class="form-control"
-                                   placeholder="Marca">
-                        </div>
-
-                        <div class="col-md-6 mb-2">
-                            <input type="text"
-                                   id="nombre_elemento"
-                                   class="form-control"
-                                   placeholder="Nombre">
-                        </div>
-
-                        <div class="col-md-6 mb-2">
-                            <input type="text"
-                                   id="peso"
-                                   class="form-control"
-                                   placeholder="Peso">
-                        </div>
-
-                        <div class="col-md-6 mb-2">
-                            <select id="Estado"
-                                    class="form-select">
-                                <option value="M">Activo</option>
-                                <option value="F">Inactivo</option>
-                            </select>
-                        </div>
-
-                        <div class="col-md-6 mb-2">
-                            <input type="number"
-                                   id="cantidad"
-                                   class="form-control"
-                                   placeholder="Cantidad">
-                        </div>
-
-                        <div class="col-md-12 mb-2">
-
-                            <div class="text-center mb-2">
-                                <img id="preview"
-                                     src=""
-                                     class="img-thumbnail"
-                                     style="max-width:200px;display:none;">
-                            </div>
-
-                            <input type="file"
-                                   id="foto"
-                                   class="form-control">
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            <div class="modal-footer">
-
-    <button
-        class="btn btn-secondary"
-        data-bs-dismiss="modal">
-        Cancelar
-    </button>
-
-    <button
-        class="btn btn-warning"
-        id="btnAtras"
-        style="display:none;">
-        Atrás
-    </button>
-
-    <button
-        class="btn btn-primary"
-        id="btnSiguiente">
-        Siguiente
-    </button>
-
-    <button
-        class="btn btn-success"
-        id="btnGuardar"
-        onclick="crearElemento()"
-        style="display:none;">
-        Guardar Todo
-    </button>
-
-</div>
-
+            <small class="text-danger fw-bold mt-1" id="error_foto" style="color: #ff4d4f !important;"></small>
+          </div>
         </div>
+      </div>
+
+      <div class="modal-footer border-0 p-4" style="background: rgba(0,0,0,0.5);">
+        <button class="btn fw-bold px-4" style="background: rgba(255,255,255,0.05); color: #fff; text-transform: uppercase; font-size: 12px; border: 1px solid rgba(255,255,255,0.1);" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-hero-gold px-4" onclick="crearElemento()" id="btnGuardar" style="transform: skewX(0);"><span><i class="ri-save-line me-1"></i> Crear Elemento</span></button>
+      </div>
+
     </div>
+  </div>
 </div>
 {% endblock %}
 
 {% block js %}
-<script src = '{% static "js/validation.js" %}'></script>
+<script src='{% static "js/validation.js" %}'></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-function crearElemento() {
+  // PREVIEW FOTO
+  const inputFoto = document.getElementById('foto');
+  const preview = document.getElementById('preview');
 
-    if (!validarFormulario("modalElemento")) {
-        return;
+  inputFoto.addEventListener('change', function(){
+    const file = this.files[0];
+    if (!file){
+      preview.style.display = 'none';
+      return;
+    }
+    const tiposPermitidos = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!tiposPermitidos.includes(file.type)){
+      Swal.fire({background: "rgba(10,10,10,0.95)", color: "#fff", icon: "warning", title: "Formato no válido", text: "Solo imágenes JPEG, PNG o GIF.", confirmButtonColor: "#ffd700"});
+      this.value = '';
+      preview.style.display = 'none';
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = function(e){
+      preview.src = e.target.result;
+      preview.style.display = 'block';
+    }
+    reader.readAsDataURL(file);
+  });
+
+  // CREAR ELEMENTO AJAX
+  function crearElemento() {
+    // Si tienes una función validarFormulario importada de validation.js:
+    if(typeof validarFormulario === "function") {
+        if(!validarFormulario("modalElemento")){ return; }
+    } else {
+        // Validación básica por si no carga validation.js
+        if(!document.getElementById("nombre_elemento").value) {
+            Swal.fire({background: "rgba(10,10,10,0.95)", color: "#fff", icon: "warning", title: "Falta el nombre", confirmButtonColor: "#ffd700"});
+            return;
+        }
     }
 
+    document.getElementById("btnGuardar").disabled = true;
+
     const formData = new FormData();
-
-    // Datos categoría
-    formData.append(
-        "nombre_categoria",
-        document.getElementById("nombre_categoria").value
-    );
-
-    formData.append(
-        "descripcion_categoria",
-        document.getElementById("descripcion_categoria").value
-    );
-
-    // Datos elemento
-    formData.append(
-        "serial",
-        document.getElementById("serial").value
-    );
-
-    formData.append(
-        "marca",
-        document.getElementById("marca").value
-    );
-
-    formData.append(
-        "nombre",
-        document.getElementById("nombre_elemento").value
-    );
-
-    formData.append(
-        "peso",
-        document.getElementById("peso").value
-    );
-
-    formData.append(
-        "estado",
-        document.getElementById("Estado").value
-    );
-
-    formData.append(
-        "cantidad",
-        document.getElementById("cantidad").value
-    );
-
-    const foto = document.getElementById("foto").files[0];
-
-    if (foto) {
-        formData.append("foto", foto);
+    formData.append("serial", document.getElementById("serial").value);
+    formData.append("marca", document.getElementById("marca").value);
+    formData.append("nombre", document.getElementById("nombre_elemento").value);
+    formData.append("peso", document.getElementById("peso").value);
+    formData.append("estado", document.getElementById("Estado").value);
+    formData.append("categoria", document.getElementById("categoria").value);
+    formData.append("cantidad", document.getElementById("cantidad").value);
+    
+    if(document.getElementById("foto").files[0]){
+        formData.append("foto", document.getElementById("foto").files[0]);
     }
 
     fetch("{% url 'gimnasio:crear_elemento_ajax' %}", {
         method: "POST",
-        headers: {
-            "X-CSRFToken": "{{ csrf_token }}"
-        },
+        headers: { "X-CSRFToken": '{{ csrf_token }}' },
         body: formData
     })
     .then(res => res.json())
     .then(data => {
-
+        document.getElementById("btnGuardar").disabled = false;
         if (data.error) {
-            Swal.fire(
-                "Error",
-                data.error,
-                "error"
-            );
-            return;
+            return Swal.fire({background: "rgba(10,10,10,0.95)", color: "#fff", icon: "error", title: "Error", text: data.error, confirmButtonColor: "#ffd700"});
         }
+
         let select = document.querySelector('[name="nombre_elemento"]');
         if (!select.querySelector(`option[value="${data.id}"]`)) {
             select.add(new Option(data.nombre, data.id, true, true));
         }
 
-
         document.querySelectorAll('#modalElemento input').forEach(i => i.value = '');
         document.querySelectorAll('[id^="error_"]').forEach(e => e.innerText = '');
+        preview.style.display = 'none';
 
-        Swal.fire("Correcto", "Elemento creado correctamente", "success");
-        
-        document.getElementById("modalElemento")
-            .querySelectorAll("input, textarea")
-            .forEach(campo => campo.value = "");
-
-        preview.style.display = "none";
+        Swal.fire({background: "rgba(10,10,10,0.95)", color: "#fff", icon: "success", title: "Correcto", text: "Elemento creado", confirmButtonColor: "#ffd700"});
         bootstrap.Modal.getInstance(document.getElementById('modalElemento')).hide();
+    })
+    .catch(err => {
+        document.getElementById("btnGuardar").disabled = false;
+        Swal.fire({background: "rgba(10,10,10,0.95)", color: "#fff", icon: "error", title: "Error de servidor", confirmButtonColor: "#ffd700"});
     });
-}
-const btnSiguiente = document.getElementById("btnSiguiente");
-const btnGuardar = document.getElementById("btnGuardar");
-const btnAtras = document.getElementById("btnAtras");
-
-const paso1 = document.getElementById("paso1");
-const paso2 = document.getElementById("paso2");
-
-btnSiguiente.addEventListener("click", () => {
-
-    // VALIDACIÓN SIMPLE PASO 1
-    const nombre = document.getElementById("nombre_categoria").value.trim();
-    const desc = document.getElementById("descripcion_categoria").value.trim();
-
-    if (nombre.length < 3 || desc.length < 5) {
-        Swal.fire("Error", "Completa correctamente la categoría", "error");
-        return;
-    }
-
-    paso1.style.display = "none";
-    paso2.style.display = "block";
-
-    btnSiguiente.style.display = "none";
-    btnAtras.style.display = "inline-block";
-    btnGuardar.style.display = "inline-block";
-});
-
-btnAtras.addEventListener("click", () => {
-
-    paso1.style.display = "block";
-    paso2.style.display = "none";
-
-    btnSiguiente.style.display = "inline-block";
-    btnAtras.style.display = "none";
-    btnGuardar.style.display = "none";
-});
-
+  }
 </script>
 {% endblock %}

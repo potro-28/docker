@@ -2,274 +2,206 @@
 {% load static %}
 
 {% block contenido %}
-<link rel="stylesheet" href="{% static 'lib/datatables-1.10.20/css/dataTables.bootstrap4.min.css' %}">
-<link rel="stylesheet" href="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/css/responsive.bootstrap4.min.css' %}">
 <style>
+    /* ANIMACIONES */
+    .stagger-1 { animation: revealBounce 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-delay: 0.1s; opacity: 0; }
+    .stagger-2 { animation: revealBounce 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-delay: 0.2s; opacity: 0; }
+    @keyframes revealBounce { 0% { opacity: 0; transform: translateY(30px) scale(0.97); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+
+    /* TARJETAS CONTENEDORAS */
+    .card-dash { 
+        position: relative; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(10px); 
+        border-radius: 15px; padding: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.9); 
+        border: 1px solid rgba(255,215,0,0.1); margin-bottom: 25px;
+    }
+    .card-dash::before {
+        content: ''; position: absolute; top: 0; left: -15px; width: 20px; height: 100%;
+        background: #ffd700; transform: skewX(-15deg); box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+    }
+    .header-title { color: #fff; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; margin: 0;}
+
+    /* BOTONES DORADOS */
+    .btn-hero-gold { background: #ffd700; color: #000; border: none; font-weight: 900; padding: 10px 20px; font-size: 13px; text-transform: uppercase; display: inline-flex; align-items: center; gap: 8px; transform: skewX(-10deg); transition: 0.3s; text-decoration: none;}
+    .btn-hero-gold span { transform: skewX(10deg); display: block; }
+    .btn-hero-gold:hover { transform: skewX(-10deg) scale(1.05); box-shadow: 0 0 25px #ffd700; background: #fff; color: #000;}
+
+    .btn-hero-outline { background: rgba(255,215,0,0.05); color: #ffd700; border: 1px solid #ffd700; font-weight: 900; padding: 10px 20px; font-size: 13px; text-transform: uppercase; display: inline-flex; align-items: center; gap: 8px; transform: skewX(-10deg); transition: 0.3s; border-radius: 0;}
+    .btn-hero-outline span { transform: skewX(10deg); display: block; }
+    .btn-hero-outline:hover { background: #ffd700; color: #000; box-shadow: 0 0 20px rgba(255,215,0,0.5); }
+
+    /* TARJETAS RESUMEN Y EQUIPOS */
+    .stat-box { text-align: center; padding: 20px 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); background: rgba(0,0,0,0.6); transition: 0.3s;}
+    .stat-box:hover { border-color: #ffd700; transform: translateY(-5px); box-shadow: 0 10px 20px rgba(255,215,0,0.1);}
+    
     .equipment-card {
-        border: 1px solid #e0e0e0;
-        border-radius: 12px;
-        padding: 16px;
-        transition: transform 0.2s, box-shadow 0.2s;
-        background: #fff;
+        border: 1px solid rgba(255,215,0,0.2); border-radius: 15px; padding: 20px;
+        background: rgba(0,0,0,0.6); transition: all 0.3s ease; height: 100%; color: #fff;
     }
-    .equipment-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 0 10px rgba(1, 30, 92, 0.68);
-    }
-    .equipment-card img {
-        width: 100px;
-        height: 100px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        object-fit: contain;
-        margin-bottom: 10px;
-    }
-    .equipment-card .cantidad {
-        font-size: 1.6rem;
-        font-weight: 700;
-        color: #333;
-        margin: 4px 0;
-    }
-    .equipment-card .nombre {
-        font-size: 0.9rem;
-        color: #666;
-        text-align: center;
-        text-transform: capitalize;
-    }
-    .equipment-card .sin-imagen {
-        width: 100px;
-        height: 100px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #f5f5f5;
-        border-radius: 8px;
-        margin: 0 auto 10px;
-        color: #aaa;
-        font-size: 0.8rem;
-    }
+    .equipment-card:hover { border-color: #ffd700; transform: translateY(-5px); box-shadow: 0 10px 25px rgba(255,215,0,0.15); }
+    .equipment-card img { width: 100px; height: 100px; object-fit: contain; margin-bottom: 15px; filter: drop-shadow(0 0 10px rgba(255,255,255,0.1));}
+    .sin-imagen { width: 100px; height: 100px; display: flex; justify-content: center; align-items: center; background: rgba(255,255,255,0.05); border-radius: 10px; margin-bottom: 15px; color: #ffd700; font-size: 0.85rem; border: 1px dashed rgba(255,215,0,0.3);}
+
+    /* DATATABLES OVERRIDES */
+    .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_paginate { color: #a0a0a0 !important; font-weight: 600; font-size: 12px; text-transform: uppercase;}
+    .dataTables_wrapper .dataTables_filter input { background: #000 !important; border: 1px solid rgba(255,215,0,0.3) !important; color: #fff !important; border-radius: 5px;}
+    .dataTables_wrapper .dataTables_filter input:focus { border-color: #ffd700 !important; box-shadow: 0 0 10px rgba(255,215,0,0.3) !important; outline: none;}
+    
+    table.dataTable, .table-dark-gold { width: 100% !important; border-collapse: separate !important; border-spacing: 0 5px !important; margin-top: 15px !important; border: none !important;}
+    table.dataTable thead th, .table-dark-gold thead th { background: #000 !important; color: #ffd700 !important; border-bottom: 2px solid #ffd700 !important; border-top: none !important; padding: 15px !important; text-transform: uppercase; font-size: 11px; font-weight: 900; letter-spacing: 1px; white-space: nowrap;}
+    table.dataTable tbody tr { background: rgba(0,0,0,0.5) !important; transition: 0.3s; }
+    table.dataTable tbody tr:hover { background-color: rgba(255, 215, 0, 0.05) !important; border-left: 3px solid #ffd700 !important;}
+    table.dataTable tbody td { padding: 15px !important; border: none !important; vertical-align: middle; color: #fff !important; font-size: 13px;}
+    
+    .page-item.active .page-link { background-color: #ffd700 !important; border-color: #ffd700 !important; color: #000 !important; font-weight: 900; box-shadow: 0 0 15px rgba(255, 215, 0, 0.5); }
+    .page-item .page-link { background-color: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); color: #fff;}
+
+    [aria-expanded="false"] #toggleIcon { transform: rotate(-90deg); transition: transform 0.3s ease; }
+    [aria-expanded="true"] #toggleIcon { transform: rotate(0deg); transition: transform 0.3s ease; color: #ffd700;}
 </style>
 
-<div class="container-xxl flex-grow-1 container-p-y">
-    <div class="card">
+<link rel="stylesheet" href="{% static 'lib/datatables-1.10.20/css/dataTables.bootstrap4.min.css' %}">
+<link rel="stylesheet" href="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/css/responsive.bootstrap4.min.css' %}">
 
-        <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-            <h5 class="mb-0"> <i class="fa-solid fa-list"></i> Listado de Mantenimientos</h5>
-            <div class="d-flex gap-2 flex-wrap">
-                <div class="dropdown">
-                    <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownExportar"
-                        data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="icon-base ri ri-file-chart-line icon-18px me-1"></i>Exportar
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownExportar">
-                        <li>
-                            <a class="dropdown-item" href="{% url 'gimnasio:exportar_mantenimiento_excel' %}">
-                                <i class="ri ri-file-excel-2-fill me-2 text-success"></i>Exportar a Excel
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="{% url 'gimnasio:exportar_mantenimiento_pdf' %}">
-                                <i class="ri ri-file-pdf-fill me-2 text-danger"></i>Exportar a PDF
-                            </a>
-                        </li>
-                    </ul>
+<div style="position: fixed; top: 20%; right: 5%; width: 300px; height: 800px; background: #ffd700; opacity: 0.02; transform: skewX(-30deg); z-index: -1; pointer-events: none;"></div>
+
+<div class="container-fluid mt-4">
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mb-4 gap-3 stagger-1" style="position: relative; z-index: 100;">
+        <h3 class="header-title">
+            <i class="ri-tools-fill" style="color: #ffd700; margin-right: 10px;"></i> Listado de Mantenimientos
+        </h3>
+
+        <div class="d-flex gap-3 flex-wrap">
+            <div class="dropdown">
+                <button class="btn-hero-outline dropdown-toggle" type="button" data-bs-toggle="dropdown" style="transform: skewX(0); border-radius: 4px;">
+                    <i class="ri-file-chart-line me-2"></i> Exportar
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark bg-dark border-warning mt-2" style="box-shadow: 0 15px 35px rgba(0,0,0,0.9);">
+                    <li><a class="dropdown-item fw-bold" href="{% url 'gimnasio:exportar_mantenimiento_excel' %}"><i class="ri-file-excel-2-line me-2 text-success"></i> Excel</a></li>
+                    <li><a class="dropdown-item fw-bold" href="{% url 'gimnasio:exportar_mantenimiento_pdf' %}"><i class="ri-file-pdf-line me-2 text-danger"></i> PDF</a></li>
+                </ul>
+            </div>
+            <a href="{% url 'gimnasio:crear_mantenimiento' %}" class="btn-hero-gold">
+                <span><i class="ri-add-line me-1"></i> Programar Mantenimiento</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="card-dash stagger-2">
+        <div class="border-bottom pb-4 mb-4" style="border-color: rgba(255,255,255,0.1) !important;">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <div>
+                    <h6 class="mb-0 text-uppercase fw-bold" style="color: #ffd700; letter-spacing: 1px;">Resumen del Estado</h6>
+                    <small class="text-muted">Indicadores generales de equipamiento</small>
                 </div>
-
-                <a href="{% url 'gimnasio:crear_mantenimiento' %}" class="btn btn-primary">
-                    <i class="icon-base ri ri-add-line icon-18px me-1"></i>Agregar mantenimiento
+                <a href="javascript:void(0);" class="text-white" data-bs-toggle="collapse" data-bs-target="#collapseCards" aria-expanded="true" style="text-decoration: none;">
+                    <i class="ri-arrow-down-s-line fs-4" id="toggleIcon"></i>
                 </a>
             </div>
-        </div>
 
-        <!-- Tarjetas de equipos -->
-         <div class="card-body border-bottom pb-4">
-         <div class="d-flex align-items-center justify-content-between mb-3">
-    <div>
-        <h5 class="mb-0">Resumen de mantenimientos</h5>
-        <small class="text-muted">
-            Visualiza rápidamente el estado de los equipos
-        </small>
-    </div>
-
-    <a href="javascript:void(0);"
-       class="text-dark"
-       data-bs-toggle="collapse"
-       data-bs-target="#collapseCards">
-        <i class="ri-arrow-down-s-line fs-4"></i>
-    </a>
-</div>
-<div class="row mb-4">
-    <div class="col-md-3">
-        <div class="card bg-label-primary">
-            <div class="card-body">
-                <h3>{{ total_mantenimientos }}</h3>
-                <small>Total mantenimientos</small>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-3">
-        <div class="card bg-label-success">
-            <div class="card-body">
-                <h3>{{ completados }}</h3>
-                <small>Completados</small>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-3">
-        <div class="card bg-label-warning">
-            <div class="card-body">
-                <h3>{{ en_proceso }}</h3>
-                <small>En proceso</small>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-3">
-        <div class="card bg-label-danger">
-            <div class="card-body">
-                <h3>{{ pendientes }}</h3>
-                <small>Pendientes</small>
-            </div>
-        </div>
-    </div>
-</div>
-
-          <div class="collapse show" id="collapseCards">
-    <div class="row g-4 cards-container mb-4">
-        {% for mantenimiento in mantenimientos %}
-        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
-            <div class="equipment-card w-100 h-100">
-
-                <!-- Estado -->
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <small class="text-muted">
-                        #{{ mantenimiento.id }}
-                    </small>
-
-                    {% if mantenimiento.estado == 'completado' %}
-                        <span class="badge bg-success">Completado</span>
-                    {% elif mantenimiento.estado == 'en_proceso' %}
-                        <span class="badge bg-warning text-dark">En proceso</span>
-                    {% else %}
-                        <span class="badge bg-danger">Pendiente</span>
-                    {% endif %}
-                </div>
-
-                <!-- Imagen -->
-                {% if mantenimiento.nombre_elemento.imagen %}
-                    <img src="{{ mantenimiento.nombre_elemento.imagen.url }}"
-                        alt="{{ mantenimiento.nombre_elemento }}"
-                        class="mx-auto d-block mb-3">
-                {% else %}
-                    <div class="sin-imagen mx-auto mb-3">
-                        <i class="ri ri-tools-line" style="font-size:2rem;"></i>
+            <div class="collapse show" id="collapseCards">
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3">
+                        <div class="stat-box" style="border-top: 3px solid #3b82f6;">
+                            <h3 style="color: #fff; font-weight: 900; margin-bottom: 5px;">{{ total_mantenimientos }}</h3>
+                            <small class="text-uppercase fw-bold text-muted">Total Mantenimientos</small>
+                        </div>
                     </div>
-                {% endif %}
-
-                <!-- Equipo -->
-                <h6 class="text-center fw-bold mb-1">
-                    {{ mantenimiento.nombre_elemento }}
-                </h6>
-
-                <!-- Tipo -->
-                <p class="nombre text-center mb-3">
-                    {{ mantenimiento.get_tipo_mantenimiento_display }}
-                </p>
-
-                <hr>
-
-                <!-- Fecha -->
-                <div class="d-flex justify-content-between mb-2">
-                    <span class="text-muted">
-                        <i class="ri-calendar-line"></i> Fecha
-                    </span>
-                    <span>
-                        {{ mantenimiento.fecha_programada|date:"d/m/Y" }}
-                    </span>
+                    <div class="col-md-3">
+                        <div class="stat-box" style="border-top: 3px solid #10b981;">
+                            <h3 style="color: #fff; font-weight: 900; margin-bottom: 5px;">{{ completados }}</h3>
+                            <small class="text-uppercase fw-bold" style="color: #10b981;">Completados</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-box" style="border-top: 3px solid #f59e0b;">
+                            <h3 style="color: #fff; font-weight: 900; margin-bottom: 5px;">{{ en_proceso }}</h3>
+                            <small class="text-uppercase fw-bold" style="color: #f59e0b;">En Proceso</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-box" style="border-top: 3px solid #ef4444;">
+                            <h3 style="color: #fff; font-weight: 900; margin-bottom: 5px;">{{ pendientes }}</h3>
+                            <small class="text-uppercase fw-bold" style="color: #ef4444;">Pendientes</small>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Descripción -->
-                <div class="mb-3">
-                    <small class="text-muted">
-                        {{ mantenimiento.descripcion|truncatechars:60 }}
-                    </small>
+                <div class="row g-4 cards-container">
+                    {% for mantenimiento in mantenimientos %}
+                    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+                        <div class="equipment-card">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <small class="fw-bold" style="color: #6c757d;">#{{ mantenimiento.id }}</small>
+                                {% if mantenimiento.estado == 'completado' %} <span style="background: rgba(40,167,69,0.1); color: #28a745; padding: 4px 10px; border-radius: 4px; font-size: 10px; font-weight: 800; text-transform: uppercase; border: 1px solid #28a745;">Completado</span>
+                                {% elif mantenimiento.estado == 'en_proceso' %} <span style="background: rgba(255,193,7,0.1); color: #ffc107; padding: 4px 10px; border-radius: 4px; font-size: 10px; font-weight: 800; text-transform: uppercase; border: 1px solid #ffc107;">En Proceso</span>
+                                {% else %} <span style="background: rgba(220,53,69,0.1); color: #dc3545; padding: 4px 10px; border-radius: 4px; font-size: 10px; font-weight: 800; text-transform: uppercase; border: 1px solid #dc3545;">Pendiente</span> {% endif %}
+                            </div>
+
+                            {% if mantenimiento.nombre_elemento.imagen %}
+                                <img src="{{ mantenimiento.nombre_elemento.imagen.url }}" alt="{{ mantenimiento.nombre_elemento }}" class="mx-auto d-block">
+                            {% else %}
+                                <div class="sin-imagen mx-auto"><i class="ri-tools-line" style="font-size:2.5rem;"></i></div>
+                            {% endif %}
+
+                            <h6 class="text-center fw-bold text-uppercase mb-1" style="color: #ffd700;">{{ mantenimiento.nombre_elemento }}</h6>
+                            <p class="text-center mb-3 fw-bold" style="font-size: 12px; color: #a0a0a0;">{{ mantenimiento.get_tipo_mantenimiento_display }}</p>
+                            
+                            <hr style="border-color: rgba(255,255,255,0.1);">
+                            
+                            <div class="d-flex justify-content-between mb-2" style="font-size: 12px;">
+                                <span class="text-muted"><i class="ri-calendar-line text-warning"></i> Fecha:</span>
+                                <span class="fw-bold">{{ mantenimiento.fecha_programada|date:"d/m/Y" }}</span>
+                            </div>
+                            <div>
+                                <small class="text-muted d-block text-center mt-2">{{ mantenimiento.descripcion|truncatechars:45 }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12 text-center"><p class="text-muted fw-bold text-uppercase">No hay mantenimientos activos.</p></div>
+                    {% endfor %}
                 </div>
-
-                <!-- Acciones -->
-
             </div>
         </div>
 
-        {% empty %}
-        <div class="col-12 text-center">
-            <p class="text-muted mb-0">
-                No hay mantenimientos registrados.
-            </p>
+        <div class="table-responsive">
+            <table id="tabla-mantenimiento" class="table-dark-gold display nowrap">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Elemento</th>
+                        <th>Tipo Mantenimiento</th>
+                        <th>Fecha Programada</th>
+                        <th>Estado</th>
+                        <th>Descripción</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for m in object_list %}
+                    <tr>
+                        <td class="fw-bold" style="color: #6c757d;">#{{ m.id }}</td>
+                        <td class="text-white fw-bold text-uppercase">{{ m.nombre_elemento }}</td>
+                        <td style="color: #ffd700;">{{ m.tipo_mantenimiento }}</td>
+                        <td>{{ m.fecha_programada }}</td>
+                        <td>
+                            {% if m.estado == 'completado' %} <span style="background: rgba(40,167,69,0.1); color: #28a745; padding: 4px 10px; border-radius: 4px; font-size: 10px; font-weight: 800; text-transform: uppercase;">Completado</span>
+                            {% elif m.estado == 'en_proceso' %} <span style="background: rgba(255,193,7,0.1); color: #ffc107; padding: 4px 10px; border-radius: 4px; font-size: 10px; font-weight: 800; text-transform: uppercase;">En Proceso</span>
+                            {% elif m.estado == 'pendiente' %} <span style="background: rgba(220,53,69,0.1); color: #dc3545; padding: 4px 10px; border-radius: 4px; font-size: 10px; font-weight: 800; text-transform: uppercase;">Pendiente</span>
+                            {% else %} <span class="badge bg-secondary">{{ m.estado }}</span> {% endif %}
+                        </td>
+                        <td class="text-muted" style="font-size: 12px;">{{ m.descripcion|truncatechars:35 }}</td>
+                        <td class="text-center">
+                            <a href="{% url 'gimnasio:editar_mantenimiento' m.id %}" class="btn btn-sm" style="background: rgba(255,215,0,0.1); color: #ffd700; border: 1px solid #ffd700; border-radius: 4px; padding: 6px 12px; transition: 0.3s;" title="Editar"><i class="ri-edit-box-line"></i></a>
+                            <a href="{% url 'gimnasio:eliminar_mantenimiento' m.id %}" class="btn btn-sm" style="background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; padding: 6px 12px; transition: 0.3s; margin-left: 5px;" title="Eliminar"><i class="ri-delete-bin-line"></i></a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="7" class="text-center py-5"><i class="ri-tools-line fa-3x mb-3" style="color: #ffd700; opacity: 0.2;"></i><br><span class="text-muted fw-bold text-uppercase">No hay registros</span></td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
-        {% endfor %}
-    </div>
-</div>
-
-         </div>
-
-        <!-- Tabla -->
-        <div class="card-body">
-            <div class="table-responsive">
-                <table id="tabla-mantenimiento" class="table table-bordered table-striped w-100">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Elemento</th>
-                            <th>Tipo de mantenimiento</th>
-                            <th>Fecha programada</th>
-                            <th>Estado</th>
-                            <th>Descripción</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for m in object_list %}
-                        <tr>
-                            <td>{{ m.id }}</td>
-                            <td>{{ m.nombre_elemento }}</td>
-                            <td>{{ m.tipo_mantenimiento }}</td>
-                            <td>{{ m.fecha_programada }}</td>
-                            <td>
-                                {% if m.estado == 'completado' %}
-                                    <span class="badge bg-success">{{ m.estado }}</span>
-                                {% elif m.estado == 'en_proceso' %}
-                                    <span class="badge bg-warning text-dark">{{ m.estado }}</span>
-                                {% elif m.estado == 'pendiente' %}
-                                    <span class="badge bg-danger">{{ m.estado }}</span>
-                                {% else %}
-                                    <span class="badge bg-secondary">{{ m.estado }}</span>
-                                {% endif %}
-                            </td>
-                            <td>{{ m.descripcion }}</td>
-                            <td class="text-nowrap">
-                                <a href="{% url 'gimnasio:editar_mantenimiento' m.id %}"
-                                    class="btn btn-sm btn-text-secondary rounded-pill btn-icon item-edit">
-                                    <i class="icon-base ri ri-edit-box-line icon-22px"></i>
-                                </a>
-                                <a href="{% url 'gimnasio:eliminar_mantenimiento' m.id %}"
-                                    class="btn btn-sm btn-text-secondary rounded-pill btn-icon item-trash">
-                                    <i class="icon-base ri ri-delete-bin-line icon-22px"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="7" class="text-center">No hay mantenimientos registrados.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
     </div>
 </div>
 {% endblock %}
@@ -280,33 +212,23 @@
 <script src="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/js/dataTables.responsive.min.js' %}"></script>
 <script src="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/js/responsive.bootstrap4.min.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.6.0/jspdf.plugin.autotable.min.js"></script>
 
 <script>
-    var tablaMantenimiento;
-
     $(function () {
-        tablaMantenimiento = $('#tabla-mantenimiento').DataTable({
+        $('#tabla-mantenimiento').DataTable({
             responsive: true,
             autoWidth: false,
-            language: {
-                url: "{% static 'lib/datatables-1.10.20/spanish.txt' %}"
-            },
-            columnDefs: [
-                { orderable: false, targets: 6 }
-            ]
+            language: { url: "{% static 'lib/datatables-1.10.20/spanish.txt' %}" },
+            columnDefs: [ { orderable: false, targets: 6 } ]
         });
     });
 
     {% if messages %}
         {% for message in messages %}
             Swal.fire({
-                title: "Correcto",
-                text: "{{ message }}",
-                icon: "success",
-                confirmButtonText: "OK"
+                title: "Notificación", text: "{{ message }}", icon: "success",
+                background: "rgba(10,10,10,0.95)", color: "#fff", confirmButtonColor: "#ffd700",
+                customClass: { popup: 'border border-warning' }
             });
         {% endfor %}
     {% endif %}

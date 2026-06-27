@@ -22,6 +22,7 @@ from gimnasio.views.Reportes.reportes import *
 from gimnasio.models import *
 from gimnasio.views.backup.backup import backup, restaurar_datos
 from gimnasio.views.Encuestas import views as encuesta_views
+from gimnasio.views.IA.views import seleccion_plan_ia
 
 app_name = 'gimnasio'
 
@@ -54,8 +55,8 @@ urlpatterns = [
     path('exportar_usuarios_excel/', ExportarUsuariosExcel.as_view(),
          name='exportar_usuarios_excel'),
     path('perfil_usuario/', PerfilView.as_view(), name='perfil_usuario'),
-    path('crear-usuario-ajax-limpio/', crear_usuario_ajax,
-         name='crear_usuario_ajax_limpio'),
+    path('crear-usuario-ajax/', crear_usuario_ajax,
+         name='crear_usuario_ajax'),  # ✅ Solo una vez
     path('crear_nombre_categoria_ajax/', crear_nombre_categoria_ajax, name='crear_nombre_categoria_ajax'),
     # ── Mantenimiento ───────────────────────────────────────────────────────────
     path('crear_mantenimiento/', MantenimientoCreateView.as_view(),
@@ -264,7 +265,8 @@ urlpatterns = [
         guardar_wizard,
         name='guardar_wizard'
     ),
-
+# ── Inteligencia Artificial ────────────────────────────────────────────────
+    path('generar-plan-ia/<int:usuario_id>/', seleccion_plan_ia, name='generar_plan_ia'),
     # ── Dashboard y Backup ──────────────────────────────────────────────────────
     path('dashboard/', DashboardView.as_view(), name='dashboard'),
     path('backup/', backup, name='backup'),

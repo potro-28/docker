@@ -2,72 +2,66 @@
 {% load static %}
 
 {% block contenido %}
-<link rel="stylesheet" href="{% static 'lib/datatables-1.10.20/css/dataTables.bootstrap4.min.css' %}">
-<link rel="stylesheet"
-    href="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/css/responsive.bootstrap4.min.css' %}">
+<style>
+    /* Estilos Premium: Fondo Negro/Oscuro y Dorado Neón */
+    .stagger-1 { animation: revealBounce 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-delay: 0.1s; opacity: 0; }
+    @keyframes revealBounce { 0% { opacity: 0; transform: translateY(30px) scale(0.97); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
 
-<div class="container-xxl flex-grow-1 container-p-y">
-    <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-            <h5 class="mb-0">Listado de Turnos de Visitante Temporal</h5>
-            <div class="d-flex gap-2 flex-wrap">
-                <div class="dropdown">
-                    <button class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
-                    <i class="icon-base ri ri-file-chart-line icon-18px me-1"></i>Exportar
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownExportar">
-                        <li>
-                            <a class="dropdown-item" href="{% url 'gimnasio:ExportarRegistrovisitantestemporalesExcel' %}">
-                                <i class="ri ri-file-excel-2-line me-2 text-success"></i>Exportar a Excel
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="{% url 'gimnasio:ExportarRegistrovisitantestemporalesPDF' %}">
-                                <i class="ri ri-file-pdf-line me-2 text-danger"></i>Exportar a PDF
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-                <a href="{{ crear_url }}" class="btn btn-primary">
-                    <i class="icon-base ri ri-add-line icon-18px me-1"></i>Agregar turno de visitante temporal
-                </a>
+    .card-dash { 
+        position: relative; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(10px); 
+        border-radius: 15px; padding: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.9); 
+        border: 1px solid rgba(255,215,0,0.1); margin-bottom: 25px;
+    }
+    .card-dash::before {
+        content: ''; position: absolute; top: 0; left: -15px; width: 20px; height: 100%;
+        background: #ffd700; transform: skewX(-15deg); box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+    }
+
+    .card-title { font-size: 15px; font-weight: 900; color: #fff; text-transform: uppercase; letter-spacing: 1px; text-align: center; margin-bottom: 20px;}
+    
+    /* Stat Boxes Estilo Dorado */
+    .stat-box { text-align: center; padding: 25px 15px; border-radius: 12px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,215,0,0.2); }
+    .stat-box-icon { width: 55px; height: 55px; border-radius: 16px; display: flex; justify-content: center; align-items: center; color: #000; font-size: 22px; margin: 0 auto 15px; background: #ffd700; box-shadow: 0 0 15px rgba(255,215,0,0.4); }
+    .stat-box h3 { font-size: 24px; color: #fff; margin-bottom: 5px; font-weight: 900; }
+    .stat-box p { font-size: 12px; color: #ffd700; text-transform: uppercase; font-weight: 800; margin: 0; }
+
+    .chart-container { width: 100%; height: 300px; position: relative; }
+</style>
+
+<div class="container-fluid mt-4 stagger-1">
+    
+    <!-- Gráfica Principal Estilo Oscuro -->
+    <div class="card-dash mb-4">
+        <div class="card-title">Estadísticas del Gimnasio</div>
+        <div class="chart-container">
+            <canvas id="chartActivity"></canvas>
+        </div>
+    </div>
+
+    <!-- Tarjetas de Estadísticas Dorado/Negro -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="stat-box">
+                <div class="stat-box-icon"><i class="fas fa-users"></i></div>
+                <h3>{{ total_usuarios }}</h3><p>Usuarios</p>
             </div>
         </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table id="tabla-visitantes" class="table table-bordered table-striped w-100">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>fecha_registro</th>
-                            <th>fk_usuario</th>
-                            <th>ACCIONES</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for visitante in object_list %}
-                        <tr>
-                            <td>{{ visitante.id }}</td>
-                            <td>{{ visitante.fecha_registro }}</td>
-                            <td>{{ visitante.fk_usuario }}</td>
-                            <td class="text-nowrap">
-                                <a href="{% url 'gimnasio:editar_registrovisitante' visitante.id %}"
-                                    class="btn btn-sm btn-text-secondary rounded-pill btn-icon item-edit">
-                                    <i class="icon-base ri ri-edit-box-line icon-22px"></i>
-                                </a>
-                                <a href="{% url 'gimnasio:eliminar_registrovisitante' visitante.id %}"
-                                    class="btn btn-sm btn-text-secondary rounded-pill btn-icon item-trash">
-                                    <i class="icon-base ri ri-delete-bin-line icon-22px"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="4" class="text-center">No hay turnos de visitante temporal registrados.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+        <div class="col-md-3">
+            <div class="stat-box">
+                <div class="stat-box-icon"><i class="fas fa-crown"></i></div>
+                <h3>{{ membresias_activas }}</h3><p>Membresías</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-box">
+                <div class="stat-box-icon"><i class="fas fa-dumbbell"></i></div>
+                <h3>{{ total_elementos }}</h3><p>Elementos</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-box">
+                <div class="stat-box-icon"><i class="fas fa-poll"></i></div>
+                <h3>{{ total_encuestas }}</h3><p>Encuestas</p>
             </div>
         </div>
     </div>
@@ -76,36 +70,34 @@
 {% endblock %}
 
 {% block js %}
-<script src="{% static 'lib/datatables-1.10.20/js/jquery.dataTables.min.js' %}"></script>
-<script src="{% static 'lib/datatables-1.10.20/js/dataTables.bootstrap4.min.js' %}"></script>
-<script src="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/js/dataTables.responsive.min.js' %}"></script>
-<script src="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/js/responsive.bootstrap4.min.js' %}"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    $(function () {
-        $('#tabla-visitantes').DataTable({
-            responsive: true,
-            autoWidth: false,
-            language: {
-                url: "{% static 'lib/datatables-1.10.20/spanish.txt' %}"
-            },
-            columnDefs: [
-                { orderable: false, targets: 3 }
-            ]
-        });
+document.addEventListener("DOMContentLoaded", function(){
+    const ctx = document.getElementById('chartActivity').getContext('2d');
+    
+    // Configuración para que la gráfica combine con el modo oscuro
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{ labels_estadisticas|safe }},
+            datasets: [{
+                label: 'Cantidad',
+                data: {{ datos_estadisticas|safe }},
+                backgroundColor: '#ffd700',
+                borderColor: '#b8860b',
+                borderWidth: 1,
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { labels: { color: '#ffffff' } } },
+            scales: {
+                x: { ticks: { color: '#ffffff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                y: { ticks: { color: '#ffffff' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+            }
+        }
     });
-
-    {% if messages %}
-        {% for message in messages %}
-            Swal.fire({
-                title: "Correcto",
-                text: "{{ message }}",
-                icon: "success",
-                confirmButtonText: "OK"
-            });
-        {% endfor %}
-    {% endif %}
+});
 </script>
-
 {% endblock %}

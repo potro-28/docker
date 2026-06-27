@@ -1,172 +1,46 @@
 {% extends 'body.html' %}
-{% load static %}
-
 {% block contenido %}
 <style>
-  :root {
-    --primary-dark: #2c3e50;
-    --text-muted: #6c757d;
-    --border-radius-custom: 16px;
-  }
-
-  body {
-    background-color: #f4f6f9;
-  }
-
-  /* Título de la sección */
-  .survey-box-header h1 {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: var(--primary-dark);
-    margin-bottom: 1.5rem;
-  }
-
-  /* Contenedor principal de la tabla */
-  .custom-main-card {
-    background: #ffffff;
-    border: none;
-    border-radius: var(--border-radius-custom);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-    margin-bottom: 2rem;
-    overflow: hidden;
-  }
-
-  .custom-main-card .card-header {
-    background-color: #e9ecef !important; /* Gris plano institucional */
-    border-bottom: none;
-    padding: 1rem 1.5rem;
-  }
-
-  .custom-main-card .card-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #343a40;
-    margin: 0;
-  }
-
-  /* Tabla de encuestas */
-  .custom-table {
-    border-collapse: separate;
-    border-spacing: 0;
-    width: 100%;
-    border: 1px solid #edf2f7;
-    border-radius: 12px;
-    overflow: hidden;
-  }
-
-  .custom-table th,
-  .custom-table td {
-    border: none !important;
-    border-bottom: 1px solid #edf2f7 !important;
-    padding: 1.1rem 1.25rem;
-    vertical-align: middle !important;
-  }
-
-  .custom-table thead th {
-    background-color: #f8f9fa;
-    color: #495057;
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.75rem;
-    letter-spacing: 0.5px;
-  }
-
-  /* Botón estilizado para Google Forms */
-  .btn-google {
-    background-color: #673ab7; /* Color morado característico de Google Forms */
-    color: white !important;
-    border-radius: 20px;
-    font-weight: 600;
-    font-size: 0.8rem;
-    transition: background-color 0.2s;
-    white-space: nowrap; /* Evita que el texto del botón se rompa en dos líneas */
-  }
-
-  .btn-google:hover {
-    background-color: #512da8;
-  }
+    /* Estilos Premium */
+    .card-dash { position: relative; background: rgba(10,10,10,0.95); border-radius: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.9); border: 1px solid rgba(255,215,0,0.1); margin-bottom: 25px; overflow: hidden; }
+    .header-neon { background: rgba(0,0,0,0.5); padding: 20px 25px; border-bottom: 1px solid rgba(255,215,0,0.1); color: #ffd700; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
+    .table-neon { width: 100%; color: #fff; border-collapse: separate; border-spacing: 0; }
+    .table-neon th { background: rgba(255,255,255,0.03); padding: 15px; font-size: 11px; text-transform: uppercase; color: #ffd700; border-bottom: 1px solid rgba(255,215,0,0.2); }
+    .table-neon td { padding: 15px; color: #fff; border-bottom: 1px solid rgba(255,255,255,0.05); }
 </style>
 
-<div class="container-fluid survey-box-header">
-  <div class="row mb-2">
-    <div class="col-sm-12">
-      <h1 class="text-white">
-        <i class="fas fa-file-alt mr-2 text-white"></i>
-        Mis Encuestas Asignadas
-      </h1>
+<div class="container-fluid mt-4">
+    <div class="card-dash">
+        <div class="header-neon">
+            <i class="fas fa-file-alt me-2"></i> Mis Encuestas Asignadas
+        </div>
+        <div class="table-responsive">
+            <table class="table-neon">
+                <thead><tr><th>Cuestionario</th><th>Fecha</th><th>Estado</th><th>Acción</th></tr></thead>
+                <tbody>
+                    {% for encuesta in lista_encuestas %}
+                    <tr>
+                        <td class="fw-bold">{{ encuesta.nombre }}</td>
+                        <td style="color: #a0a0a0;">{{ encuesta.fecha_envio|date:"d/m/Y" }}</td>
+                        <td>
+                            {% if encuesta.estado == 'activa' %}
+                                <span style="color: #28a745; font-weight: 800; font-size: 11px; text-transform: uppercase;">Abierta</span>
+                            {% else %}
+                                <span style="color: #a0a0a0; font-weight: 800; font-size: 11px; text-transform: uppercase;">Finalizada</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if encuesta.estado == 'activa' %}
+                                <a href="https://docs.google.com/forms/d/{{ encuesta.form_id }}" target="_blank" class="btn btn-sm" style="background: #ffd700; color: #000; font-weight: 900;">Responder</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4" class="text-center py-4 text-muted">No tienes encuestas asignadas.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
-  </div>
-
-  <div class="card custom-main-card">
-    <div class="card-header">
-      <h3 class="card-title">
-        <i class="fas fa-inbox mr-2 text-secondary"></i>
-        Buzón de Formularios Disponibles
-      </h3>
-    </div>
-    
-    <div class="card-body table-responsive">
-      <table class="table custom-table table-hover m-0">
-        <thead>
-          <tr>
-            <th width="45%">Cuestionario / Evaluación</th>
-            <th width="20%">Fecha de Asignación</th>
-            <th width="15%">Estado</th>
-            <th class="text-center" width="20%">Acción</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for encuesta in lista_encuestas %}
-          <tr>
-            <td>
-              <div class="font-weight-bold text-dark mb-1" style="font-size: 0.95rem;">
-                {{ encuesta.nombre }}
-              </div>
-              <small class="text-muted d-block">
-                <i class="fas fa-user fa-fw mr-1 text-secondary"></i> Asignado por: {{ encuesta.fk_usuario.nombre_usuario }}
-              </small>
-            </td>
-
-            <td class="text-muted">
-              <i class="far fa-calendar-alt fa-fw mr-1 text-secondary"></i> {{ encuesta.fecha_envio|date:"d/m/Y"|default:encuesta.fecha_creacion|date:"d/m/Y" }}
-            </td>
-
-            <td>
-              {% if encuesta.estado == 'activa' %}
-                <span class="badge px-3 py-2 text-success" style="background-color: #e8f5e9; color: #2e7d32; border-radius: 30px; font-weight: 600; display: inline-flex; align-items: center;">
-                  <i class="fas fa-unlock fa-fw mr-1"></i> Abierta
-                </span>
-              {% else %}
-                <span class="badge px-3 py-2 text-secondary" style="background-color: #f5f5f5; color: #616161; border-radius: 30px; font-weight: 600; display: inline-flex; align-items: center;">
-                  <i class="fas fa-lock fa-fw mr-1"></i> Finalizada
-                </span>
-              {% endif %}
-            </td>
-
-            <td class="text-center">
-              {% if encuesta.estado == 'activa' and encuesta.form_id %}
-                <a href="https://docs.google.com/forms/d/{{ encuesta.form_id }}" target="_blank" class="btn btn-sm btn-google px-3 py-2">
-                  <i class="fab fa-google fa-fw mr-1"></i> Responder
-                </a>
-              {% else %}
-                <button class="btn btn-sm btn-light px-3 py-2 text-muted" style="border-radius: 20px; font-size: 0.8rem; font-weight: 600; white-space: nowrap;" disabled>
-                  <i class="fas fa-ban fa-fw mr-1"></i> No disponible
-                </button>
-              {% endif %}
-            </td>
-          </tr>
-          {% empty %}
-          <tr>
-            <td colspan="4" class="text-center text-muted py-5">
-              <i class="fas fa-mail-bulk d-block mb-3 fa-3x" style="color: #dee2e6"></i>
-              <span class="d-block font-weight-bold text-dark">No tienes encuestas asignadas</span>
-              <small class="text-muted">Cuando el administrador te asigne un formulario de Google Forms, aparecerá en esta lista.</small>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </div>
 </div>
 {% endblock %}

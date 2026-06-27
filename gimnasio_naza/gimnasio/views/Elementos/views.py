@@ -10,40 +10,23 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from gimnasio.models import *
 from gimnasio.forms import ElementoForm
-from django.db import IntegrityError
-from django.contrib import messages
+
 
 @require_POST
 @csrf_exempt
 def crear_nombre_categoria_ajax(request):
     try:
-
         data = json.loads(request.body)
-
         categoria = Categoria.objects.create(
             nombre_categoria=data['nombre_nombre_categoria'],
             descripcion=data['descripcion']
         )
-
         return JsonResponse({
-            'success': True,
             'id': categoria.pk,
-            'nombre': categoria.nombre_categoria
+            'nombre': categoria.get_nombre_categoria_display()
         })
-
-    except IntegrityError:
-
-        return JsonResponse({
-            'success': False,
-            'error': 'Ya existe una categoría con ese nombre.'
-        }, status=400)
-
     except Exception as e:
-
-        return JsonResponse({
-            'success': False,
-            'error': str(e)
-        }, status=500)
+        return JsonResponse({'error': str(e)}, status=500)
 
 
 class ElementoListView(ListView):
@@ -94,12 +77,7 @@ class ElementoCreateView(CreateView):
         context['titulo'] = 'Crear Elemento'
         context['list_url'] = reverse_lazy('gimnasio:listar_elementos')
         return context
-    def form_valid(self, form):
-        messages.success(
-            self.request,
-            "elemento creado correctamente"
-        )
-        return super().form_valid(form)
+
 
 # ==============================
 # MODIFICAR ELEMENTO
@@ -116,13 +94,6 @@ class ElementoUpdateView(UpdateView):
         context['titulo'] = 'Editar Elemento'
         context['list_url'] = reverse_lazy('gimnasio:listar_elementos')
         return context
-    
-    def form_valid(self, form):
-        messages.success(
-            self.request,
-            "elemento editado correctamente "
-        )
-        return super().form_valid(form)
 
 
 # ==============================
@@ -139,13 +110,6 @@ class ElementoDeleteView(DeleteView):
         context['titulo'] = 'Eliminar Elemento'
         context['list_url'] = reverse_lazy('gimnasio:listar_elementos')
         return context
-    
-    def form_valid(self, form):
-        messages.success(
-            self.request,
-            "elemento eliminado  correctamente"
-        )
-        return super().form_valid(form)
 
 
 # ==============================

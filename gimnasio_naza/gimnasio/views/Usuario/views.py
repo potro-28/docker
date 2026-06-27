@@ -39,76 +39,38 @@ class UsuarioCreateView(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        if 'user_form' not in context:
-            if self.request.POST:
-                context['user_form'] = UserForm(self.request.POST)
-            else:
-                context['user_form'] = UserForm()
-
+        if self.request.POST:
+            context['user_form'] = UserForm(self.request.POST)
+        else:
+            context['user_form'] = UserForm()
         context['titulo'] = 'Crear Usuario'
         return context
 
     def post(self, request, *args, **kwargs):
         self.object = None
-
-        usuario_form = UsuarioForm(
-            request.POST,
-            request.FILES
-        )
-
+        usuario_form = self.get_form()
         user_form = UserForm(request.POST)
 
         if usuario_form.is_valid() and user_form.is_valid():
             return self.form_valid(usuario_form, user_form)
-
-        print("ERRORES USUARIO:")
-        print(usuario_form.errors)
-
-        print("ERRORES USER:")
-        print(user_form.errors)
-
         return self.form_invalid(usuario_form, user_form)
 
     def form_valid(self, usuario_form, user_form):
-        try:
-            user = user_form.save(commit=False)
+        user = user_form.save(commit=False)
+        user.set_password(user_form.cleaned_data['password'])
+        user.save()
 
-            password = user_form.cleaned_data.get('password')
+        usuario = usuario_form.save(commit=False)
+        usuario.user = user
+        usuario.estado = 'activo'
+        usuario.save() # El 'rol' seleccionado se guarda automáticamente aquí
 
-            if password:
-                user.set_password(password)
-
-            user.save()
-
-            usuario = usuario_form.save(commit=False)
-            usuario.user = user
-            usuario.estado = 'activo'
-            usuario.save()
-
-            messages.success(
-                self.request,
-                'Usuario creado correctamente'
-            )
-
-            return redirect('gimnasio:listar_usuario')
-
-        except Exception as e:
-            print("ERROR AL GUARDAR:", e)
-
-            messages.error(
-                self.request,
-                f'Error al crear usuario: {e}'
-            )
-
-            return self.form_invalid(usuario_form, user_form)
+        messages.success(self.request, 'Usuario creado correctamente')
+        return redirect(self.success_url)
 
     def form_invalid(self, usuario_form, user_form):
         return self.render_to_response(
-            self.get_context_data(
-                form=usuario_form,
-                user_form=user_form
-            )
+            self.get_context_data(form=usuario_form, user_form=user_form)
         )
 
 

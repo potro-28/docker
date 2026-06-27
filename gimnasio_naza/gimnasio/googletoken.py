@@ -1,25 +1,17 @@
 import os
-
 from django.conf import settings
-from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
+from google.auth.transport.requests import Request
 
 SCOPES = [
-    "https://www.googleapis.com/auth/forms.body",
-    "https://www.googleapis.com/auth/forms.responses.readonly",
+    'https://www.googleapis.com/auth/forms.body',
+    'https://www.googleapis.com/auth/forms.responses.readonly'
 ]
 
-
 def get_credentials():
-    token_path = os.path.join(settings.BASE_DIR, "token.json")
-    credentials_path = os.path.join(
-        settings.BASE_DIR,
-        "credentials.json"
-    )
+    token_path = os.path.join(settings.BASE_DIR, 'token.json')
 
     creds = None
-
 
     if os.path.exists(token_path):
         creds = Credentials.from_authorized_user_file(
@@ -27,41 +19,21 @@ def get_credentials():
             SCOPES
         )
 
-
     if creds and creds.expired and creds.refresh_token:
         try:
             creds.refresh(Request())
 
-            with open(token_path, "w") as token:
+            with open(token_path, 'w') as token:
                 token.write(creds.to_json())
 
             print("Token renovado correctamente")
 
-        except Exception:
-            creds = None
+        except Exception as e:
+            print(f"Error renovando token: {e}")
 
-
-    if not creds:
-
-        if not os.path.exists(credentials_path):
-            raise Exception(
-                "No existe credentials.json"
-            )
-
-        flow = InstalledAppFlow.from_client_secrets_file(
-            credentials_path,
-            SCOPES
+    elif not creds:
+        raise Exception(
+            "No existe token.json. Debes generarlo una vez manualmente."
         )
-
-        creds = flow.run_local_server(
-            port=8080,
-            prompt="consent",
-            access_type="offline"
-        )
-
-        with open(token_path, "w") as token:
-            token.write(creds.to_json())
-
-        print("Token generado correctamente")
 
     return creds

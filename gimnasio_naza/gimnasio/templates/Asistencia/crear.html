@@ -3,839 +3,274 @@
 
 {% block contenido %}
 <style>
-  .swal2-container { z-index: 20000 !important; }
+    .stagger-1 { animation: revealBounce 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-delay: 0.1s; opacity: 0; }
+    .stagger-2 { animation: revealBounce 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-delay: 0.2s; opacity: 0; }
+    @keyframes revealBounce { 
+        0% { opacity: 0; transform: translateY(30px) scale(0.97); } 
+        100% { opacity: 1; transform: translateY(0) scale(1); } 
+    }
+
+    /* TARJETAS ESTILO DASHBOARD */
+    .card-dash { 
+        position: relative; background: rgba(10, 10, 10, 0.95); 
+        backdrop-filter: blur(10px); border-radius: 15px; padding: 0; 
+        box-shadow: 0 15px 35px rgba(0,0,0,0.9); border: 1px solid rgba(255,215,0,0.1); 
+        transition: 0.3s; overflow: hidden; margin-bottom: 25px;
+    }
+    
+    .card-dash::before {
+        content: ''; position: absolute; top: 0; left: -15px; width: 20px; height: 100%;
+        background: #ffd700; transform: skewX(-15deg);
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); transition: 0.3s; z-index: 0;
+    }
+
+    .header-neon { background: rgba(0,0,0,0.5); padding: 25px 35px; border-bottom: 1px solid rgba(255,255,255,0.05); position: relative; z-index: 2;}
+    .header-neon h3 { margin: 0; font-weight: 900; font-size: 1.5rem; text-transform: uppercase; color: #fff; letter-spacing: 1px;}
+    .header-neon h3 i { color: #ffd700; }
+
+    /* INPUTS OSCUROS */
+    .form-label-custom { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #a0a0a0; font-weight: 800; margin-bottom: 8px; position: relative; z-index: 2;}
+    .input-dark { background: rgba(0,0,0,0.6) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: #fff !important; border-radius: 6px; transition: 0.3s; padding: 12px 15px; font-family: 'Poppins', sans-serif; position: relative; z-index: 2;}
+    .input-dark:focus { background: #000 !important; border-color: #ffd700 !important; box-shadow: 0 0 15px rgba(255, 215, 0, 0.3) !important; outline: none;}
+    .input-dark::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer;}
+    
+    /* BOTONES HERO SESGADOS */
+    .btn-hero-gold {
+        background: #ffd700; color: #000; border: none; font-weight: 900; 
+        padding: 12px 25px; font-size: 13px; text-transform: uppercase; 
+        box-shadow: 0 0 15px rgba(255,215,0,0.3); transition: all 0.3s; 
+        display: inline-flex; align-items: center; gap: 8px; transform: skewX(-10deg);
+        position: relative; z-index: 2; text-decoration: none; cursor: pointer;
+    }
+    .btn-hero-gold span { transform: skewX(10deg); display: block; }
+    .btn-hero-gold:hover { transform: skewX(-10deg) scale(1.05); box-shadow: 0 0 25px #ffd700; background: #fff; color: #000;}
+
+    /* MODAL WIZARD */
+    .modal-dark .modal-content { background: #0a0a0a; border: 1px solid #ffd700; color: #fff; box-shadow: 0 0 50px rgba(0,0,0,0.9); }
+    .wizard-step { font-weight: 900; text-transform: uppercase; padding: 8px 20px; letter-spacing: 1px; font-size: 11px; border-radius: 30px;}
+    .wizard-step.active { background: #ffd700; color: #000; box-shadow: 0 0 15px rgba(255,215,0,0.5); border: 1px solid #ffd700;}
+    .wizard-step.inactive { background: rgba(255,255,255,0.05); color: #6c757d; border: 1px solid rgba(255,255,255,0.1);}
+
+    .swal2-container { z-index: 20000 !important; }
 </style>
 
-<form method="post">
-    {% csrf_token %}
-
-    <div class="card shadow-sm border-0 mb-4">
-
-        <!-- Encabezado -->
-        <div class="header-encuesta">
-            <h3>
-                <i class="fas fa-edit"></i>
-                {{ titulo }}
-            </h3>
-        </div>
-
-        <!-- Cuerpo -->
-        <div class="card-body p-4">
-
-            {% for field in form.visible_fields %}
-                <div class="mb-3">
-
-                    <label class="form-label">
-                        {{ field.label }}
-                    </label>
-
-                    {% if field.name == 'fk_membresia' %}
-
-                        <div class="d-flex align-items-center gap-2">
-
-                            {{ field|add_class:'form-control' }}
-
-                            <button
-                                type="button"
-                                class="btn btn-success px-3"
-                                onclick="abrirWizard()">
-
-                                <i class="fas fa-plus"></i>
-
-                            </button>
-
-                        </div>
-
-                    {% else %}
-
-                        {{ field|add_class:'form-control' }}
-
-                    {% endif %}
-
-                    {% if field.errors %}
-                        <div class="text-danger small mt-1">
-                            {{ field.errors }}
-                        </div>
-                    {% endif %}
-
-                </div>
-            {% endfor %}
-
-        </div>
-
-        <!-- Footer -->
-        <div class="card-footer bg-white border-0 px-4 pb-4">
-
-            <button class="btn btn-primary px-4">
-
-                <i class="fas fa-save me-2"></i>
-                Guardar Asistencia
-
-            </button>
-            <a href="{% url 'gimnasio:listar_asistencia' %}" class="btn btn-danger">
-                <i class="fas fa-times me-2"></i> Cancelar
-            </a>
-        </div>
-
-    </div>
-</form>
-
-<!-- ================= WIZARD ================= -->
-<!-- MODAL WIZARD -->
-<div class="modal fade" id="modalWizard" tabindex="-1">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-
-      <!-- HEADER -->
-      <div class="modal-header bg-primary text-white py-5">
-        <h5 class="modal-title">
-          <i class="ri-user-add-line me-2"></i>
-          Registro Completo
-        </h5>
-
-        <button
-          type="button"
-          class="btn-close btn-close-white"
-          data-bs-dismiss="modal">
-        </button>
-      </div>
-
-      <!-- BODY -->
-      <div class="modal-body">
+<div class="container mt-4" style="max-width: 800px;">
+    <form method="post" class="stagger-1">
         {% csrf_token %}
-
-        <!-- INDICADOR -->
-        <div class="d-flex justify-content-center mb-4">
-          <div class="d-flex align-items-center gap-2">
-
-            <span
-              class="badge rounded-pill paso-badge bg-primary"
-              id="badge1">
-              1. Usuario
-            </span>
-
-            <span>→</span>
-
-            <span
-              class="badge rounded-pill paso-badge bg-secondary"
-              id="badge2">
-              2. Membresía
-            </span>
-
-          </div>
-        </div>
-
-        <!-- ========================= -->
-        <!-- PASO 1 -->
-        <!-- ========================= -->
-        <div id="paso1">
-
-          <!-- DATOS ACCESO -->
-          <h6 class="text-primary fw-bold mb-2">
-            Datos de acceso
-          </h6>
-          <hr>
-
-          <div class="row">
-
-            <div class="col-md-6 mb-2">
-              <input
-                type="text"
-                id="username"
-                class="form-control"
-                placeholder="Username">
+        <div class="card-dash">
+            <div class="header-neon">
+                <h3><i class="fas fa-user-check"></i> {{ titulo }}</h3>
             </div>
 
-<div class="col-md-6 mb-2">
+            <div class="card-body p-4 p-md-5" style="position: relative; z-index: 2;">
+                {% for field in form.visible_fields %}
+                    <div class="mb-4 stagger-2">
+                        <!-- Traducción de etiquetas -->
+                        <label class="form-label-custom">
+                            {% if field.name == 'fk_membresia' %} Membresía Asociada al Atleta
+                            {% elif field.name == 'fk_usuario' %} Seleccionar Atleta
+                            {% else %} {{ field.label }} {% endif %}
+                        </label>
 
-  <div class="input-group">
+                        {% if field.name == 'fk_membresia' %}
+                            <div class="d-flex align-items-center gap-2">
+                                {{ field|add_class:'form-control input-dark' }}
+                                <button type="button" class="btn" style="background: rgba(255, 215, 0, 0.1); color: #ffd700; border: 1px solid #ffd700; padding: 12px 18px; border-radius: 6px; transition: 0.3s;" onclick="abrirWizard()" title="Crear Nuevo Atleta">
+                                    <i class="fas fa-user-plus"></i>
+                                </button>
+                            </div>
+                        {% else %}
+                            {{ field|add_class:'form-control input-dark' }}
+                        {% endif %}
 
-    <input
-      type="password"
-      id="password"
-      class="form-control"
-      placeholder="Contraseña">
+                        {% if field.errors %}
+                            <div class="text-danger small mt-2 fw-bold" style="color: #ff4d4f !important;"><i class="fas fa-exclamation-triangle"></i> {{ field.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
 
-    <button
-      type="button"
-      class="btn btn-outline-secondary"
-      id="btnTogglePassword">
-
-      <i
-        class="ri-eye-line"
-        id="iconPassword">
-      </i>
-
-    </button>
-
-  </div>
-
+            <div class="card-footer border-0 p-4 p-md-5 pt-0 d-flex gap-3" style="background: transparent; position: relative; z-index: 2;">
+                <button type="submit" class="btn-hero-gold">
+                    <span><i class="fas fa-save"></i> Guardar</span>
+                </button>
+                <a href="{% url 'gimnasio:listar_asistencia' %}" class="btn-hero-outline" style="background: rgba(255,255,255,0.05); color: #fff; border-color: rgba(255,255,255,0.2);">
+                    <span><i class="fas fa-times"></i> Cancelar</span>
+                </a>
+            </div>
+        </div>
+    </form>
 </div>
 
+<!-- ================= MODAL WIZARD OSCURO ================= -->
+<div class="modal fade modal-dark" id="modalWizard" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0" style="background: #000; border-bottom: 1px solid rgba(255,215,0,0.2) !important; padding: 20px 30px;">
+        <h5 class="fw-bold text-uppercase m-0" style="color: #ffd700; font-size: 16px; letter-spacing: 1px;"><i class="fas fa-bolt me-2"></i> Alta Rápida de Atleta</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body p-4 p-md-5">
+        {% csrf_token %}
+        <div class="d-flex justify-content-center align-items-center mb-5 gap-3">
+          <span class="wizard-step active" id="badge1">1. Credenciales</span>
+          <i class="fas fa-arrow-right" style="color: #333;"></i>
+          <span class="wizard-step inactive" id="badge2">2. Membresía</span>
+        </div>
+
+        <!-- PASO 1 -->
+        <div id="paso1">
+          <h6 class="fw-bold text-uppercase mb-3 border-bottom pb-2" style="color: #fff; border-color: rgba(255,255,255,0.05) !important; font-size: 13px;"><i class="fas fa-lock me-2" style="color: #ffd700;"></i> Datos de Acceso</h6>
+          <div class="row g-3 mb-4">
+            <div class="col-md-6"><input type="text" id="username" class="form-control input-dark" placeholder="Usuario (Login)"></div>
+            <div class="col-md-6">
+              <div class="input-group">
+                <input type="password" id="password" class="form-control input-dark" placeholder="Contraseña" style="border-right: none !important;">
+                <button type="button" class="btn input-dark border-start-0" id="btnTogglePassword"><i class="fas fa-eye" id="iconPassword" style="color: #a0a0a0;"></i></button>
+              </div>
+            </div>
           </div>
 
-          <!-- DATOS PERSONALES -->
-          <h6 class="text-success fw-bold mt-3 mb-2">
-            Datos personales
-          </h6>
-          <hr>
-
-          <div class="row">
-
-            <div class="col-md-6 mb-2">
-              <input
-                id="documento"
-                class="form-control"
-                placeholder="Documento">
-            </div>
-
-            <div class="col-md-6 mb-2">
-              <input
-                id="correo_usuario"
-                class="form-control"
-                placeholder="Correo">
-            </div>
-
-            <div class="col-md-6 mb-2">
-              <input
-                id="nombre_usuario"
-                class="form-control"
-                placeholder="Nombre">
-            </div>
-
-            <div class="col-md-6 mb-2">
-              <input
-                id="apellido_usuario"
-                class="form-control"
-                placeholder="Apellido">
-            </div>
-
-            <div class="col-md-6 mb-2">
-              <input
-                id="telefono_usuario"
-                class="form-control"
-                placeholder="Teléfono">
-            </div>
-
-            <div class="col-md-6 mb-2">
-                <input
-                    type="text"
-                    id="fecha_nacimiento"
-                    class="form-control"
-                    placeholder="Fecha de nacimiento"
-                    onfocus="this.type='date'"
-                    onblur="if(!this.value)this.type='text'">
-            </div>
-
-            <div class="col-md-6 mb-2">
-              <select
-                id="genero_usuario"
-                class="form-select">
-
-                <option value="">
-                  Género
-                </option>
-
-                <option value="M">
-                  Masculino
-                </option>
-
-                <option value="F">
-                  Femenino
-                </option>
-
+          <h6 class="fw-bold text-uppercase mb-3 border-bottom pb-2 mt-4" style="color: #fff; border-color: rgba(255,255,255,0.05) !important; font-size: 13px;"><i class="fas fa-id-badge me-2" style="color: #ffd700;"></i> Datos Personales</h6>
+          <div class="row g-3 mb-4">
+            <div class="col-md-6"><input id="documento" class="form-control input-dark" placeholder="N° Documento"></div>
+            <div class="col-md-6"><input id="correo_usuario" type="email" class="form-control input-dark" placeholder="Correo Electrónico"></div>
+            <div class="col-md-6"><input id="nombre_usuario" class="form-control input-dark" placeholder="Nombres"></div>
+            <div class="col-md-6"><input id="apellido_usuario" class="form-control input-dark" placeholder="Apellidos"></div>
+            <div class="col-md-6"><input id="telefono_usuario" class="form-control input-dark" placeholder="Teléfono"></div>
+            <div class="col-md-6"><input type="date" id="fecha_nacimiento" class="form-control input-dark" title="Fecha Nacimiento"></div>
+            <div class="col-md-12">
+              <select id="genero_usuario" class="form-select input-dark">
+                <option value="">Seleccione Género...</option>
+                <option value="M">Masculino</option>
+                <option value="F">Femenino</option>
               </select>
             </div>
-
           </div>
 
-          <!-- DATOS FISICOS -->
-          <h6 class="text-warning fw-bold mt-3 mb-2">
-            Datos físicos
-          </h6>
-          <hr>
-
-          <div class="row">
-
-            <div class="col-md-6 mb-2">
-              <input
-                id="peso_usuario"
-                class="form-control"
-                placeholder="Peso (kg)">
-            </div>
-
-            <div class="col-md-6 mb-2">
-              <input
-                id="altura_usuario"
-                class="form-control"
-                placeholder="Altura (cm)">
-            </div>
-
+          <h6 class="fw-bold text-uppercase mb-3 border-bottom pb-2 mt-4" style="color: #fff; border-color: rgba(255,255,255,0.05) !important; font-size: 13px;"><i class="fas fa-weight me-2" style="color: #ffd700;"></i> Física (Opcional)</h6>
+          <div class="row g-3">
+            <div class="col-md-6"><input id="peso_usuario" type="number" step="0.1" class="form-control input-dark" placeholder="Peso (kg) Ej: 75.5"></div>
+            <div class="col-md-6"><input id="altura_usuario" type="number" step="0.01" class="form-control input-dark" placeholder="Altura (m) Ej: 1.75"></div>
           </div>
         </div>
 
-        <!-- ========================= -->
         <!-- PASO 2 -->
-        <!-- ========================= -->
-        <div
-          id="paso2"
-          style="display:none;">
-
-          <h6 class="text-primary fw-bold mb-2">
-            Datos de membresía
-          </h6>
-
-          <hr>
-
-          <div class="row">
-
-            <div class="col-md-4 mb-2">
-              <label class="form-label">
-                Fecha Inicio
-              </label>
-
-              <input
-                id="fecha_inicio"
-                type="date"
-                class="form-control">
+        <div id="paso2" style="display:none;">
+          <h6 class="fw-bold text-uppercase mb-3 border-bottom pb-2" style="color: #fff; border-color: rgba(255,255,255,0.05) !important; font-size: 13px;"><i class="fas fa-ticket-alt me-2" style="color: #ffd700;"></i> Configuración Membresía</h6>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label-custom">Fecha de Inicio</label>
+              <input id="fecha_inicio" type="date" class="form-control input-dark">
             </div>
-
-            <div class="col-md-4 mb-2">
-              <label class="form-label">
-                Fecha Fin
-              </label>
-
-              <input
-                id="fecha_fin"
-                type="date"
-                class="form-control">
+            <div class="col-md-6">
+              <label class="form-label-custom">Fecha de Fin</label>
+              <input id="fecha_fin" type="date" class="form-control input-dark">
             </div>
-
-            <div class="col-md-4 mb-2">
-              <label class="form-label">
-                Estado
-              </label>
-
-              <select
-                id="estado_membresia"
-                class="form-select">
-
-                <option value="activo">
-                  Activo
-                </option>
-
-                <option value="inactivo">
-                  Inactivo
-                </option>
-
+            <div class="col-md-12 mt-4">
+              <label class="form-label-custom">Estado Inicial</label>
+              <select id="estado_membresia" class="form-select input-dark">
+                <option value="activo">Activo (Acceso Permitido)</option>
+                <option value="inactivo">Inactivo (Suspendido)</option>
               </select>
             </div>
-
           </div>
         </div>
-
       </div>
 
-      <!-- FOOTER -->
-      <div class="modal-footer">
-
-        <button
-          class="btn btn-secondary"
-          onclick="prevPaso()">
-
-          Anterior
-        </button>
-
-        <button
-          class="btn btn-primary"
-          id="btnSiguiente"
-          onclick="nextPaso()">
-
-          Siguiente
-        </button>
-
+      <div class="modal-footer border-0 p-4" style="background: rgba(0,0,0,0.5);">
+        <button class="btn fw-bold px-4" style="background: rgba(255,255,255,0.05); color: #fff; text-transform: uppercase; font-size: 12px; border: 1px solid rgba(255,255,255,0.1);" onclick="prevPaso()" id="btnPrev" style="display:none;">Volver</button>
+        <button class="btn btn-hero-gold px-4" id="btnSiguiente" onclick="nextPaso()"><span>Continuar <i class="fas fa-arrow-right"></i></span></button>
       </div>
-
     </div>
   </div>
 </div>
 {% endblock %}
 
 {% block js %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    const $ = (id) => document.getElementById(id);
+    const btnSiguiente = $("btnSiguiente");
+    let paso = 1;
 
-const $ = (id) =>
-    document.getElementById(id);
-
-const btnSiguiente =
-    $("btnSiguiente");
-
-let paso = 1;
-
-/* =========================
-   FECHAS POR DEFECTO
-========================= */
-
-function setFechasDefault() {
-
-    const hoy =
-        new Date();
-
-    const fmt = (fecha) =>
-        fecha
-            .toISOString()
-            .split("T")[0];
-
-    const en30 =
-        new Date(hoy);
-
-    en30.setDate(
-        hoy.getDate() + 30
-    );
-
-    $("fecha_inicio").value =
-        fmt(hoy);
-
-    $("fecha_fin").value =
-        fmt(en30);
-}
-
-/* =========================
-   MOSTRAR PASOS
-========================= */
-
-function mostrarPaso() {
-
-    for (
-        let i = 1;
-        i <= 2;
-        i++
-    ) {
-
-        $("paso" + i)
-            .style.display =
-            i === paso
-                ? "block"
-                : "none";
-
-        $("badge" + i)
-            .classList.toggle(
-                "bg-primary",
-                i === paso
-            );
-
-        $("badge" + i)
-            .classList.toggle(
-                "bg-secondary",
-                i !== paso
-            );
+    function setFechasDefault() {
+        const hoy = new Date();
+        const fmt = (fecha) => fecha.toISOString().split("T")[0];
+        const en30 = new Date(hoy);
+        en30.setDate(hoy.getDate() + 30);
+        $("fecha_inicio").value = fmt(hoy);
+        $("fecha_fin").value = fmt(en30);
     }
 
-    btnSiguiente.textContent =
-        paso === 2
-            ? "Guardar"
-            : "Siguiente";
-
-    document
-        .querySelector(
-            '[onclick="prevPaso()"]'
-        )
-        .style.display =
-        paso === 1
-            ? "none"
-            : "inline-block";
-}
-
-/* =========================
-   VALIDACIONES
-========================= */
-
-function validarPaso1() {
-
-    if (
-        !$("username")
-            .value.trim()
-    ) {
-
-        Swal.fire(
-            "Campo requerido",
-            "Ingrese el username",
-            "warning"
-        );
-
-        return false;
-    }
-
-    if (
-        !$("password")
-            .value.trim()
-    ) {
-
-        Swal.fire(
-            "Campo requerido",
-            "Ingrese la contraseña",
-            "warning"
-        );
-
-        return false;
-    }
-
-    if (
-        !$("documento")
-            .value.trim()
-    ) {
-
-        Swal.fire(
-            "Campo requerido",
-            "Ingrese el documento",
-            "warning"
-        );
-
-        return false;
-    }
-
-    if (
-        !$("nombre_usuario")
-            .value.trim()
-    ) {
-
-        Swal.fire(
-            "Campo requerido",
-            "Ingrese el nombre",
-            "warning"
-        );
-
-        return false;
-    }
-
-    return true;
-}
-
-/* =========================
-   ABRIR WIZARD
-========================= */
-
-function abrirWizard() {
-
-    paso = 1;
-
-    setFechasDefault();
-
-    mostrarPaso();
-
-    new bootstrap.Modal(
-        $("modalWizard")
-    ).show();
-}
-
-/* =========================
-   SIGUIENTE
-========================= */
-
-function nextPaso() {
-
-    if (
-        paso === 1
-    ) {
-
-        if (
-            !validarPaso1()
-        ) return;
-
-        paso++;
-
-        mostrarPaso();
-
-        return;
-    }
-
-    guardarTodo();
-}
-
-/* =========================
-   ANTERIOR
-========================= */
-
-function prevPaso() {
-
-    if (
-        paso > 1
-    ) {
-
-        paso--;
-
-        mostrarPaso();
-    }
-}
-
-/* =========================
-   OBTENER DATOS
-========================= */
-
-function obtenerDatos() {
-
-    return {
-
-        username:
-            $("username")
-                .value.trim(),
-
-        password:
-            $("password")
-                .value,
-
-        documento:
-            $("documento")
-                .value.trim(),
-
-        nombre_usuario:
-            $("nombre_usuario")
-                .value.trim(),
-
-        apellido_usuario:
-            $("apellido_usuario")
-                .value.trim(),
-
-        correo_usuario:
-            $("correo_usuario")
-                .value.trim(),
-
-        telefono_usuario:
-            $("telefono_usuario")
-                .value.trim(),
-
-        fecha_nacimiento:
-            $("fecha_nacimiento")
-                .value,
-
-        peso_usuario:
-            parseFloat(
-                $("peso_usuario")
-                    .value
-            ) || null,
-
-        altura_usuario:
-            parseFloat(
-                $("altura_usuario")
-                    .value
-            ) || null,
-
-        genero_usuario:
-            $("genero_usuario")
-                .value,
-
-        fecha_inicio:
-            $("fecha_inicio")
-                .value,
-
-        fecha_fin:
-            $("fecha_fin")
-                .value,
-
-        estado_membresia:
-            $("estado_membresia")
-                .value
-    };
-}
-
-/* =========================
-   LIMPIAR FORMULARIO
-========================= */
-
-function limpiarFormulario() {
-
-    document
-        .querySelectorAll(
-            "#modalWizard input, #modalWizard select"
-        )
-        .forEach(
-            campo => {
-
-                if (
-                    campo.type !==
-                    "date"
-                ) {
-
-                    campo.value =
-                        "";
-                }
-
-            }
-        );
-
-    setFechasDefault();
-
-    paso = 1;
-
-    mostrarPaso();
-}
-
-/* =========================
-   GUARDAR
-========================= */
-
-function guardarTodo() {
-
-    const data =
-        obtenerDatos();
-
-    btnSiguiente.disabled =
-        true;
-
-    btnSiguiente.textContent =
-        "Guardando...";
-
-    fetch(
-        "{% url 'gimnasio:wizard_asistencia' %}",
-        {
-
-            method: "POST",
-
-            headers: {
-
-                "Content-Type":
-                    "application/json",
-
-                "X-CSRFToken":
-                    "{{ csrf_token }}"
-            },
-
-            body:
-                JSON.stringify(
-                    data
-                )
+    function mostrarPaso() {
+        for (let i = 1; i <= 2; i++) {
+            $("paso" + i).style.display = i === paso ? "block" : "none";
+            $("badge" + i).classList.toggle("active", i === paso);
+            $("badge" + i).classList.toggle("inactive", i !== paso);
         }
-    )
+        btnSiguiente.innerHTML = paso === 2 ? '<span><i class="fas fa-save"></i> Guardar</span>' : '<span>Continuar <i class="fas fa-arrow-right"></i></span>';
+        let btnPrev = document.getElementById("btnPrev");
+        if(btnPrev) { btnPrev.style.display = paso === 1 ? "none" : "inline-block"; }
+    }
 
-    .then(
-        res =>
-            res.json()
-    )
+    function validarPaso1() {
+        let errorConf = { background: "rgba(10,10,10,0.95)", color: "#fff", icon: "warning", confirmButtonColor: "#ffd700", customClass: { popup: 'border border-warning' } };
+        if (!$("username").value.trim()) { Swal.fire({...errorConf, title: "Falta Dato", text: "Ingrese el username"}); return false; }
+        if (!$("password").value.trim()) { Swal.fire({...errorConf, title: "Falta Dato", text: "Ingrese la contraseña"}); return false; }
+        if (!$("documento").value.trim()) { Swal.fire({...errorConf, title: "Falta Dato", text: "Ingrese el documento"}); return false; }
+        if (!$("nombre_usuario").value.trim()) { Swal.fire({...errorConf, title: "Falta Dato", text: "Ingrese el nombre"}); return false; }
+        return true;
+    }
 
-    .then(
-        res => {
+    function abrirWizard() { paso = 1; setFechasDefault(); mostrarPaso(); new bootstrap.Modal($("modalWizard")).show(); }
+    function nextPaso() { if (paso === 1) { if (!validarPaso1()) return; paso++; mostrarPaso(); return; } guardarTodo(); }
+    function prevPaso() { if (paso > 1) { paso--; mostrarPaso(); } }
 
-            if (
-                res.error
-            ) {
+    function obtenerDatos() {
+        return {
+            username: $("username").value.trim(), password: $("password").value, documento: $("documento").value.trim(),
+            nombre_usuario: $("nombre_usuario").value.trim(), apellido_usuario: $("apellido_usuario").value.trim(),
+            correo_usuario: $("correo_usuario").value.trim(), telefono_usuario: $("telefono_usuario").value.trim(),
+            fecha_nacimiento: $("fecha_nacimiento").value, peso_usuario: parseFloat($("peso_usuario").value) || null,
+            altura_usuario: parseFloat($("altura_usuario").value) || null, genero_usuario: $("genero_usuario").value,
+            fecha_inicio: $("fecha_inicio").value, fecha_fin: $("fecha_fin").value, estado_membresia: $("estado_membresia").value
+        };
+    }
 
-                Swal.fire(
-                    "Error",
-                    res.error,
-                    "error"
-                );
+    function limpiarFormulario() {
+        document.querySelectorAll("#modalWizard input, #modalWizard select").forEach(c => { if (c.type !== "date") { c.value = ""; } });
+        setFechasDefault(); paso = 1; mostrarPaso();
+    }
 
-                return;
-            }
+    function guardarTodo() {
+        const data = obtenerDatos();
+        btnSiguiente.disabled = true; btnSiguiente.innerHTML = "<span>Procesando...</span>";
 
-            const select =
-                $("id_fk_membresia");
+        fetch("{% url 'gimnasio:wizard_asistencia' %}", {
+            method: "POST", headers: { "Content-Type": "application/json", "X-CSRFToken": "{{ csrf_token }}" }, body: JSON.stringify(data)
+        }).then(res => res.json()).then(res => {
+            if (res.error) { Swal.fire({background: "rgba(10,10,10,0.95)", color: "#fff", icon: "error", title: "Error", text: res.error, customClass: { popup: 'border border-danger' }}); return; }
+            const select = $("id_fk_membresia");
+            if (select) { select.add(new Option(res.nombre, res.id, true, true)); select.dispatchEvent(new Event("change")); }
+            bootstrap.Modal.getInstance($("modalWizard")).hide(); limpiarFormulario();
+            Swal.fire({background: "rgba(10,10,10,0.95)", color: "#fff", icon: "success", title: "Atleta Creado", text: "Registro exitoso", confirmButtonColor: "#ffd700", customClass: { popup: 'border border-warning' }});
+        }).catch(() => { Swal.fire({background: "rgba(10,10,10,0.95)", color: "#fff", icon: "error", title: "Error", text: "Fallo de servidor"}); })
+        .finally(() => { btnSiguiente.disabled = false; btnSiguiente.innerHTML = paso === 2 ? '<span><i class="fas fa-save"></i> Guardar</span>' : '<span>Continuar <i class="fas fa-arrow-right"></i></span>'; });
+    }
 
-            if (
-                select
-            ) {
-
-                const option =
-                    new Option(
-                        res.nombre,
-                        res.id,
-                        true,
-                        true
-                    );
-
-                select.add(
-                    option
-                );
-
-                select.dispatchEvent(
-                    new Event(
-                        "change"
-                    )
-                );
-            }
-
-            bootstrap
-                .Modal
-                .getInstance(
-                    $("modalWizard")
-                )
-                .hide();
-
-            limpiarFormulario();
-
-            Swal.fire(
-                "Correcto",
-                "Registro creado correctamente",
-                "success"
-            );
-        }
-    )
-
-    .catch(
-        () => {
-
-            Swal.fire(
-                "Error",
-                "Error en la petición",
-                "error"
-            );
-        }
-    )
-
-    .finally(
-        () => {
-
-            btnSiguiente
-                .disabled =
-                false;
-
-            btnSiguiente
-                .textContent =
-                paso === 2
-                    ? "Guardar"
-                    : "Siguiente";
-        }
-    );
-}
-const passwordInput =
-    document.getElementById(
-        "password"
-    );
-
-const btnTogglePassword =
-    document.getElementById(
-        "btnTogglePassword"
-    );
-
-const iconPassword =
-    document.getElementById(
-        "iconPassword"
-    );
-
-if (
-    btnTogglePassword
-) {
-
-    btnTogglePassword
-        .addEventListener(
-            "click",
-            function () {
-
-                const esPassword =
-                    passwordInput.type ===
-                    "password";
-
-                passwordInput.type =
-                    esPassword
-                        ? "text"
-                        : "password";
-
-                iconPassword.className =
-                    esPassword
-                        ? "ri-eye-off-line"
-                        : "ri-eye-line";
-            }
-        );
-}
+    // Toggle Password visualización (Ojo)
+    const passwordInput = document.getElementById("password");
+    const btnTogglePassword = document.getElementById("btnTogglePassword");
+    const iconPassword = document.getElementById("iconPassword");
+    if (btnTogglePassword) {
+        btnTogglePassword.addEventListener("click", function () {
+            const isPassword = passwordInput.type === "password";
+            passwordInput.type = isPassword ? "text" : "password";
+            iconPassword.className = isPassword ? "fas fa-eye-slash" : "fas fa-eye";
+            iconPassword.style.color = isPassword ? "#ffd700" : "#a0a0a0";
+        });
+    }
 </script>
 {% endblock %}

@@ -16,8 +16,7 @@ from datetime import date, datetime, timedelta
 from django.db.models import Count
 from django.db.models.functions import TruncMonth
 import calendar
-from django.utils import timezone 
-from django.contrib import messages
+from django.utils import timezone  
 
 def crear_usuario_ajax(request):
     if request.method != "POST":
@@ -62,7 +61,9 @@ def crear_usuario_ajax(request):
             estado='activo',
             fecha_registro=date.today()
         )
-        print("Se creo un usuario sin membresia")
+        membresia = Membresia.objects.create(
+            fk_usuario=usuario
+        )
         return JsonResponse({
             'id': usuario.id,
             'nombre': f"{usuario.nombre_usuario} {usuario.apellido_usuario}"
@@ -138,13 +139,6 @@ class MembresiaCreateView(CreateView):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Crear membresia'
         return context
-    
-    def form_valid(self, form):
-        messages.success(
-            self.request,
-            "membresia registrada correctamente"
-        )
-        return super().form_valid(form)
 
 class MembresiaUpdateView(UpdateView):
     model = Membresia
@@ -157,13 +151,6 @@ class MembresiaUpdateView(UpdateView):
         context['titulo'] = 'Editar membresia'
         context['listar_url'] = reverse_lazy('gimnasio:listar_membresia')
         return context
-    
-    def form_valid(self, form):
-        messages.success(
-            self.request,
-            "membresia editada correctamente correctamente"
-        )
-        return super().form_valid(form)
 
 class MembresiaDeleteView(DeleteView):
     model = Membresia
@@ -175,13 +162,6 @@ class MembresiaDeleteView(DeleteView):
         context['titulo'] = 'Eliminar membresia'
         context['listar_url'] = reverse_lazy('gimnasio:listar_membresia')
         return context
-    
-    def form_valid(self, form):
-        messages.success(
-            self.request,
-            "membresia eliminada correctamente"
-        )
-        return super().form_valid(form)
     
 
 def send_email(request):

@@ -3,234 +3,39 @@
 
 {% block contenido %}
 <style>
-  :root {
-    --primary-dark: #2c3e50;
-    --text-muted: #6c757d;
-    --border-radius-custom: 16px;
-  }
-
-  body {
-    background-color: #f4f6f9;
-  }
-
-  /* Título principal */
-  .cert-header h1 {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: var(--primary-dark);
-    margin-bottom: 1.5rem;
-  }
-
-  /* Tarjeta de Resumen / Contador */
-  .custom-summary-card {
-    background: #ffffff;
-    border: none;
-    border-radius: var(--border-radius-custom);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    padding: 1.25rem;
-    margin-bottom: 1.5rem;
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    min-height: 110px;
-    border-left: 5px solid #6f42c1; /* Color Púrpura para distinguir Certificaciones */
-  }
-
-  .custom-summary-card .card-label {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    color: #6f42c1;
-    margin-bottom: 2px;
-  }
-
-  .custom-summary-card h3 {
-    font-size: 1.6rem;
-    font-weight: 600;
-    color: #2b2b2b;
-    margin: 0;
-  }
-
-  .custom-summary-card p {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    margin: 0;
-    font-weight: 500;
-  }
-
-  .custom-summary-card .card-icon {
-    position: absolute;
-    right: 1.25rem;
-    bottom: 1.25rem;
-    font-size: 1.8rem;
-    color: #dee2e6;
-  }
-
-  /* Contenedores principales (Cards) */
-  .custom-main-card {
-    background: #ffffff;
-    border: none;
-    border-radius: var(--border-radius-custom);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-    margin-bottom: 2rem;
-    overflow: hidden;
-  }
-
-  .custom-main-card .card-header {
-    background-color: #e9ecef !important; /* Cabecera gris plana tipo Gym Nazareth */
-    border-bottom: none;
-    padding: 1rem 1.5rem;
-  }
-
-  .custom-main-card .card-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #343a40;
-    margin: 0;
-  }
-
-  /* Tablas estilizadas */
-  .custom-table {
-    border-collapse: separate;
-    border-spacing: 0;
-    width: 100%;
-    border: 1px solid #edf2f7;
-    border-radius: 12px;
-    overflow: hidden;
-  }
-
-  .custom-table th,
-  .custom-table td {
-    border: none !important;
-    border-bottom: 1px solid #edf2f7 !important;
-    padding: 1.25rem 1.5rem;
-    vertical-align: middle !important;
-  }
-
-  .custom-table thead th {
-    background-color: #f8f9fa;
-    color: #495057;
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.75rem;
-    letter-spacing: 0.5px;
-  }
-
-  /* Botón redondo y estilizado de descarga */
-  .btn-download {
-    border-radius: 30px;
-    font-weight: 600;
-    font-size: 0.85rem;
-    padding: 0.5rem 1.25rem;
-    transition: all 0.2s ease;
-  }
-
-  .btn-download:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  }
+    .card-dash { position: relative; background: rgba(10,10,10,0.95); backdrop-filter: blur(10px); border-radius: 15px; padding: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.9); border: 1px solid rgba(255,215,0,0.1); }
+    .card-dash::before { content: ''; position: absolute; top: 0; left: -15px; width: 20px; height: 100%; background: #ffd700; transform: skewX(-15deg); }
+    .table-neon { width: 100%; color: #fff; border-collapse: separate; border-spacing: 0 5px; }
+    .table-neon th { background: #000; color: #ffd700; padding: 15px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid #ffd700; }
+    .table-neon td { background: rgba(255,255,255,0.03); padding: 15px; color: #fff; }
 </style>
 
-<div class="container-fluid cert-header">
-  <div class="row mb-2">
-    <div class="col-sm-12">
-      <h1 class="text-white">
-        <i class="fas fa-award mr-2 text-white"></i>
-        Mis Certificaciones Internas
-      </h1>
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col-lg-4 col-md-6 col-12">
-      <div class="custom-summary-card">
-        <div>
-          <div class="card-label">Logros Obtenidos</div>
-          <h3>
-            {{ certificaciones.count|default:"0" }}
-            <span style="font-size: 1rem; font-weight: normal">Documentos</span>
-          </h3>
-        </div>
-        <p>Certificaciones Vinculadas a tu Membresía</p>
-        <div class="card-icon">
-          <i class="fas fa-certificate"></i>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card custom-main-card">
-    <div class="card-header">
-      <h3 class="card-title">
-        <i class="fas fa-medal mr-2 text-purple" style="color: #6f42c1;"></i>
-        Historial de Certificaciones Disponibles
-      </h3>
-    </div>
+<div class="container-fluid mt-4">
+    <h3 class="text-white fw-bold mb-4" style="text-transform: uppercase;"><i class="fas fa-certificate text-warning me-2"></i> Certificaciones Internas</h3>
     
-    <div class="card-body table-responsive">
-      <table class="table custom-table table-hover m-0">
-        <thead>
-          <tr>
-            <th>ID / Código</th>
-            <th width="45%">Descripción del Reconocimiento</th>
-            <th>Fecha de Emisión</th>
-            <th>Estado Custodia</th>
-            <th class="text-center">Acción</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for cert in certificaciones %}
-          <tr>
-            <td class="font-weight-bold text-secondary">
-              #CERT-{{ cert.id }}
-            </td>
-
-            <td>
-              <div class="text-dark font-weight-600" style="font-size: 0.95rem; line-height: 1.4;">
-                {{ cert.descripcion_certificacion }}
-              </div>
-              <small class="text-muted d-block mt-1">
-                <i class="fas fa-id-card mr-1"></i> Membresía: {{ cert.fk_membresia }}
-              </small>
-            </td>
-
-            <td class="text-muted">
-              <i class="far fa-calendar-alt mr-2"></i>{{ cert.fecha_certificacion|date:"d/m/Y" }}
-            </td>
-
-            <td>
-              {% if cert.descargado %}
-                <span class="badge px-3 py-2 text-success" style="background-color: #e8f5e9; color: #2e7d32; border-radius: 30px; font-weight: 600;">
-                  <i class="fas fa-check-circle mr-1"></i> Descargado
-                </span>
-              {% else %}
-                <span class="badge px-3 py-2 text-warning" style="background-color: #fffde7; color: #f57f17; border-radius: 30px; font-weight: 600;">
-                  <i class="fas fa-clock mr-1"></i> Pendiente
-                </span>
-              {% endif %}
-            </td>
-
-            <td class="text-center">
-              <a href="{% url 'gimnasio:certificacion_interna' cert.id %}" class="btn btn-sm {% if cert.descargado %}btn-outline-secondary{% else %}btn-purple text-white{% endif %} btn-download" style="{% if not cert.descargado %}background-color: #6f42c1;{% endif %}">
-                <i class="fas fa-file-download mr-1"></i> Obtener PDF
-              </a>
-            </td>
-          </tr>
-          {% empty %}
-          <tr>
-            <td colspan="5" class="text-center text-muted py-5">
-              <i class="fas fa-graduation-cap d-block mb-3 fa-3x" style="color: #dee2e6"></i>
-              <span class="d-block font-weight-bold">Aún no cuentas con certificaciones internas</span>
-              <small class="text-muted">Cuando apruebes tus módulos internos o completes metas de membresía, aparecerán aquí.</small>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+    <div class="card-dash">
+        <table class="table-neon">
+            <thead>
+                <tr><th>ID</th><th>Descripción</th><th>Emisión</th><th>Estado</th><th>Acción</th></tr>
+            </thead>
+            <tbody>
+                {% for cert in certificaciones %}
+                <tr>
+                    <td class="fw-bold" style="color: #6c757d;">#CERT-{{ cert.id }}</td>
+                    <td>{{ cert.descripcion_certificacion }}</td>
+                    <td style="color: #a0a0a0;">{{ cert.fecha_certificacion|date:"d/m/Y" }}</td>
+                    <td>
+                        {% if cert.descargado %}
+                            <span style="color: #28a745; font-weight: 800; font-size: 11px; text-transform: uppercase;">Descargado</span>
+                        {% else %}
+                            <span style="color: #ffd700; font-weight: 800; font-size: 11px; text-transform: uppercase;">Pendiente</span>
+                        {% endif %}
+                    </td>
+                    <td><a href="{% url 'gimnasio:certificacion_interna' cert.id %}" class="btn btn-sm" style="background: #ffd700; color: #000; font-weight: 900;">PDF</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
-  </div>
 </div>
 {% endblock %}

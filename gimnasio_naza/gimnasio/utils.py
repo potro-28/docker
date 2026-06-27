@@ -171,7 +171,7 @@ def validar_credenciales_google_forms():
     Valida que el proyecto tenga credenciales válidas para Google Forms.
     Devuelve (True, mensaje) o (False, error)
     """
-    get_credentials()
+
     credentials_path = os.path.join(settings.BASE_DIR, 'credentials.json')
     token_path = os.path.join(settings.BASE_DIR, 'token.json')
 

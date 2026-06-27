@@ -12,7 +12,7 @@
       </a>
     </div>
     <h3>{{ user.get_full_name|default:user.username }}</h3>
-    <div class="badge-plan"><a href='{% url "gimnasio:dashboard" %}'>Gym Nazaret</a></div>
+    <div class="badge-plan"><a href='{% url "gimnasio:dashboard" %}'>Gym Nazareth</a></div>
   </div>
 
   <ul class="nav-menu">
@@ -56,8 +56,6 @@
 
     {% endif %}
 
-    {# ── Menú compartido (Admin y Cliente) ── #}
-
     <li class="{% if request.resolver_match.url_name == 'listar_nutriciones' %}active{% endif %}">
       <a href="{% if user.usuario.rol == 'Administrador' or user.is_superuser %}{% url 'gimnasio:listar_nutriciones' %}{% else %}{% url 'usuarios:mi_nutricion' %}{% endif %}">
         <div class="icon-circle"><i class="fas fa-utensils"></i></div>
@@ -72,8 +70,7 @@
       </a>
     </li>
 
-      {% if user.usuario.rol == 'Administrador' or user.is_superuser %}
-
+    {% if user.usuario.rol == 'Administrador' or user.is_superuser %}
 
     <li class="{% if request.resolver_match.url_name == 'listar_masa_corporal_clas' %}active{% endif %}">
       <a href="{% url 'gimnasio:listar_masa_corporal_clas' %}">
@@ -83,7 +80,6 @@
     </li>
 
     {% endif %}
-
     
     <li class="{% if request.resolver_match.url_name == 'listar_certificacioninterna' %}active{% endif %}">
        <a href="{% if user.usuario.rol == 'Administrador' or user.is_superuser %}{% url "gimnasio:listar_certificacioninterna" %}{% else %}{% url "usuarios:mi_certificacion" %}{% endif %}">
@@ -100,8 +96,6 @@
         <span>Elementos</span>
       </a>
     </li>
-    {% endif %}
-{% if user.usuario.rol == 'Administrador' or user.is_superuser %}
 
     <li class="{% if request.resolver_match.url_name == 'listar_mantenimiento' %}active{% endif %}">
       <a href="{% url 'gimnasio:listar_mantenimiento' %}">
@@ -110,16 +104,12 @@
       </a>
     </li>
 
-    {% endif %}
-  {% if user.usuario.rol == 'Administrador' or user.is_superuser %}
     <li class="{% if request.resolver_match.url_name == 'listar_Reportes_estadisticas' %}active{% endif %}">
       <a href="{% url 'gimnasio:listar_Reportes_estadisticas' %}">
         <div class="icon-circle"><i class="fas fa-chart-bar"></i></div>
         <span>Reportes</span>
       </a>
     </li>
-    {% endif %}
-    {% if user.usuario.rol == 'Administrador' or user.is_superuser %}
 
     <li class="{% if request.resolver_match.url_name == 'listar_categorias' %}active{% endif %}">
       <a href="{% url 'gimnasio:listar_categorias' %}">
@@ -137,19 +127,23 @@
 
     {% endif %}
 
+    {% if user.usuario.rol == 'Administrador' or user.is_superuser %}
     <li class="{% if request.resolver_match.url_name == 'listar_encuestas' %}active{% endif %}">
-      <a href="{% if user.usuario.rol == 'Administrador' or user.is_superuser %}{% url "gimnasio:listar_encuestas" %}{% else %}{% url "usuarios:mis_encuestas" %}{% endif %}">
+      <a href="{% url 'gimnasio:listar_encuestas' %}">
         <div class="icon-circle"><i class="fas fa-question-circle"></i></div>
         <span>Encuestas</span>
       </a>
     </li>
 
+    {% endif %}
+    {% if user.usuario.rol == 'Administrador' or user.is_superuser %}
     <li class="{% if request.resolver_match.url_name == 'listar_Soporte_PQRS' %}active{% endif %}">
-        <a href="{% if user.usuario.rol == 'Administrador' or user.is_superuser %}{% url "gimnasio:listar_Soporte_PQRS" %}{% else %}{% url "usuarios:miPqrs" %}{% endif %}">
+      <a href="{% url 'gimnasio:listar_Soporte_PQRS' %}">
         <div class="icon-circle"><i class="fas fa-headset"></i></div>
         <span>Soporte PQRS</span>
       </a>
     </li>
+    {% endif %}
 
     <li class="{% if request.resolver_match.url_name == 'listar_sanciones_clas' %}active{% endif %}">
        <a href="{% if user.usuario.rol == 'Administrador' or user.is_superuser %}{% url "gimnasio:listar_sanciones_clas" %}{% else %}{% url "usuarios:mi_sancion" %}{% endif %}">
@@ -157,6 +151,23 @@
         <span>Sanciones</span>
       </a>
     </li>
+    {% if user.usuario.rol == 'Cliente' %}
+    <li class="{% if request.resolver_match.url_name == 'mis_encuestas' %}active{% endif %}">
+      <a href="{% url 'usuarios:mis_encuestas' %}">
+        <div class="icon-circle"><i class="fas fa-question-circle"></i></div>
+        <span>Encuestas</span>
+      </a>
+    </li>
+    {% endif %}
 
+    {% if user.usuario.rol == 'Cliente' %}
+    <li class="{% if request.resolver_match.url_name == 'miPqrs' %}active{% endif %}">
+      <a href="{% url 'usuarios:miPqrs' %}">
+        <div class="icon-circle"><i class="fas fa-question-circle"></i></div>
+        <span>PQRS</span>
+      </a>
+    </li>
+
+    {% endif %}
   </ul>
 </aside>

@@ -1,153 +1,95 @@
 {% extends 'home.html' %}
 {% load static %}
 {% block body %}
-  <body>
+  <body class="{% if user.usuario.genero_usuario == 'F' %}theme-soft{% else %}theme-strong{% endif %} sidebar-active">
     {% include 'header.html' %}
-        <div class="main-container">
-        
+    <div class="main-container">
         {% include "aside.html" %}
-
         <main class="content-area">
             {% block contenido %}
             {% endblock contenido %}
         </main>
     </div>
- <button id="btn-accesibilidad" aria-label="Abrir menú de accesibilidad" onclick="toggleMenuAccesibilidad()">
-    <i class="fas fa-universal-access"></i>
-</button>
 
-<!-- Menú de Accesibilidad Gym Nazareth -->
-<div id="menu-accesibilidad" class="menu-accesibilidad oculto">
-    
-    <!-- Cabecera del Menú -->
-    <div class="d-flex justify-content-between align-items-center mb-3 pb-2" style="border-bottom: 1px solid #e2e8f0;">
-        <h5 class="m-0 font-weight-bold text-dark" style="font-size: 1rem;">
-            <i class="fas fa-sliders-h mr-2 text-secondary"></i>Accesibilidad
-        </h5>
-        <button onclick="toggleMenuAccesibilidad()" class="p-0 border-0 bg-transparent text-muted font-weight-bold" style="font-size: 1.2rem; width: auto; margin: 0; cursor: pointer;">
-            &times;
-        </button>
-    </div>
-
-    <!-- Opciones de Texto -->
-    <button onclick="aumentarTexto()">
-        <i class="fas fa-search-plus fa-fw"></i> Aumentar texto
-    </button>
-
-    <button onclick="disminuirTexto()">
-        <i class="fas fa-search-minus fa-fw"></i> Disminuir texto
-    </button>
-
-    <!-- Opciones Visuales -->
-    <button onclick="alternarContraste()">
-        <i class="fas fa-adjust fa-fw"></i> Alto contraste
-    </button>
-
-    <button onclick="escalaGrises()">
-        <i class="fas fa-eye fa-fw"></i> Escala de grises
-    </button>
-
-    <button onclick="resaltarEnlaces()">
-        <i class="fas fa-link fa-fw"></i> Resaltar enlaces
-    </button>
-
-    <!-- Opciones de Lectura por Voz -->
-    <button onclick="leerPagina()">
-        <i class="fas fa-volume-up fa-fw"></i> Leer página
-    </button>
-    
-    <button onclick="detenerLectura()">
-        <i class="fas fa-stop-circle fa-fw text-danger"></i> Detener lectura
-    </button>
-
-    <!-- Restablecer Todo -->
-    <button onclick="restablecerAccesibilidad()" class="mt-2 text-danger" style="background-color: #fff5f5; border-color: #feb2b2;">
-        <i class="fas fa-undo-alt fa-fw"></i> Restablecer valores
-    </button>
-</div>
-
-</div>
     <script>
-      // Toggle de Barra Lateral Animada
       document.getElementById('menuToggle').addEventListener('click', function () {
-        if (window.innerWidth > 768) {
-          document.body.classList.toggle('sidebar-collapsed')
-          document.querySelectorAll('.has-submenu').forEach((item) => item.classList.remove('open'))
+        if (window.innerWidth > 1024) {
+          document.body.classList.toggle('sidebar-collapsed');
         } else {
-          document.getElementById('sidebar').classList.toggle('mobile-active')
+          document.getElementById('sidebar').classList.toggle('mobile-active');
         }
-      })
+      });
       
-      // Toggle Submenu (Acordeón)
       document.querySelectorAll('.submenu-toggle').forEach((toggle) => {
         toggle.addEventListener('click', function (e) {
-          e.preventDefault()
+          e.preventDefault();
           if (!document.body.classList.contains('sidebar-collapsed')) {
-            const parentLi = this.parentElement
-            parentLi.classList.toggle('open')
-      
-            const icon = this.querySelector('.arrow-icon')
+            const parentLi = this.parentElement;
+            parentLi.classList.toggle('open');
+            const icon = this.querySelector('.arrow-icon');
             if (parentLi.classList.contains('open')) {
-              icon.classList.replace('fa-chevron-right', 'fa-chevron-down')
+              icon.classList.replace('fa-chevron-right', 'fa-chevron-down');
             } else {
-              icon.classList.replace('fa-chevron-down', 'fa-chevron-right')
+              icon.classList.replace('fa-chevron-down', 'fa-chevron-right');
             }
           }
-        })
-      })
+        });
+      });
     </script>
 
     <script src="{% static 'assets/vendor/libs/jquery/jquery.js' %}"></script>
-    <script src="{% static 'assets/vendor/libs/popper/popper.js'%}"></script>
-    <script src="{% static 'assets/vendor/js/bootstrap.js'%}"></script>
-    <script src="{% static 'assets/vendor/libs/node-waves/node-waves.js'%}"></script>
-    <script src="{% static 'assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js'%}"></script>
-    <script src="{% static 'assets/vendor/js/menu.js'%}"></script>
-    <script src="{% static 'assets/vendor/libs/apex-charts/apexcharts.js'%}"></script>
-    <script src="{% static 'assets/js/main.js'%}"></script>
-    <script src="{% static 'assets/js/dashboards-analytics.js'%}"></script>
-      <script
-    src="{% static 'js/accesibilidad.js' %}"
-    defer>
-</script>
-    <script src="{% static 'lib/sweetalert2/sweetalert2.all.min.js'%}"></script>
+    <script src="{% static 'assets/vendor/libs/popper/popper.js' %}"></script>
+    <script src="{% static 'assets/vendor/js/bootstrap.js' %}"></script>
+    <script src="{% static 'assets/vendor/libs/node-waves/node-waves.js' %}"></script>
+    <script src="{% static 'assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js' %}"></script>
+    <script src="{% static 'assets/vendor/js/menu.js' %}"></script>
+    <script src="{% static 'assets/vendor/libs/apex-charts/apexcharts.js' %}"></script>
+    <script src="{% static 'assets/js/main.js' %}"></script>
+    <script src="{% static 'assets/js/dashboards-analytics.js' %}"></script>
+    <script async="async" defer="defer" src="https://buttons.github.io/buttons.js"></script>
+    <script src="{% static 'lib/sweetalert2/sweetalert2.all.min.js' %}"></script>
+    <script defer src="{% static 'js/sienna-accessibility.umd.js' %}"></script>
 
-    <!-- ===== BUSCADOR DE MÓDULOS ===== -->
     <style>
         .search-container {
-          max-width: 200px !important;  /* reemplaza el que ya tienes */
-          width: 200px !important;
+          max-width: 220px !important;
+          width: 220px !important;
+          position: relative;
         }
-
         #input-buscar {
           width: 100% !important;
-          padding: 5px 10px !important;
-          font-size: 0.82rem !important;
+          padding: 6px 12px !important;
+          font-size: 0.85rem !important;
+          background: rgba(255, 255, 255, 0.05) !important;
+          border: 1px solid var(--border-color) !important;
+          color: #ffffff !important;
+          border-radius: var(--border-radius-btn) !important;
         }  
         .resultados-dropdown {
             position: absolute;
             top: calc(100% + 6px);
             left: 0;
             right: 0;
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            background: var(--bg-surface);
+            border-radius: var(--border-radius-card);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
             z-index: 9999;
             overflow: hidden;
-            min-width: 220px;
+            min-width: 240px;
+            border: 1px solid var(--border-color);
         }
         .resultado-item {
             display: flex;
             align-items: center;
             padding: 10px 16px;
-            color: #333;
+            color: var(--text-muted);
             text-decoration: none;
-            font-size: 0.9rem;
-            transition: background 0.15s;
+            font-size: 0.88rem;
+            transition: var(--transition);
         }
         .resultado-item:hover {
-            background: #f0f4ff;
-            color: #011e5c;
+            background: var(--bg-surface-hover);
+            color: var(--primary-blue);
         }
     </style>
 
@@ -157,64 +99,63 @@
             { nombre: "Membresía",           url: "{% url 'gimnasio:listar_membresia' %}",         icono: "fa-solid fa-crown" },
             { nombre: "Notificaciones",      url: "{% url 'gimnasio:listar_notificacion' %}",    icono: "fa-solid fa-bell" },
             { nombre: "Usuarios",            url: "{% url 'gimnasio:listar_usuario' %}",          icono: "fa-solid fa-users" },
-            { nombre: "Registro Visitantes", url: "{% url 'gimnasio:listar_registrovisitante' %}", icono: "fa-solid fa-person-walking" },            { nombre: "Nutrición",           url: "{% url 'gimnasio:listar_nutriciones' %}",         icono: "fa-solid fa-utensils" },
-            { nombre: "Rutinas", url: "{% url 'gimnasio:listar_rutinas' %}", icono: "fa-solid fa-dumbbell" },            { nombre: "Masa Corporal",       url: "{% url 'gimnasio:listar_masa_corporal_clas' %}",     icono: "fa-solid fa-weight-scale" },
+            { nombre: "Registro Visitantes", url: "{% url 'gimnasio:listar_registrovisitante' %}", icono: "fa-solid fa-person-walking" },
+            { nombre: "Nutrición",           url: "{% url 'gimnasio:listar_nutriciones' %}",         icono: "fa-solid fa-utensils" },
+            { nombre: "Rutinas",             url: "{% url 'gimnasio:listar_rutinas' %}",             icono: "fa-solid fa-dumbbell" },
+            { nombre: "Masa Corporal",       url: "{% url 'gimnasio:listar_masa_corporal_clas' %}",     icono: "fa-solid fa-weight-scale" },
             { nombre: "Certificaciones",     url: "{% url 'gimnasio:listar_certificacioninterna' %}",   icono: "fa-solid fa-award" },
-            { nombre: "Elementos", url: "{% url 'gimnasio:listar_elementos' %}", icono: "fa-solid fa-cogs" },            { nombre: "Mantenimiento",       url: "{% url 'gimnasio:listar_mantenimiento' %}",     icono: "fa-solid fa-wrench" },
+            { nombre: "Elementos",           url: "{% url 'gimnasio:listar_elementos' %}",         icono: "fa-solid fa-cogs" },
+            { nombre: "Mantenimiento",       url: "{% url 'gimnasio:listar_mantenimiento' %}",     icono: "fa-solid fa-wrench" },
             { nombre: "Reportes",            url: "{% url 'gimnasio:listar_Reportes_estadisticas' %}",                 icono: "fa-solid fa-chart-line" },
             { nombre: "Categorías",          url: "{% url 'gimnasio:listar_categorias' %}",        icono: "fa-solid fa-tags" },
-            { nombre: "Turnos Entrenadores",   url: "{% url 'gimnasio:listar_turnodeentrenador' %}", icono: "fa-solid fa-calendar-days" },
+            { nombre: "Turnos Entrenadores", url: "{% url 'gimnasio:listar_turnodeentrenador' %}", icono: "fa-solid fa-calendar-days" },
             { nombre: "Encuestas",           url: "{% url 'gimnasio:listar_encuestas' %}",         icono: "fa-solid fa-poll" },
-            { nombre: "Soporte PQRS",         url: "{% url 'gimnasio:listar_Soporte_PQRS' %}",           icono: "fa-solid fa-headset" },
-            { nombre: "Sanciones",            url: "{% url 'gimnasio:listar_sanciones_clas' %}",         icono: "fa-solid fa-gavel" },
+            { nombre: "Soporte PQRS",        url: "{% url 'gimnasio:listar_Soporte_PQRS' %}",           icono: "fa-solid fa-headset" },
+            { nombre: "Sanciones",           url: "{% url 'gimnasio:listar_sanciones_clas' %}",         icono: "fa-solid fa-gavel" }
         ];
 
         const inputBuscar  = document.getElementById("input-buscar");
         const resultadosEl = document.getElementById("resultados-buscar");
 
-        inputBuscar.addEventListener("input", function () {
-            const query = this.value.trim().toLowerCase();
-            resultadosEl.innerHTML = "";
+        if (inputBuscar && resultadosEl) {
+            inputBuscar.addEventListener("input", function () {
+                const query = this.value.trim().toLowerCase();
+                resultadosEl.innerHTML = "";
 
-            if (query.length === 0) {
-                resultadosEl.classList.add("d-none");
-                return;
-            }
+                if (query.length === 0) {
+                    resultadosEl.classList.add("d-none");
+                    return;
+                }
 
-            const filtrados = modulos.filter(m => m.nombre.toLowerCase().includes(query));
+                const filtrados = modulos.filter(m => m.nombre.toLowerCase().includes(query));
 
-            if (filtrados.length === 0) {
-                resultadosEl.innerHTML = `<div class="resultado-item text-muted">Sin resultados</div>`;
-            } else {
-                filtrados.forEach(m => {
-                    resultadosEl.innerHTML += `
-                        <a href="${m.url}" class="resultado-item">
-                            <i class="${m.icono} me-2"></i>${m.nombre}
-                        </a>`;
-                });
-            }
+                if (filtrados.length === 0) {
+                    resultadosEl.innerHTML = `<div class="resultado-item text-muted">Sin resultados</div>`;
+                } else {
+                    filtrados.forEach(m => {
+                        resultadosEl.innerHTML += `
+                            <a href="${m.url}" class="resultado-item">
+                                <i class="${m.icono} me-2"></i>${m.nombre}
+                            </a>`;
+                    });
+                }
+                resultadosEl.classList.remove("d-none");
+            });
 
-            resultadosEl.classList.remove("d-none");
-        });
+            document.addEventListener("click", function (e) {
+                if (!inputBuscar.contains(e.target) && !resultadosEl.contains(e.target)) {
+                    resultadosEl.classList.add("d-none");
+                }
+            });
 
-        // Cerrar al hacer clic fuera
-        document.addEventListener("click", function (e) {
-            if (!inputBuscar.contains(e.target) && !resultadosEl.contains(e.target)) {
-                resultadosEl.classList.add("d-none");
-            }
-        });
-
-        // Navegar con Enter al primer resultado
-        inputBuscar.addEventListener("keydown", function (e) {
-            if (e.key === "Enter") {
-                const primero = resultadosEl.querySelector("a");
-                if (primero) primero.click();
-            }
-        });
+            inputBuscar.addEventListener("keydown", function (e) {
+                if (e.key === "Enter") {
+                    const primero = resultadosEl.querySelector("a");
+                    if (primero) primero.click();
+                }
+            });
+        }
     </script>
-    <!-- ===== FIN BUSCADOR ===== -->
-
     {% block js %}{% endblock %}
-
   </body>
 {% endblock body %}

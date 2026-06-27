@@ -15,8 +15,7 @@ class DashboardUsuarioView(LoginRequiredMixin, TemplateView):
     template_name = 'dashboard/index.html'
 
     def obtener_dias_restantes(self, membresia):
-        
-        hoy = date(2026, 4, 15)
+        hoy = date.today()
         if membresia.fecha_fin < hoy:
             return 0
         if membresia.fecha_inicio > hoy:
@@ -25,70 +24,99 @@ class DashboardUsuarioView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
         usuario = self.request.user
+        
         if hasattr(usuario, 'usuario'):
-
             context['nombre_usuario'] = usuario.usuario.nombre_usuario
             context['apellido_usuario'] = usuario.usuario.apellido_usuario
             context['documento'] = usuario.usuario.documento
             context['correo'] = usuario.usuario.correo_usuario
             context['telefono'] = usuario.usuario.telefono_usuario
+            context['usuario_id'] = usuario.usuario.id
 
-            membresia = Membresia.objects.filter(
-                fk_usuario=usuario.usuario,
-                estado='activo'
-            ).first()
+            # 1. BUSCAR PLAN GENERADO POR IA EN LA BD
+            mi_nutricion = Nutricion.objects.filter(fk_Usuario=usuario.usuario).last()
+            context['mi_nutricion'] = mi_nutricion
+            
+            mi_rutina = None
+            if mi_nutricion:
+                masa_corp = Masa_corporal.objects.filter(fk_Nutricion=mi_nutricion).last()
+                if masa_corp:
+                    mi_rutina = Rutina.objects.filter(fk_imc=masa_corp).last()
+            context['mi_rutina'] = mi_rutina
 
+            # 2. CALCULAR ASISTENCIAS, BARRA DE PROGRESO Y CALENDARIO
+            membresia = Membresia.objects.filter(fk_usuario=usuario.usuario, estado='activo').first()
+            
             if membresia:
+                asistencia = Asistencia.objects.filter(fk_membresia=membresia)
+                
+                # ======================================================
+                #  CÁLCULO DE LA BARRA DE PROGRESO DE IA
+                # ======================================================
+                meta_dias_semana = mi_rutina.dias_disponibles if mi_rutina else 4
+                meta_mensual = meta_dias_semana * 4 # Aprox 4 semanas al mes
+                asistencias_mes = asistencia.filter(fecha_asistencia__month=date.today().month).count()
+                
+                context['asistencias_mes'] = asistencias_mes
+                context['meta_mensual'] = meta_mensual
+                
+                # Porcentaje exacto para la barra (evitando división por cero y tope en 100%)
+                porcentaje_ia = min(int((asistencias_mes / meta_mensual) * 100) if meta_mensual > 0 else 0, 100)
+                context['porcentaje_ia'] = porcentaje_ia
 
-                asistencia = Asistencia.objects.filter(
-                    fk_membresia=membresia
-                )
-
+                # ======================================================
+                # CÁLCULO DEL CALENDARIO
+                # ======================================================
                 eventos = []
-
                 fecha_actual = membresia.fecha_inicio
+                hoy = date.today()
+
+                nombre_rutina = mi_rutina.get_tipo_rutina_display() if mi_rutina else "Entrenamiento"
+                dias_entreno = mi_rutina.dias_disponibles if mi_rutina else 4
+                
+                # Lógica: Asigna los días de entreno en la semana (0=Lunes, 6=Domingo)
+                if dias_entreno <= 3: dias_activos = [0, 2, 4]
+                elif dias_entreno == 4: dias_activos = [0, 1, 3, 4]
+                elif dias_entreno == 5: dias_activos = [0, 1, 2, 3, 4]
+                else: dias_activos = [0, 1, 2, 3, 4, 5]
 
                 while fecha_actual <= membresia.fecha_fin:
-
-                    asistio = asistencia.filter(
-                        fecha_asistencia=fecha_actual
-                    ).exists()
-
-                    if asistio:
-                        color = 'green'
-                        titulo = 'Asistió'
+                    if fecha_actual <= hoy:
+                        asistio = asistencia.filter(fecha_asistencia=fecha_actual).exists()
+                        if asistio:
+                            eventos.append({'title': f'✅ Entrenó: {nombre_rutina}', 'start': fecha_actual.strftime('%Y-%m-%d'), 'color': '#28a745'})
+                        elif fecha_actual < hoy:
+                            eventos.append({'title': '❌ Faltó', 'start': fecha_actual.strftime('%Y-%m-%d'), 'color': '#dc3545'})
                     else:
-                        color = 'red'
-                        titulo = 'Faltó'
-
-                    eventos.append({
-                        'title': titulo,
-                        'start': fecha_actual.strftime('%Y-%m-%d'),
-                        'color': color
-                    })
-
+                        if mi_rutina and fecha_actual.weekday() in dias_activos:
+                            eventos.append({'title': f'📅 Plan: {nombre_rutina}', 'start': fecha_actual.strftime('%Y-%m-%d'), 'color': '#ffd700', 'textColor': '#000'})
                     fecha_actual += timedelta(days=1)
 
                 context['eventos'] = json.dumps(eventos)
-
-                dias_totales = (
-                    membresia.fecha_fin - membresia.fecha_inicio
-                ).days
-
-                context['fecha_inicio'] = membresia.fecha_inicio
-                context['fecha_fin'] = membresia.fecha_fin
                 context['dias_restantes'] = self.obtener_dias_restantes(membresia)
-                context['dias_totales'] = dias_totales
-
+                context['dias_totales'] = (membresia.fecha_fin - membresia.fecha_inicio).days
             else:
+                # Valores por defecto si no tiene membresía
+                context['asistencias_mes'] = 0
+                context['meta_mensual'] = 0
+                context['porcentaje_ia'] = 0
                 context['eventos'] = json.dumps([])
-                context['fecha_inicio'] = None
-                context['fecha_fin'] = None
-                context['dias_restantes'] = None
-                context['dias_totales'] = None
+                context['dias_restantes'] = 0
+                context['dias_totales'] = 0
 
+        return context
+class MiNutricionView(LoginRequiredMixin, ListView):
+    model = Nutricion
+    template_name = "usuario/nutricion.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        usuario = self.request.user
+        if hasattr(usuario, 'usuario'):
+            nutricion = Nutricion.objects.filter(fk_Usuario=usuario.usuario).first()
+            
+            context['nutricion'] = nutricion
         return context
     
 

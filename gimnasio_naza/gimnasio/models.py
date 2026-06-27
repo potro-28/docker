@@ -5,7 +5,6 @@ from django.contrib.auth.models import User
 import qrcode
 from io import BytesIO
 from django.core.files import File
-from django.core.exceptions import ValidationError
 
 # Create your models here.
 # ---------------------------------MODELO USUARIO-----------------------------------------
@@ -149,8 +148,18 @@ class Asistencia(models.Model):
 
 # --------------------CATEGORIA------------------
 class Categoria(models.Model):
-    nombre_categoria = models.CharField(max_length=45 , unique=True , error_messages={"unique": "Ya existe esa categoria"})
+
+    NOMBRE_CATEGORIA = [
+        ("maquinas", "Máquinas"),
+        ("mancuernas", "Mancuernas"),
+        ("discos", "Discos"),
+        ("accesorios", "Accesorios"),
+        ("barras", "Barras"),
+    ]
+
+    nombre_categoria = models.CharField(max_length=45, choices=NOMBRE_CATEGORIA)
     descripcion = models.CharField(max_length=250)
+
     def __str__(self):
         return str(self.nombre_categoria)
 
@@ -474,26 +483,7 @@ class Turnosentrenadores(models.Model):
     fecha_turno_inicio = models.DateField(default=date.today)
     fecha_turno_final = models.DateField(default=date.today)
     jornada = models.CharField(max_length=10, choices=JORNADA_CHOICES)
-    
-    def clean(self):
-        if self.fecha_turno_inicio > self.fecha_turno_final:
-            raise ValidationError("La fecha de inicio no puede ser mayor a la fecha final")
-        
-        turnos = Turnosentrenadores.objects.filter(
-            administrador = self.administrador
-        )
-        if self.pk:
-            turnos = turnos.exclude(pk=self.pk)
-        existe_solapamiento = turnos.filter(
-                fecha_turno_inicio__lte = self.fecha_turno_final,
-                fecha_turno_final__gte = self.fecha_turno_inicio
-            ).exists()
-        if existe_solapamiento:
-                raise ValidationError("Este entrenador ya tiene un turno asignado en ese rango de fechas")
-    
-    def save(self,*args, **kwargs):
-        self.full_clean()
-        super().save(*args, **kwargs)
+
     def __str__(self):
         if self.administrador:
             return f"{self.administrador.username} - {self.jornada}"
