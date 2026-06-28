@@ -7,16 +7,16 @@
     .stagger-2 { animation: revealBounce 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-delay: 0.2s; opacity: 0; }
     @keyframes revealBounce { 0% { opacity: 0; transform: translateY(30px) scale(0.97); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
 
-    .card-dash { 
-        position: relative; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(10px); 
-        border-radius: 15px; padding: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.9); 
-        border: 1px solid rgba(255,215,0,0.1); margin-bottom: 25px;
-    }
-    
-    .card-dash::before {
-        content: ''; position: absolute; top: 0; left: -15px; width: 20px; height: 100%;
-        background: #ffd700; transform: skewX(-15deg); box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
-    }
+  .card-dash::before {
+    content: ''; position: absolute; top: 0; left: -15px; width: 20px; height: 100%;
+    background: #ffd700; transform: skewX(-15deg); box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+    z-index: 0;
+}
+
+.card-dash > * {
+    position: relative;
+    z-index: 2;
+}
 
     .header-title { color: #fff; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; margin: 0;}
     
@@ -35,7 +35,7 @@
     .filter-input::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer;}
 
     /* 🛡️ DESTRUCTOR DE AZUL: FUERZA ESTILOS OSCUROS EN DATATABLES 🛡️ */
-    .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_paginate { color: #a0a0a0 !important; font-weight: 600; font-size: 12px; text-transform: uppercase;}
+    .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_paginate { color: #eeeef0 !important; font-weight: 600; font-size: 12px; text-transform: uppercase;}
     .dataTables_wrapper .dataTables_filter input { background: #000 !important; border: 1px solid rgba(255,215,0,0.3) !important; color: #fff !important; }
     
     table.dataTable, .table-dark-gold { width: 100% !important; border-collapse: separate !important; border-spacing: 0 5px !important; margin-top: 15px !important; border: none !important;}
@@ -72,7 +72,7 @@
             <button type="button" class="btn-hero-outline" data-bs-toggle="modal" data-bs-target="#modalqr">
                 <span><i class="fas fa-qrcode"></i> Escanear QR</span>
             </button>
-            <div class="dropdown" style="position: relative; z-index: 10;">
+            <div class="dropdown" style="position: relative; z-index: 9999;">
                 <button class="btn-hero-outline dropdown-toggle" type="button" data-bs-toggle="dropdown" style="transform: skewX(0); border-radius: 4px;">
                     <i class="fas fa-file-export me-2"></i> Exportar
                 </button>
@@ -127,7 +127,7 @@
                             <div class="text-white fw-bold" style="font-size: 15px; text-transform: uppercase;">{{ a.fk_membresia.fk_usuario.nombre_usuario }} {{ a.fk_membresia.fk_usuario.apellido_usuario }}</div>
                             <span style="background: rgba(255,215,0,0.1); color: #ffd700; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 800; text-transform: uppercase; border: 1px solid rgba(255,215,0,0.2);">Mem. ID: {{ a.fk_membresia.id }}</span>
                         </td>
-                        <td class="fw-bold" style="color: #a0a0a0;">{{ a.fk_membresia.fk_usuario.documento }}</td>
+                        <td class="fw-bold" style="color: #eeeef0;">{{ a.fk_membresia.fk_usuario.documento }}</td>
                         <td class="text-center">
                             <a href="{% url 'gimnasio:editar_asistencia' a.id %}" class="btn btn-sm" style="background: rgba(255,215,0,0.1); color: #ffd700; border: 1px solid #ffd700; border-radius: 4px; padding: 6px 12px; transition: 0.3s;"><i class="fas fa-edit"></i></a>
                             <a href="{% url 'gimnasio:eliminar_asistencia' a.id %}" class="btn btn-sm" style="background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; padding: 6px 12px; transition: 0.3s; margin-left: 5px;"><i class="fas fa-trash"></i></a>
@@ -221,5 +221,23 @@ $(document).ready(function() {
     $('#modalqr').on('shown.bs.modal', function () { html5QrcodeScanner.render(onScanSuccess); });
     $('#modalqr').on('hidden.bs.modal', function () { html5QrcodeScanner.clear(); });
 });
+
+modalEscaner.addEventListener('shown.bs.modal', function () {
+        lista = []; // reinicia la lista de escaneados al abrir
+        if (!html5QrcodeScanner) {
+            html5QrcodeScanner = new Html5QrcodeScanner('qr-reader', { fps: 3, qrbox: 260 });
+        }
+        html5QrcodeScanner.render(onScanSuccess);
+    });
+
+    // Detener la cámara al cerrar el modal (evita que quede encendida en segundo plano)
+    modalEscaner.addEventListener('hidden.bs.modal', function () {
+        if (html5QrcodeScanner) {
+            html5QrcodeScanner.clear()
+                .then(() => { html5QrcodeScanner = null; })
+                .catch((err) => console.error('Error al detener el escáner', err));
+        }
+        document.getElementById('resultado').innerText = '';
+    });
 </script>
 {% endblock %}

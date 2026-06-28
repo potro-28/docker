@@ -461,115 +461,139 @@ class MantenimientoForm(forms.ModelForm):
     
     
 class AsistenciaForm(forms.ModelForm):
-                
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['fecha_asistencia'].initial = datetime.now().strftime('%Y-%m-%d')
-        self.fields['hora_ingreso'].initial = datetime.now().strftime('%H:%M') 
+
+        if not self.instance.pk:
+            self.fields['fecha_asistencia'].initial = datetime.now().strftime('%d-%m-%Y')
+            self.fields['hora_ingreso'].initial = datetime.now().strftime('%H:%M')
+
     class Meta:
- 
         model = Asistencia
         fields = '__all__'
         widgets = {
             'hora_ingreso': forms.TimeInput(attrs={
-            'class': 'form-control',
-            'type': 'time',
-            'value': datetime.now().strftime('%H:%M'),
+                'class': 'form-control',
+                'type': 'time',
             }),
             'fecha_asistencia': forms.DateInput(attrs={
                 'class': 'form-control',
                 'type': 'date',
-            }),        
+            }),
         }
+
     def clean(self):
         cleaned_data = super().clean()
+
         fecha_asistencia = cleaned_data.get('fecha_asistencia')
+        hora_ingreso = cleaned_data.get('hora_ingreso')
         fk_membresia = cleaned_data.get('fk_membresia')
-       
-    
-        if fecha_asistencia > forms.fields.datetime.date.today():
-            self.add_error('fecha_asistencia','La fecha de asistencia no puede ser futura')
-        if fecha_asistencia < forms.fields.datetime.date.today():
-            self.add_error('fecha_asistencia','La fecha de asistencia no puede ser anterior al día de hoy')
-        
 
-        asistencia_existente = Asistencia.objects.filter(fk_membresia__fk_usuario=fk_membresia.fk_usuario, fecha_asistencia=fecha_asistencia)
-
-        if asistencia_existente.exists():
-            self.add_error('fk_membresia', f'Ya existe una asistencia registrada para este usuario el día de hoy')
-
-        
-
-
-class MembresiaForm(ModelForm):
-    
-    def __init__(self, *args, **kwargs):
-
-        super().__init__(*args, **kwargs)
+        if not fecha_asistencia or not fk_membresia:
+            return cleaned_data
 
         hoy = date.today()
 
         if not self.instance.pk:
+            # CREAR: la fecha debe ser exactamente hoy
+            if fecha_asistencia != hoy:
+                self.add_error('fecha_asistencia', 'Al crear una asistencia, la fecha debe ser la actual')
+        else:
+            # EDITAR: se permite cambiar el día, pero debe seguir
+            # dentro de la semana actual (lunes a domingo)
+            inicio_semana = hoy - timedelta(days=hoy.weekday())  # lunes
+            fin_semana = inicio_semana + timedelta(days=6)       # domingo
 
-            self.initial[
-                "fecha_inicio"
-            ] = hoy
+            if not (inicio_semana <= fecha_asistencia <= fin_semana):
+                self.add_error(
+                    'fecha_asistencia',
+                    'La fecha de asistencia debe estar dentro de la semana actual'
+                )
 
-            self.initial[
-                "fecha_fin"
-            ] = (
-                hoy + timedelta(days=30)
-            )
-        self.fields['fk_usuario'].queryset = Usuario.objects.filter(rol = 'cliente',estado='activo')
+        asistencia_existente = Asistencia.objects.filter(
+            fk_membresia__fk_usuario=fk_membresia.fk_usuario,
+            fecha_asistencia=fecha_asistencia
+        ).exclude(pk=self.instance.pk)
+
+        if asistencia_existente.exists():
+            self.add_error('fk_membresia', 'Ya existe una asistencia registrada para este usuario en esa fecha')
+
+        if hora_ingreso:
+            if time(12, 0) <= hora_ingreso <= time(17, 0):
+                self.add_error('hora_ingreso', 'No se permiten registros entre las 12:00 PM y las 5:00 PM')
+            elif hora_ingreso >= time(21, 0) or hora_ingreso < time(5, 0):
+                self.add_error('hora_ingreso', 'No se permiten registros entre las 9:00 PM y las 5:00 AM')
+
+        return cleaned_data
+        
+class MembresiaForm(ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        hoy = datetime.now().date()
+        self.fields['fecha_inicio'].initial = hoy.strftime('%Y-%m-%d')
+        self.fields['fecha_fin'].initial = (hoy + timedelta(days=30)).strftime('%Y-%m-%d')
+        if 'qr_code' in self.fields:
+            self.fields['qr_code'].disabled = True
+            self.fields['qr_code'].required = False
+
     class Meta:
-
         model = Membresia
-
-        fields = "__all__"
-
+        fields = '__all__'
         widgets = {
-
-            "fecha_inicio": forms.DateInput(
-                format="%Y-%m-%d",
-                attrs={
-                    "class": "form-control",
-                    "type": "date",
-                },
-            ),
-
-            "fecha_fin": forms.DateInput(
-                format="%Y-%m-%d",
-                attrs={
-                    "class": "form-control",
-                    "type": "date",
-                },
-            ),
+            'fecha_inicio': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date',
+            }),
+            'fecha_fin': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date',
+            }),
         }
+
     def clean(self):
         cleaned_data = super().clean()
         fecha_inicio = cleaned_data.get('fecha_inicio')
-        fecha_fin = cleaned_data.get('fecha_fin')
         fk_usuario = cleaned_data.get('fk_usuario')
-        
-        if fecha_inicio > forms.fields.datetime.date.today():
-            self.add_error('fecha_inicio','La fecha de inicio no puede ser futura')
-        if fecha_inicio < forms.fields.datetime.date.today():
-            self.add_error('fecha_inicio','La fecha de inicio no puede ser anterior al día de hoy')
-        if fecha_fin > forms.fields.datetime.date.today() + forms.fields.datetime.timedelta(days=30):
-            self.add_error('fecha_fin','La fecha de finalización no puede ser mayor a un mes')
-        if fecha_fin < forms.fields.datetime.date.today() + forms.fields.datetime.timedelta(days=30):
-            self.add_error('fecha_fin','La fecha de finalización no puede ser menor a un mes')
-        if fecha_fin < forms.fields.datetime.date.today():
-            self.add_error('fecha_fin','La fecha de finalización no puede ser anterior al día de hoy')
-        if fecha_fin == fecha_inicio:
-            self.add_error('fecha_fin','La fecha de finalización no puede ser igual a la fecha de inicio')
-        if fecha_fin < fecha_inicio:
-            self.add_error('fecha_fin','La fecha de finalización no puede ser anterior a la fecha de inicio')
-        if fk_usuario and Membresia.objects.filter(fk_usuario=fk_usuario, fecha_inicio__month=fecha_inicio.month).exists():
-            raise forms.ValidationError('El usuario ya tuvo una membresia este mismo mes')
-        
+
+        if not fecha_inicio or not fk_usuario:
+            return cleaned_data
+
+        hoy = date.today()
+
+        if not self.instance.pk:
+            # CREAR: la fecha de inicio debe ser exactamente hoy
+            if fecha_inicio != hoy:
+                self.add_error('fecha_inicio', 'La fecha de inicio debe ser la actual')
+        else:
+            # EDITAR: se permite cambiar el día, pero debe seguir
+            # dentro del mes y año actual
+            if fecha_inicio.month != hoy.month or fecha_inicio.year != hoy.year:
+                self.add_error(
+                    'fecha_inicio',
+                    'La fecha de inicio debe estar dentro del mes y año actual'
+                )
+
+        # fecha_fin siempre se recalcula a partir de fecha_inicio,
+        # así que ya no hace falta validarla manualmente contra el form:
+        # eliminamos las comparaciones viejas (fin > hoy+30, fin < hoy+30, etc.)
+        # porque cleaned_data['fecha_fin'] se sobreescribe de todas formas.
+        cleaned_data['fecha_fin'] = fecha_inicio + timedelta(days=30)
+
+        membresia_existente = Membresia.objects.filter(
+            fk_usuario=fk_usuario,
+            fecha_inicio__month=fecha_inicio.month,
+            fecha_inicio__year=fecha_inicio.year
+        ).exclude(pk=self.instance.pk)
+
+        if membresia_existente.exists():
+            self.add_error(
+                'fk_usuario',
+                'El usuario ya tiene una membresia registrada en este mes'
+            )
+
         return cleaned_data
-    
 
 class NotificacionForm(forms.ModelForm):
     def __init__(self,*args, **kwargs):
