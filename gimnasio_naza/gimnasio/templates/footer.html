@@ -25,6 +25,29 @@
         font-size: 18px; color: #a0a0a0; margin-left: 15px; transition: 0.3s; cursor: pointer;
     }
     .footer-social i:hover { color: #ffd700; transform: scale(1.1); }
+    /* ===== Dropdown Soporte Técnico ===== */
+.dropdown-menu {
+    background-color: #111111;   /* Fondo negro */
+    border: 1px solid #ffd700;   /* Borde amarillo */
+    border-radius: 10px;
+    padding: 8px 0;
+}
+
+.dropdown-item {
+    color: #ffd700;              /* Texto amarillo */
+    font-weight: 600;
+    transition: all .3s ease;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+    background-color: #222222;   /* Fondo al pasar el mouse */
+    color: #ffffff;              /* Texto blanco */
+}
+
+.dropdown-divider {
+    border-color: rgba(255, 215, 0, 0.3);
+}
 </style>
 <footer class="footer-neon">
     <div class="container-fluid px-4">
@@ -37,10 +60,49 @@
                 </p>
             </div>
             <div class="col-md-6 text-center text-md-end footer-social">
-                <a href="#" class="footer-link me-3">Soporte Técnico</a>
-                <a href="#" class="footer-link me-3">WhatsApp</a>
-                <i class="fab fa-instagram"></i>
-                <i class="fab fa-facebook-f"></i>
+                <div class="dropdown d-inline-block me-3">
+                    <a class="footer-link dropdown-toggle"
+                      href="#"
+                      role="button"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false">
+                        Soporte Técnico
+                    </a>
+
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item"
+                              href="{% static 'Manuales/MANUAL_DE_USUARIO.pdf' %}"
+                              target="_blank">
+                                📘 Manual de Usuario
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item"
+                              href="{% static 'Manuales/MANUAL _DE _ADMINISTRADOR.pdf' %}"
+                              target="_blank">
+                                🛠️ Manual de Administrador
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <a href="https://wa.me/57313 8059194"
+                  target="_blank"
+                  class="footer-link me-3">
+                    WhatsApp
+                </a>
+                <a href="https://www.instagram.com/TU_USUARIO"
+                  target="_blank"
+                  class="footer-link me-3">
+                    <i class="fab fa-instagram"></i>
+                </a>
+
+                <a href="https://www.facebook.com/TU_PAGINA"
+                  target="_blank"
+                  class="footer-link">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
             </div>
         </div>
     </div>

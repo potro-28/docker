@@ -9,15 +9,31 @@
     @keyframes revealBounce { 0% { opacity: 0; transform: translateY(30px) scale(0.97); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
 
     /* TARJETAS PREMIUM */
-    .card-dash { 
-        position: relative; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(10px); 
-        border-radius: 15px; padding: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.9); 
-        border: 1px solid rgba(255,215,0,0.1); margin-bottom: 25px;
-    }
-    .card-dash::before {
-        content: ''; position: absolute; top: 0; left: -15px; width: 20px; height: 100%;
-        background: #ffd700; transform: skewX(-15deg); box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
-    }
+    .card-dash{
+    position: relative;
+    overflow: hidden;      /* Oculta el exceso de la línea */
+    z-index: 1;
+}
+
+.card-dash::before{
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -12px;
+    width: 20px;
+    height: 100%;
+    background: #ffd700;
+    transform: skewX(-15deg);
+    box-shadow: 0 0 10px rgba(255,215,0,.2);
+
+    z-index: -1;          /* La envía detrás */
+    pointer-events: none;
+}
+
+.card-dash > *{
+    position: relative;
+    z-index: 2;           /* Todo el contenido queda encima */
+}
 
     /* GRID DE ESTADÍSTICAS (Ajustado) */
     .grid-5-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-bottom: 30px; }
@@ -85,4 +101,21 @@ table thead th {
         </table>
     </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+{% if messages %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    {% for message in messages %}
+    Swal.fire({
+        icon: "{% if message.tags == 'success' %}success{% elif message.tags == 'error' %}error{% else %}info{% endif %}",
+        title: "{% if message.tags == 'success' %}Éxito{% elif message.tags == 'error' %}Error{% else %}Información{% endif %}",
+        text: "{{ message }}",
+        confirmButtonColor: "#ffd700",
+        background: "#111",
+        color: "#fff"
+    });
+    {% endfor %}
+});
+</script>
+{% endif %}
 {% endblock %}

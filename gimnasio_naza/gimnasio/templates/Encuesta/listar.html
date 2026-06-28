@@ -9,15 +9,26 @@
     @keyframes revealBounce { 0% { opacity: 0; transform: translateY(30px) scale(0.97); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
 
     /* TARJETAS CONTENEDORAS */
-    .card-dash { 
-        position: relative; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(10px); 
-        border-radius: 15px; padding: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.9); 
-        border: 1px solid rgba(255,215,0,0.1); margin-bottom: 25px;
+    .card-dash{
+        position:relative;
+        overflow:hidden;
+        z-index:1;
     }
-    .card-dash::before {
-        content: ''; position: absolute; top: 0; left: -15px; width: 20px; height: 100%;
-        background: #ffd700; transform: skewX(-15deg); box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+    .card-dash::before{
+        content:'';
+        position:absolute;
+        top:0;
+        left:-15px;
+        width:20px;
+        height:100%;
+        background:#ffd700;
+        transform:skewX(-15deg);
+        z-index:-1;      /* IMPORTANTE */
     }
+    .card-dash > *{
+        position:relative;
+        z-index:2;
+    } 
     .header-title { color: #fff; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; margin: 0;}
 
     /* BOTONES DORADOS */
@@ -44,7 +55,21 @@
     .expandable-content { background: #0a0a0a; border-left: 3px solid #ffd700; padding: 25px; box-shadow: inset 0 5px 15px rgba(0,0,0,0.5); border-radius: 0 0 10px 10px; }
     .input-dark { background: rgba(0,0,0,0.6) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: #fff !important; border-radius: 6px;}
     .input-dark:focus { border-color: #ffd700 !important; box-shadow: 0 0 10px rgba(255,215,0,0.3) !important;}
-    
+    /* ===== ELIMINAR ESPACIOS ENTRE FILAS ===== */
+
+    .collapse-row td{
+        padding:0 !important;
+        border:none !important;
+        height:0 !important;
+    }
+
+    .collapse-row{
+        background:transparent !important;
+    }
+
+    .collapse-row:not(.show-row){
+        display:none;
+    }
     .scroll-dark::-webkit-scrollbar { width: 8px; }
     .scroll-dark::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); border-radius: 4px; }
     .scroll-dark::-webkit-scrollbar-thumb { background: rgba(255,215,0,0.3); border-radius: 4px; }
@@ -111,9 +136,9 @@
             </tr>
 
             <!-- CONTENIDO EXPANDIBLE -->
-            <tr>
+            <tr class="collapse-row">
               <td colspan="6" class="p-0 border-0">
-                <div class="collapse" id="collapseSurvey{{ encuesta.id }}">
+                <div class="collapse survey-collapse" id="collapseSurvey{{ encuesta.id }}">
                   <div class="expandable-content">
                     <div class="row g-4 align-items-center">
                       
@@ -214,10 +239,36 @@
 </div>
 
 <script>
-  // Evitar que el clic en los controles del Expandable cierre la fila
-  document.querySelectorAll('.expandable-content select, .expandable-content button, .expandable-content a').forEach((el) => {
-    el.addEventListener('click', (e) => e.stopPropagation())
-  });
+  document.addEventListener("DOMContentLoaded", function () {
+
+    // Evita cerrar al interactuar con el contenido
+    document.querySelectorAll('.expandable-content select, .expandable-content button, .expandable-content a').forEach((el) => {
+        el.addEventListener('click', (e) => e.stopPropagation());
+    });
+
+    // Mostrar/ocultar fila del collapse
+    document.querySelectorAll('.main-row').forEach(function(row){
+
+        row.addEventListener('click', function(){
+
+            let target = row.getAttribute('data-bs-target');
+            let collapse = document.querySelector(target);
+
+            if(!collapse) return;
+
+            let collapseRow = collapse.closest('tr');
+
+            if(collapse.classList.contains('show')){
+                collapseRow.classList.remove('show-row');
+            }else{
+                collapseRow.classList.add('show-row');
+            }
+
+        });
+
+    });
+
+});
 </script>
 {% endblock %}
 
