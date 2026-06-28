@@ -35,8 +35,9 @@ def crear_categoria_ajax(request):
 
     return JsonResponse({
         'id':     categoria.id,
-        'nombre': categoria.get_nombre_categoria_display(),
+        'nombre': categoria.nombre_categoria,  
     })
+
 @csrf_exempt
 @require_POST
 

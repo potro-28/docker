@@ -193,8 +193,13 @@ class MiPqrs(LoginRequiredMixin, ListView):
     context_object_name = 'lista_pqr'
 
     def get_queryset(self):
+        usuario = getattr(self.request.user, "usuario", None)
+
+        if usuario is None:
+            return Soporte_PQRS.objects.none()
+
         return Soporte_PQRS.objects.filter(
-            fk_usuario=self.request.user.usuario
+            fk_usuario=usuario
         ).order_by('-fecha_ingreso', '-id')
 
 
