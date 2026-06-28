@@ -1,5 +1,5 @@
 from django.db import models
-from datetime import *
+from datetime import datetime, date, timedelta
 from decimal import Decimal
 from django.contrib.auth.models import User
 import qrcode
@@ -117,7 +117,7 @@ class Membresia(models.Model):
         return dias if dias >= 0 else 0
 
     def __str__(self):
-        return str(self.fk_usuario.documento) + ("/") + (self.fk_usuario.nombre_usuario)
+        return f"{self.fk_usuario.nombre_usuario} {self.fk_usuario.apellido_usuario} - {self.id}"
 
     class Meta:
         verbose_name = "Membresia"

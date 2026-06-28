@@ -33,12 +33,6 @@
       </a>
     </li>
 
-    <li class="{% if request.resolver_match.url_name == 'listar_notificacion' %}active{% endif %}">
-      <a href="{% url 'gimnasio:listar_notificacion' %}">
-        <div class="icon-circle"><i class="fas fa-bell"></i></div>
-        <span>Notificaciones</span>
-      </a>
-    </li>
 
     <li class="{% if request.resolver_match.url_name == 'listar_usuario' %}active{% endif %}">
       <a href="{% url 'gimnasio:listar_usuario' %}">

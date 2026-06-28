@@ -30,10 +30,12 @@
     .header-neon h3 i { color: #ffd700; }
 
     /* INPUTS OSCUROS */
-    .form-label-custom { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #a0a0a0; font-weight: 800; margin-bottom: 8px; position: relative; z-index: 2;}
+    .form-label-custom { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #eeeef0; font-weight: 800; margin-bottom: 8px; position: relative; z-index: 2;}
     .input-dark { background: rgba(0,0,0,0.6) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: #fff !important; border-radius: 6px; transition: 0.3s; padding: 12px 15px; font-family: 'Poppins', sans-serif; position: relative; z-index: 2;}
     .input-dark:focus { background: #000 !important; border-color: #ffd700 !important; box-shadow: 0 0 15px rgba(255, 215, 0, 0.3) !important; outline: none;}
     .input-dark::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer;}
+    .input-dark.is-valid { border-color: #2ecc71 !important; box-shadow: 0 0 10px rgba(46, 204, 113, 0.3) !important; }
+    .input-dark.is-invalid { border-color: #ff4d4f !important; box-shadow: 0 0 10px rgba(255, 77, 79, 0.3) !important; }
     
     /* BOTONES HERO SESGADOS */
     .btn-hero-gold {
@@ -52,7 +54,7 @@
 </style>
 
 <div class="container mt-4" style="max-width: 800px;">
-    <form method="post" action="." class="stagger-1">
+    <form method="post" action="." class="stagger-1" id="formMembresia">
         {% csrf_token %}
         <div class="card-dash">
             <div class="header-neon">
@@ -88,9 +90,9 @@
                         {{ field|add_class:'form-control input-dark' }}
                     {% endif %}
 
-                    {% for error in field.errors %}
-                        <div class="text-danger small mt-2 fw-bold" style="color: #ff4d4f !important;"><i class="fas fa-exclamation-triangle"></i> {{ error }}</div>
-                    {% endfor %}
+                    <div class="text-danger small mt-2 fw-bold field-error-msg" id="error_{{ field.id_for_label }}" style="color: #ff4d4f !important;">
+                        {% for error in field.errors %}<i class="fas fa-exclamation-triangle"></i> {{ error }}{% endfor %}
+                    </div>
                 </div>
                 {% endfor %}
             </div>
@@ -126,7 +128,7 @@
           <div class="col-md-6">
             <div class="input-group">
                 <input type="password" id="password" class="form-control input-dark" placeholder="Contraseña" style="border-right: none !important;">
-                <button type="button" class="btn input-dark border-start-0" id="btnTogglePassword"><i class="fas fa-eye" id="iconPassword" style="color: #a0a0a0;"></i></button>
+                <button type="button" class="btn input-dark border-start-0" id="btnTogglePassword"><i class="fas fa-eye" id="iconPassword" style="color: #eeeef0;"></i></button>
             </div>
           </div>
         </div>
@@ -139,11 +141,18 @@
           <div class="col-md-6"><input type="text" id="apellido" class="form-control input-dark" placeholder="Apellidos"></div>
           <div class="col-md-6"><input type="text" id="telefono" class="form-control input-dark" placeholder="Teléfono"></div>
           <div class="col-md-6"><input type="date" id="fecha_nacimiento" class="form-control input-dark" title="Fecha Nacimiento"></div>
-          <div class="col-md-12">
+          <div class="col-md-6">
             <select id="genero" class="form-select input-dark">
               <option value="">Seleccione Género...</option>
               <option value="M">Masculino</option>
               <option value="F">Femenino</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <select id="rol" class="form-select input-dark">
+              <option value="">Seleccione Rol...</option>
+              <option value="Cliente">Cliente</option>
+              <option value="Administrador">Administrador</option>
             </select>
           </div>
         </div>
@@ -168,6 +177,149 @@
 <script src='{% static "js/validation.js" %}'></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+(function () {
+    const fechaInicioInput = document.getElementById("id_fecha_inicio");
+    const fechaFinInput = document.getElementById("id_fecha_fin");
+    const formMembresia = document.getElementById("formMembresia");
+
+    const esEdicion = {{ form.instance.pk|yesno:"true,false" }};
+
+    function setEstado(input, valido, mensaje) {
+        if (!input) return;
+        const errorDiv = document.getElementById("error_" + input.id);
+        input.classList.remove("is-valid", "is-invalid");
+        if (valido === null) {
+            if (errorDiv) errorDiv.innerHTML = "";
+            return;
+        }
+        if (valido) {
+            input.classList.add("is-valid");
+            if (errorDiv) errorDiv.innerHTML = "";
+        } else {
+            input.classList.add("is-invalid");
+            if (errorDiv) errorDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> ' + mensaje;
+        }
+    }
+
+    function hoyStr() {
+        return new Date().toLocaleDateString("en-CA"); // YYYY-MM-DD
+    }
+
+    function sumarDias(fechaStr, dias) {
+        const fecha = new Date(fechaStr + "T00:00:00");
+        fecha.setDate(fecha.getDate() + dias);
+        return fecha.toLocaleDateString("en-CA");
+    }
+
+    // ---------- Validación: fecha_inicio ----------
+    function validarFechaInicio() {
+        if (!fechaInicioInput || !fechaInicioInput.value) {
+            setEstado(fechaInicioInput, null);
+            return;
+        }
+
+        if (!esEdicion) {
+            if (fechaInicioInput.value !== hoyStr()) {
+                setEstado(fechaInicioInput, false, "La fecha de inicio debe ser la actual");
+            } else {
+                setEstado(fechaInicioInput, true);
+            }
+        } else {
+            const [anioSel, mesSel] = fechaInicioInput.value.split("-");
+            const [anioHoy, mesHoy] = hoyStr().split("-");
+            if (anioSel !== anioHoy || mesSel !== mesHoy) {
+                setEstado(fechaInicioInput, false, "La fecha de inicio debe estar dentro del mes y año actual");
+            } else {
+                setEstado(fechaInicioInput, true);
+            }
+        }
+        // Autocompletar fecha_fin = fecha_inicio + 30 días, igual que hace el backend
+        if (fechaFinInput) {
+            fechaFinInput.value = sumarDias(fechaInicioInput.value, 30);
+            validarFechaFin();
+        }
+    }
+
+    // ---------- Validación: fecha_fin ----------
+    function validarFechaFin() {
+        if (!fechaFinInput || !fechaFinInput.value || !fechaInicioInput || !fechaInicioInput.value) {
+            setEstado(fechaFinInput, null);
+            return;
+        }
+
+        const inicio = fechaInicioInput.value;
+        const fin = fechaFinInput.value;
+        const hoy = hoyStr();
+        const maxFin = sumarDias(inicio, 30);
+
+        if (fin === inicio) {
+            setEstado(fechaFinInput, false, "La fecha de finalización no puede ser igual a la fecha de inicio");
+        } else if (fin < inicio) {
+            setEstado(fechaFinInput, false, "La fecha de finalización no puede ser anterior a la fecha de inicio");
+        } else if (fin < hoy) {
+            setEstado(fechaFinInput, false, "La fecha de finalización no puede ser anterior al día de hoy");
+        } else if (fin > maxFin) {
+            setEstado(fechaFinInput, false, "La fecha de finalización no puede ser mayor a un mes");
+        } else if (fin < maxFin) {
+            setEstado(fechaFinInput, false, "La fecha de finalización no puede ser menor a un mes");
+        } else {
+            setEstado(fechaFinInput, true);
+        }
+    }
+
+    // ---------- Validación: selects de membresía (ej. atleta / plan / estado) ----------
+    const selectsMembresia = formMembresia
+        ? Array.from(formMembresia.querySelectorAll("select"))
+        : [];
+
+    function validarSelect(select) {
+        if (!select) return;
+        if (!select.value) {
+            setEstado(select, false, "Debe seleccionar una opción");
+        } else {
+            setEstado(select, true);
+        }
+    }
+
+    selectsMembresia.forEach(function (select) {
+        select.addEventListener("change", function () {
+            validarSelect(select);
+        });
+    });
+
+    if (fechaInicioInput) {
+        fechaInicioInput.addEventListener("input", validarFechaInicio);
+        fechaInicioInput.addEventListener("change", validarFechaInicio);
+    }
+    if (fechaFinInput) {
+        fechaFinInput.addEventListener("input", validarFechaFin);
+        fechaFinInput.addEventListener("change", validarFechaFin);
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        validarFechaInicio();
+        validarFechaFin();
+        selectsMembresia.forEach(validarSelect);
+    });
+
+    // Bloquear envío si queda algún campo en rojo
+    if (formMembresia) {
+        formMembresia.addEventListener("submit", function (e) {
+            selectsMembresia.forEach(validarSelect); // fuerza validación de selects antes de revisar errores
+            const invalidos = formMembresia.querySelectorAll(".is-invalid");
+            if (invalidos.length > 0) {
+                e.preventDefault();
+                Swal.fire({
+                    background: "rgba(10,10,10,0.95)", color: "#fff", icon: "warning",
+                    title: "Revisa el formulario", text: "Corrige los campos marcados en rojo antes de guardar.",
+                    confirmButtonColor: "#ffd700"
+                });
+            }
+        });
+    }
+})();
+</script>
+<script>
     // Toggle Password visualización (Ojo)
     const passwordInput = document.getElementById("password");
     const btnTogglePassword = document.getElementById("btnTogglePassword");
@@ -177,7 +329,7 @@
             const isPassword = passwordInput.type === "password";
             passwordInput.type = isPassword ? "text" : "password";
             iconPassword.className = isPassword ? "fas fa-eye-slash" : "fas fa-eye";
-            iconPassword.style.color = isPassword ? "#ffd700" : "#a0a0a0";
+            iconPassword.style.color = isPassword ? "#ffd700" : "#eeeef0";
         });
     }
 
@@ -202,6 +354,7 @@
             nombre: document.getElementById("nombre").value, apellido: document.getElementById("apellido").value,
             telefono: document.getElementById("telefono").value, fecha_nacimiento: document.getElementById("fecha_nacimiento").value,
             genero: document.getElementById("genero").value, peso: document.getElementById("peso").value, altura: document.getElementById("altura").value,
+            rol: document.getElementById("rol").value,
         };
 
         fetch("{% url 'gimnasio:crear_usuario_ajax' %}", {

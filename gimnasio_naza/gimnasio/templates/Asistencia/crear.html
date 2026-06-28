@@ -3,6 +3,8 @@
 
 {% block contenido %}
 <style>
+    .input-dark.is-valid { border-color: #2ecc71 !important; box-shadow: 0 0 10px rgba(46, 204, 113, 0.3) !important; }
+    .input-dark.is-invalid { border-color: #ff4d4f !important; box-shadow: 0 0 10px rgba(255, 77, 79, 0.3) !important; }
     .stagger-1 { animation: revealBounce 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-delay: 0.1s; opacity: 0; }
     .stagger-2 { animation: revealBounce 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-delay: 0.2s; opacity: 0; }
     @keyframes revealBounce { 
@@ -29,7 +31,7 @@
     .header-neon h3 i { color: #ffd700; }
 
     /* INPUTS OSCUROS */
-    .form-label-custom { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #a0a0a0; font-weight: 800; margin-bottom: 8px; position: relative; z-index: 2;}
+    .form-label-custom { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #eeeef0; font-weight: 800; margin-bottom: 8px; position: relative; z-index: 2;}
     .input-dark { background: rgba(0,0,0,0.6) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: #fff !important; border-radius: 6px; transition: 0.3s; padding: 12px 15px; font-family: 'Poppins', sans-serif; position: relative; z-index: 2;}
     .input-dark:focus { background: #000 !important; border-color: #ffd700 !important; box-shadow: 0 0 15px rgba(255, 215, 0, 0.3) !important; outline: none;}
     .input-dark::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer;}
@@ -44,6 +46,7 @@
     }
     .btn-hero-gold span { transform: skewX(10deg); display: block; }
     .btn-hero-gold:hover { transform: skewX(-10deg) scale(1.05); box-shadow: 0 0 25px #ffd700; background: #fff; color: #000;}
+    .btn-hero-gold:disabled { opacity: 0.5; cursor: not-allowed; transform: skewX(-10deg) scale(1); box-shadow: none; }
 
     /* MODAL WIZARD */
     .modal-dark .modal-content { background: #0a0a0a; border: 1px solid #ffd700; color: #fff; box-shadow: 0 0 50px rgba(0,0,0,0.9); }
@@ -55,7 +58,7 @@
 </style>
 
 <div class="container mt-4" style="max-width: 800px;">
-    <form method="post" class="stagger-1">
+    <form method="post" class="stagger-1" id="formAsistencia">
         {% csrf_token %}
         <div class="card-dash">
             <div class="header-neon">
@@ -65,7 +68,6 @@
             <div class="card-body p-4 p-md-5" style="position: relative; z-index: 2;">
                 {% for field in form.visible_fields %}
                     <div class="mb-4 stagger-2">
-                        <!-- Traducción de etiquetas -->
                         <label class="form-label-custom">
                             {% if field.name == 'fk_membresia' %} Membresía Asociada al Atleta
                             {% elif field.name == 'fk_usuario' %} Seleccionar Atleta
@@ -83,26 +85,25 @@
                             {{ field|add_class:'form-control input-dark' }}
                         {% endif %}
 
-                        {% if field.errors %}
-                            <div class="text-danger small mt-2 fw-bold" style="color: #ff4d4f !important;"><i class="fas fa-exclamation-triangle"></i> {{ field.errors|striptags }}</div>
-                        {% endif %}
+                        <div class="text-danger small mt-2 fw-bold field-error-msg" id="error_{{ field.id_for_label }}" style="color: #ff4d4f !important;">
+                            {% if field.errors %}<i class="fas fa-exclamation-triangle"></i> {{ field.errors|striptags }}{% endif %}
+                        </div>
                     </div>
                 {% endfor %}
             </div>
 
             <div class="card-footer border-0 p-4 p-md-5 pt-0 d-flex gap-3" style="background: transparent; position: relative; z-index: 2;">
-                <button type="submit" class="btn-hero-gold">
+                <button type="submit" class="btn-hero-gold" id="btnGuardarAsistencia">
                     <span><i class="fas fa-save"></i> Guardar</span>
                 </button>
-                <a href="{% url 'gimnasio:listar_asistencia' %}" class="btn-hero-outline" style="background: rgba(255,255,255,0.05); color: #fff; border-color: rgba(255,255,255,0.2);">
-                    <span><i class="fas fa-times"></i> Cancelar</span>
+                <a href="{% url 'gimnasio:listar_asistencia' %}" class="btn-hero-outline" style="background: rgba(255,255,255,0.05); color: #fff; border-color: rgba(255,255,255,0.2); text-decoration: none; padding: 12px 25px; font-size: 13px; text-transform: uppercase; font-weight: 900; display: inline-flex; align-items: center; transform: skewX(-10deg);">
+                    <span style="transform: skewX(10deg);"><i class="fas fa-times"></i> Cancelar</span>
                 </a>
             </div>
         </div>
     </form>
 </div>
 
-<!-- ================= MODAL WIZARD OSCURO ================= -->
 <div class="modal fade modal-dark" id="modalWizard" tabindex="-1">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
@@ -119,7 +120,6 @@
           <span class="wizard-step inactive" id="badge2">2. Membresía</span>
         </div>
 
-        <!-- PASO 1 -->
         <div id="paso1">
           <h6 class="fw-bold text-uppercase mb-3 border-bottom pb-2" style="color: #fff; border-color: rgba(255,255,255,0.05) !important; font-size: 13px;"><i class="fas fa-lock me-2" style="color: #ffd700;"></i> Datos de Acceso</h6>
           <div class="row g-3 mb-4">
@@ -127,7 +127,7 @@
             <div class="col-md-6">
               <div class="input-group">
                 <input type="password" id="password" class="form-control input-dark" placeholder="Contraseña" style="border-right: none !important;">
-                <button type="button" class="btn input-dark border-start-0" id="btnTogglePassword"><i class="fas fa-eye" id="iconPassword" style="color: #a0a0a0;"></i></button>
+                <button type="button" class="btn input-dark border-start-0" id="btnTogglePassword" style="border-left: none !important;"><i class="fas fa-eye" id="iconPassword" style="color: #eeeef0;"></i></button>
               </div>
             </div>
           </div>
@@ -141,10 +141,15 @@
             <div class="col-md-6"><input id="telefono_usuario" class="form-control input-dark" placeholder="Teléfono"></div>
             <div class="col-md-6"><input type="date" id="fecha_nacimiento" class="form-control input-dark" title="Fecha Nacimiento"></div>
             <div class="col-md-12">
-              <select id="genero_usuario" class="form-select input-dark">
+              <select id="genero_usuario" class="form-select input-dark mb-3">
                 <option value="">Seleccione Género...</option>
                 <option value="M">Masculino</option>
                 <option value="F">Femenino</option>
+              </select>
+              <select id="rol" class="form-select input-dark">
+                <option value="">Seleccione Rol</option>
+                <option value="M">Administrador</option>
+                <option value="F">Cliente</option>
               </select>
             </div>
           </div>
@@ -156,7 +161,6 @@
           </div>
         </div>
 
-        <!-- PASO 2 -->
         <div id="paso2" style="display:none;">
           <h6 class="fw-bold text-uppercase mb-3 border-bottom pb-2" style="color: #fff; border-color: rgba(255,255,255,0.05) !important; font-size: 13px;"><i class="fas fa-ticket-alt me-2" style="color: #ffd700;"></i> Configuración Membresía</h6>
           <div class="row g-3">
@@ -180,7 +184,7 @@
       </div>
 
       <div class="modal-footer border-0 p-4" style="background: rgba(0,0,0,0.5);">
-        <button class="btn fw-bold px-4" style="background: rgba(255,255,255,0.05); color: #fff; text-transform: uppercase; font-size: 12px; border: 1px solid rgba(255,255,255,0.1);" onclick="prevPaso()" id="btnPrev" style="display:none;">Volver</button>
+        <button class="btn fw-bold px-4" style="background: rgba(255,255,255,0.05); color: #fff; text-transform: uppercase; font-size: 12px; border: 1px solid rgba(255,255,255,0.1); display: none;" onclick="prevPaso()" id="btnPrev">Volver</button>
         <button class="btn btn-hero-gold px-4" id="btnSiguiente" onclick="nextPaso()"><span>Continuar <i class="fas fa-arrow-right"></i></span></button>
       </div>
     </div>
@@ -200,77 +204,390 @@
         const fmt = (fecha) => fecha.toISOString().split("T")[0];
         const en30 = new Date(hoy);
         en30.setDate(hoy.getDate() + 30);
-        $("fecha_inicio").value = fmt(hoy);
-        $("fecha_fin").value = fmt(en30);
+        if ($("fecha_inicio")) $("fecha_inicio").value = fmt(hoy);
+        if ($("fecha_fin")) $("fecha_fin").value = fmt(en30);
+        if (window.validarFechasMembresia) validarFechasMembresia();
     }
 
     function mostrarPaso() {
         for (let i = 1; i <= 2; i++) {
-            $("paso" + i).style.display = i === paso ? "block" : "none";
-            $("badge" + i).classList.toggle("active", i === paso);
-            $("badge" + i).classList.toggle("inactive", i !== paso);
+            if ($("paso" + i)) $("paso" + i).style.display = i === paso ? "block" : "none";
+            if ($("badge" + i)) {
+                $("badge" + i).classList.toggle("active", i === paso);
+                $("badge" + i).classList.toggle("inactive", i !== paso);
+            }
         }
-        btnSiguiente.innerHTML = paso === 2 ? '<span><i class="fas fa-save"></i> Guardar</span>' : '<span>Continuar <i class="fas fa-arrow-right"></i></span>';
+        if (btnSiguiente) btnSiguiente.innerHTML = paso === 2 ? '<span><i class="fas fa-save"></i> Guardar</span>' : '<span>Continuar <i class="fas fa-arrow-right"></i></span>';
         let btnPrev = document.getElementById("btnPrev");
-        if(btnPrev) { btnPrev.style.display = paso === 1 ? "none" : "inline-block"; }
+        if (btnPrev) { btnPrev.style.display = paso === 1 ? "none" : "inline-block"; }
     }
 
-    function validarPaso1() {
-        let errorConf = { background: "rgba(10,10,10,0.95)", color: "#fff", icon: "warning", confirmButtonColor: "#ffd700", customClass: { popup: 'border border-warning' } };
-        if (!$("username").value.trim()) { Swal.fire({...errorConf, title: "Falta Dato", text: "Ingrese el username"}); return false; }
-        if (!$("password").value.trim()) { Swal.fire({...errorConf, title: "Falta Dato", text: "Ingrese la contraseña"}); return false; }
-        if (!$("documento").value.trim()) { Swal.fire({...errorConf, title: "Falta Dato", text: "Ingrese el documento"}); return false; }
-        if (!$("nombre_usuario").value.trim()) { Swal.fire({...errorConf, title: "Falta Dato", text: "Ingrese el nombre"}); return false; }
-        return true;
+    function abrirWizard() {
+        if (!$("modalWizard")) return;
+        limpiarFormulario();
+        paso = 1;
+        setFechasDefault();
+        mostrarPaso();
+        new bootstrap.Modal($("modalWizard")).show();
     }
 
-    function abrirWizard() { paso = 1; setFechasDefault(); mostrarPaso(); new bootstrap.Modal($("modalWizard")).show(); }
-    function nextPaso() { if (paso === 1) { if (!validarPaso1()) return; paso++; mostrarPaso(); return; } guardarTodo(); }
+    function nextPaso() {
+        if (paso === 1) {
+            validarTodoPaso1();
+            const camposPaso1 = ["username", "password", "documento", "correo_usuario", "nombre_usuario", "apellido_usuario", "telefono_usuario", "fecha_nacimiento", "genero_usuario", "rol"];
+            const tieneErrores = camposPaso1.some(id => $(id) && $(id).classList.contains("is-invalid"));
+            const estanVaciosObligatorios = ["username", "password", "documento", "nombre_usuario"].some(id => $(id) && !$(id).value.trim());
+
+            if (tieneErrores || estanVaciosObligatorios) {
+                Swal.fire({ background: "rgba(10,10,10,0.95)", color: "#fff", icon: "warning", title: "Campos incorrectos", text: "Por favor, corrige o completa los campos requeridos en rojo.", confirmButtonColor: "#ffd700" });
+                return;
+            }
+            paso++;
+            mostrarPaso();
+            return;
+        }
+
+        // Validar paso 2 (membresía) antes de guardar
+        if (window.validarFechasMembresia) validarFechasMembresia();
+        const camposPaso2 = ["fecha_inicio", "fecha_fin"];
+        const tieneErroresPaso2 = camposPaso2.some(id => $(id) && $(id).classList.contains("is-invalid"));
+
+        if (tieneErroresPaso2) {
+            Swal.fire({ background: "rgba(10,10,10,0.95)", color: "#fff", icon: "warning", title: "Fechas inválidas", text: "Corrige las fechas de membresía antes de guardar.", confirmButtonColor: "#ffd700" });
+            return;
+        }
+
+        guardarTodo();
+    }
+
     function prevPaso() { if (paso > 1) { paso--; mostrarPaso(); } }
 
     function obtenerDatos() {
         return {
-            username: $("username").value.trim(), password: $("password").value, documento: $("documento").value.trim(),
-            nombre_usuario: $("nombre_usuario").value.trim(), apellido_usuario: $("apellido_usuario").value.trim(),
-            correo_usuario: $("correo_usuario").value.trim(), telefono_usuario: $("telefono_usuario").value.trim(),
-            fecha_nacimiento: $("fecha_nacimiento").value, peso_usuario: parseFloat($("peso_usuario").value) || null,
-            altura_usuario: parseFloat($("altura_usuario").value) || null, genero_usuario: $("genero_usuario").value,
-            fecha_inicio: $("fecha_inicio").value, fecha_fin: $("fecha_fin").value, estado_membresia: $("estado_membresia").value
+            username: $("username") ? $("username").value.trim() : "",
+            password: $("password") ? $("password").value : "",
+            documento: $("documento") ? $("documento").value.trim() : "",
+            nombre_usuario: $("nombre_usuario") ? $("nombre_usuario").value.trim() : "",
+            apellido_usuario: $("apellido_usuario") ? $("apellido_usuario").value.trim() : "",
+            correo_usuario: $("correo_usuario") ? $("correo_usuario").value.trim() : "",
+            telefono_usuario: $("telefono_usuario") ? $("telefono_usuario").value.trim() : "",
+            fecha_nacimiento: $("fecha_nacimiento") ? $("fecha_nacimiento").value : "",
+            peso_usuario: $("peso_usuario") ? (parseFloat($("peso_usuario").value) || null) : null,
+            altura_usuario: $("altura_usuario") ? (parseFloat($("altura_usuario").value) || null) : null,
+            genero_usuario: $("genero_usuario") ? $("genero_usuario").value : "",
+            rol: $("rol") ? $("rol").value : "",
+            fecha_inicio: $("fecha_inicio") ? $("fecha_inicio").value : "",
+            fecha_fin: $("fecha_fin") ? $("fecha_fin").value : "",
+            estado_membresia: $("estado_membresia") ? $("estado_membresia").value : ""
         };
     }
 
     function limpiarFormulario() {
-        document.querySelectorAll("#modalWizard input, #modalWizard select").forEach(c => { if (c.type !== "date") { c.value = ""; } });
-        setFechasDefault(); paso = 1; mostrarPaso();
+        document.querySelectorAll("#modalWizard input, #modalWizard select").forEach(c => {
+            if (c.type !== "date") { c.value = ""; }
+            c.classList.remove("is-valid", "is-invalid");
+            const err = document.getElementById("err_wizard_" + c.id);
+            if (err) err.innerHTML = "";
+        });
+        setFechasDefault();
+        paso = 1;
     }
 
     function guardarTodo() {
         const data = obtenerDatos();
-        btnSiguiente.disabled = true; btnSiguiente.innerHTML = "<span>Procesando...</span>";
+        if (btnSiguiente) {
+            btnSiguiente.disabled = true;
+            btnSiguiente.innerHTML = "<span>Procesando...</span>";
+        }
 
         fetch("{% url 'gimnasio:wizard_asistencia' %}", {
             method: "POST", headers: { "Content-Type": "application/json", "X-CSRFToken": "{{ csrf_token }}" }, body: JSON.stringify(data)
         }).then(res => res.json()).then(res => {
-            if (res.error) { Swal.fire({background: "rgba(10,10,10,0.95)", color: "#fff", icon: "error", title: "Error", text: res.error, customClass: { popup: 'border border-danger' }}); return; }
+            if (res.error) { Swal.fire({ background: "rgba(10,10,10,0.95)", color: "#fff", icon: "error", title: "Error", text: res.error, customClass: { popup: 'border border-danger' } }); return; }
             const select = $("id_fk_membresia");
             if (select) { select.add(new Option(res.nombre, res.id, true, true)); select.dispatchEvent(new Event("change")); }
-            bootstrap.Modal.getInstance($("modalWizard")).hide(); limpiarFormulario();
-            Swal.fire({background: "rgba(10,10,10,0.95)", color: "#fff", icon: "success", title: "Atleta Creado", text: "Registro exitoso", confirmButtonColor: "#ffd700", customClass: { popup: 'border border-warning' }});
-        }).catch(() => { Swal.fire({background: "rgba(10,10,10,0.95)", color: "#fff", icon: "error", title: "Error", text: "Fallo de servidor"}); })
-        .finally(() => { btnSiguiente.disabled = false; btnSiguiente.innerHTML = paso === 2 ? '<span><i class="fas fa-save"></i> Guardar</span>' : '<span>Continuar <i class="fas fa-arrow-right"></i></span>'; });
+            if ($("modalWizard")) bootstrap.Modal.getInstance($("modalWizard")).hide();
+            limpiarFormulario();
+            Swal.fire({ background: "rgba(10,10,10,0.95)", color: "#fff", icon: "success", title: "Atleta Creado", text: "Registro exitoso", confirmButtonColor: "#ffd700", customClass: { popup: 'border border-warning' } });
+        }).catch(() => { Swal.fire({ background: "rgba(10,10,10,0.95)", color: "#fff", icon: "error", title: "Error", text: "Fallo de servidor" }); })
+            .finally(() => {
+                if (btnSiguiente) {
+                    btnSiguiente.disabled = false;
+                    btnSiguiente.innerHTML = paso === 2 ? '<span><i class="fas fa-save"></i> Guardar</span>' : '<span>Continuar <i class="fas fa-arrow-right"></i></span>';
+                }
+            });
     }
 
     // Toggle Password visualización (Ojo)
     const passwordInput = document.getElementById("password");
     const btnTogglePassword = document.getElementById("btnTogglePassword");
     const iconPassword = document.getElementById("iconPassword");
-    if (btnTogglePassword) {
+    if (passwordInput && btnTogglePassword && iconPassword) {
         btnTogglePassword.addEventListener("click", function () {
             const isPassword = passwordInput.type === "password";
             passwordInput.type = isPassword ? "text" : "password";
             iconPassword.className = isPassword ? "fas fa-eye-slash" : "fas fa-eye";
-            iconPassword.style.color = isPassword ? "#ffd700" : "#a0a0a0";
+            iconPassword.style.color = isPassword ? "#ffd700" : "#eeeef0";
         });
     }
+
+    // ================= VALIDACIONES EN TIEMPO REAL DEL WIZARD Y ASISTENCIA =================
+    (function () {
+        function renderEstado(input, valido, mensaje = "") {
+            if (!input) return;
+            const errorDiv = document.getElementById("err_wizard_" + input.id) || document.getElementById("error_" + input.id);
+            input.classList.remove("is-valid", "is-invalid");
+            if (valido === null) {
+                if (errorDiv) errorDiv.innerHTML = "";
+                return;
+            }
+            if (valido) {
+                input.classList.add("is-valid");
+                if (errorDiv) errorDiv.innerHTML = "";
+            } else {
+                input.classList.add("is-invalid");
+                if (errorDiv) errorDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${mensaje}`;
+            }
+        }
+
+        // --- VALIDACIONES BACKEND EN TIEMPO REAL (AJAX) ---
+    function validarBackend(input, campo, valor) {
+        if (!valor.trim()) return;
+
+        // Mientras se espera la respuesta del servidor, no dejamos
+        // un mensaje de error viejo pegado en el campo.
+        renderEstado(input, null);
+
+        fetch(`/gimnasio/validar-atleta/?campo=${campo}&valor=${encodeURIComponent(valor)}`)
+            .then(res => {
+                if (!res.ok) throw new Error("Respuesta no válida del servidor");
+                return res.json();
+            })
+            .then(data => {
+                if (data.existe) {
+                    renderEstado(input, false, data.mensaje || `Este ${campo} ya se encuentra registrado.`);
+                } else {
+                    renderEstado(input, true);
+                }
+            })
+            .catch(() => {
+                // Si el endpoint falla, no dejamos el campo marcado en rojo
+                // con un mensaje de validación local que ya no aplica.
+                renderEstado(input, true);
+            });
+    }
+        // Helper seguro: solo agrega el listener si el elemento existe
+        function on(id, evento, handler) {
+            const el = $(id);
+            if (el) el.addEventListener(evento, handler);
+        }
+
+        // --- Si el modal del wizard existe, inyectamos los contenedores de error y sus listeners ---
+        if ($("modalWizard")) {
+            document.querySelectorAll("#modalWizard .form-control, #modalWizard .form-select").forEach(input => {
+                if (!document.getElementById("err_wizard_" + input.id)) {
+                    const errDiv = document.createElement("div");
+                    errDiv.id = "err_wizard_" + input.id;
+                    errDiv.className = "text-danger small mt-1 fw-bold";
+                    errDiv.style.color = "#ff4d4f";
+                    if (input.id === "password" && input.closest(".input-group")) {
+                        input.closest(".input-group").after(errDiv);
+                    } else {
+                        input.after(errDiv);
+                    }
+                }
+            });
+
+            on("username", "input", function () {
+                if (!this.value.trim()) { renderEstado(this, false, "El nombre de usuario es requerido."); return; }
+                if (this.value.length < 4) { renderEstado(this, false, "Debe tener al menos 4 caracteres."); return; }
+                validarBackend(this, "username", this.value);
+            });
+
+            on("password", "input", function () {
+                if (!this.value.trim()) { renderEstado(this, false, "La contraseña es requerida."); return; }
+                if (this.value.length < 6) { renderEstado(this, false, "Debe contener mínimo 6 caracteres."); return; }
+                renderEstado(this, true);
+            });
+
+            on("documento", "input", function () {
+                if (!this.value.trim()) { renderEstado(this, false, "El documento es requerido."); return; }
+                if (!/^\d+$/.test(this.value)) { renderEstado(this, false, "Solo se admiten números."); return; }
+                validarBackend(this, "documento", this.value);
+            });
+
+            on("correo_usuario", "input", function () {
+                if (!this.value.trim()) { renderEstado(this, null); return; }
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(this.value)) { renderEstado(this, false, "Formato de correo inválido."); return; }
+                validarBackend(this, "correo", this.value);
+            });
+
+            on("nombre_usuario", "input", function () {
+                if (!this.value.trim()) { renderEstado(this, false, "El nombre es requerido."); return; }
+                renderEstado(this, true);
+            });
+
+            on("apellido_usuario", "input", function () {
+                renderEstado(this, this.value.trim() ? true : null);
+            });
+
+            on("telefono_usuario", "input", function () {
+                if (!this.value.trim()) { renderEstado(this, null); return; }
+                if (!/^\+?\d{7,15}$/.test(this.value)) { renderEstado(this, false, "Número de teléfono inválido."); return; }
+                renderEstado(this, true);
+            });
+
+            on("fecha_nacimiento", "change", function () {
+                if (!this.value) { renderEstado(this, null); return; }
+                const edad = new Date().getFullYear() - new Date(this.value).getFullYear();
+                if (edad < 12 || edad > 90) { renderEstado(this, false, "Edad permitida entre 12 y 90 años."); return; }
+                renderEstado(this, true);
+            });
+
+            ["genero_usuario", "rol", "estado_membresia"].forEach(id => {
+                on(id, "change", function () {
+                    renderEstado(this, this.value ? true : null);
+                });
+            });
+
+            // --- VALIDACIÓN FECHAS DE MEMBRESÍA (igual a MembresiaForm.clean) ---
+            function validarFechasMembresia() {
+                const inputInicio = $("fecha_inicio");
+                const inputFin = $("fecha_fin");
+                if (!inputInicio || !inputFin) return;
+
+                const inicioStr = inputInicio.value;
+                const finStr = inputFin.value;
+
+                if (!inicioStr) {
+                    renderEstado(inputInicio, false, "La fecha de inicio es requerida.");
+                } else {
+                    const hoyStr = new Date().toLocaleDateString("en-CA");
+                    if (inicioStr !== hoyStr) {
+                        renderEstado(inputInicio, false, "La fecha de inicio debe ser la actual.");
+                    } else {
+                        renderEstado(inputInicio, true);
+                    }
+                }
+
+                if (!finStr) {
+                    renderEstado(inputFin, false, "La fecha de fin es requerida.");
+                    return;
+                }
+
+                if (!inicioStr) {
+                    renderEstado(inputFin, null);
+                    return;
+                }
+
+                const inicio = new Date(inicioStr + "T00:00:00");
+                const fin = new Date(finStr + "T00:00:00");
+                const hoy = new Date(new Date().toLocaleDateString("en-CA") + "T00:00:00");
+
+                const esperada = new Date(inicio);
+                esperada.setDate(esperada.getDate() + 30);
+
+                if (fin < hoy) {
+                    renderEstado(inputFin, false, "La fecha de finalización no puede ser anterior al día de hoy.");
+                } else if (fin.getTime() === inicio.getTime()) {
+                    renderEstado(inputFin, false, "La fecha de finalización no puede ser igual a la fecha de inicio.");
+                } else if (fin < inicio) {
+                    renderEstado(inputFin, false, "La fecha de finalización no puede ser anterior a la fecha de inicio.");
+                } else if (fin.getTime() > esperada.getTime()) {
+                    renderEstado(inputFin, false, "La fecha de finalización no puede ser mayor a un mes.");
+                } else if (fin.getTime() < esperada.getTime()) {
+                    renderEstado(inputFin, false, "La fecha de finalización no puede ser menor a un mes.");
+                } else {
+                    renderEstado(inputFin, true);
+                }
+            }
+            window.validarFechasMembresia = validarFechasMembresia;
+
+            on("fecha_inicio", "input", validarFechasMembresia);
+            on("fecha_inicio", "change", validarFechasMembresia);
+            on("fecha_fin", "input", validarFechasMembresia);
+            on("fecha_fin", "change", validarFechasMembresia);
+
+            window.validarTodoPaso1 = function () {
+                ["username", "password", "documento", "nombre_usuario"].forEach(id => {
+                    const el = $(id);
+                    if (el && !el.value.trim()) renderEstado(el, false, "Este campo es obligatorio.");
+                });
+            };
+        } else {
+            // El modal del wizard no existe en esta plantilla: no-op para evitar errores si se llaman
+            window.validarFechasMembresia = function () {};
+            window.validarTodoPaso1 = function () {};
+        }
+
+        // ---------- VALIDACIONES DEL FORMULARIO BASE (ASISTENCIA) ----------
+        const fechaInput = document.getElementById("id_fecha_asistencia");
+        const horaInput = document.getElementById("id_hora_ingreso");
+        const formAsistencia = document.getElementById("formAsistencia");
+        const esEdicion = {{ form.instance.pk|yesno:"true,false" }};
+
+        function inicioFinSemana() {
+            const hoy = new Date();
+            const diaSemana = (hoy.getDay() + 6) % 7; // 0 = lunes ... 6 = domingo
+            const lunes = new Date(hoy);
+            lunes.setDate(hoy.getDate() - diaSemana);
+            const domingo = new Date(lunes);
+            domingo.setDate(lunes.getDate() + 6);
+            const fmt = (f) => f.toLocaleDateString("en-CA");
+            return { lunes: fmt(lunes), domingo: fmt(domingo) };
+        }
+
+        function validarFecha() {
+            if (!fechaInput || !fechaInput.value) { renderEstado(fechaInput, null); return; }
+
+            if (!esEdicion) {
+                const hoyStr = new Date().toLocaleDateString("en-CA");
+                if (fechaInput.value !== hoyStr) {
+                    renderEstado(fechaInput, false, "Al crear una asistencia, la fecha debe ser la actual");
+                } else {
+                    renderEstado(fechaInput, true);
+                }
+            } else {
+                const { lunes, domingo } = inicioFinSemana();
+                if (fechaInput.value < lunes || fechaInput.value > domingo) {
+                    renderEstado(fechaInput, false, "La fecha debe estar dentro de la semana actual (lunes a domingo)");
+                } else {
+                    renderEstado(fechaInput, true);
+                }
+            }
+        }
+
+        function aMinutos(horaStr) {
+            const [h, m] = horaStr.split(":").map(Number);
+            return h * 60 + m;
+        }
+
+        function validarHora() {
+            if (!horaInput || !horaInput.value) { renderEstado(horaInput, null); return; }
+            const minutos = aMinutos(horaInput.value);
+            if (minutos >= 720 && minutos <= 1020) renderEstado(horaInput, false, "No se permiten registros entre las 12:00 PM y las 5:00 PM");
+            else if (minutos >= 1260 || minutos < 300) renderEstado(horaInput, false, "No se permiten registros entre las 9:00 PM y las 5:00 AM");
+            else renderEstado(horaInput, true);
+        }
+
+        if (fechaInput) { fechaInput.addEventListener("input", validarFecha); fechaInput.addEventListener("change", validarFecha); }
+        if (horaInput) { horaInput.addEventListener("input", validarHora); horaInput.addEventListener("change", validarHora); }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            validarFecha();
+            validarHora();
+        });
+
+        if (formAsistencia) {
+            formAsistencia.addEventListener("submit", function (e) {
+                if (formAsistencia.querySelectorAll(".is-invalid").length > 0) {
+                    e.preventDefault();
+                    Swal.fire({ background: "rgba(10,10,10,0.95)", color: "#fff", icon: "warning", title: "Revisa el formulario", text: "Corrige los campos marcados en rojo antes de guardar.", confirmButtonColor: "#ffd700" });
+                }
+            });
+        }
+    })();
+</script>
 </script>
 {% endblock %}
