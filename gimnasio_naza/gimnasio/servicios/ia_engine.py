@@ -66,7 +66,7 @@ class MotorRecomendacionGym:
             }}
             """
 
-            # ====== CORRECCIÓN DE RENDIMIENTO Y GPU ======
+            # ======  RENDIMIENTO Y GPU ======
             response = requests.post(self.ollama_url, json={
                 "model": self.modelo,
                 "prompt": prompt,

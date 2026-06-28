@@ -1,173 +1,220 @@
 {% load static %}
 
-<aside class="sidebar" id="sidebar">
-  <div class="user-panel">
-    <div class="profile-img-wrapper">
-      <a href="{% url 'gimnasio:perfil_usuario' %}" class="profile-link">
-        {% if user.usuario.foto %}
-          <img src="{{ user.usuario.foto.url }}" alt="Usuario" />
-        {% else %}
-          <img src="{% static 'img/img_usuario.png' %}" alt="Usuario" />
-        {% endif %}
-      </a>
-    </div>
-    <h3>{{ user.get_full_name|default:user.username }}</h3>
-    <div class="badge-plan"><a href='{% url "gimnasio:dashboard" %}'>Gym Nazareth</a></div>
-  </div>
+<style>
+    /* =========================================
+       DISEÑO PREMIUM DEL MENÚ LATERAL (ASIDE)
+       ========================================= */
+    .sidebar-neon {
+        background: #050505;
+        border-right: 1px solid rgba(255,215,0,0.1);
+        height: 100vh;
+        overflow-y: auto;
+        padding-bottom: 30px;
+    }
 
-  <ul class="nav-menu">
+    .sidebar-neon::-webkit-scrollbar { width: 5px; }
+    .sidebar-neon::-webkit-scrollbar-thumb { background: rgba(255,215,0,0.3); border-radius: 5px; }
 
-    {% if user.usuario.rol == 'Administrador' or user.is_superuser %}
-
-    <li class="{% if request.resolver_match.url_name == 'listar_asistencia' %}active{% endif %}">
-      <a href="{% url 'gimnasio:listar_asistencia' %}">
-        <div class="icon-circle"><i class="fas fa-calendar-check"></i></div>
-        <span>Asistencia</span>
-      </a>
-    </li>
-
-    <li class="{% if request.resolver_match.url_name == 'listar_membresia' %}active{% endif %}">
-      <a href="{% url 'gimnasio:listar_membresia' %}">
-        <div class="icon-circle"><i class="fas fa-crown"></i></div>
-        <span>Membresía</span>
-      </a>
-    </li>
-
-    <li class="{% if request.resolver_match.url_name == 'listar_notificacion' %}active{% endif %}">
-      <a href="{% url 'gimnasio:listar_notificacion' %}">
-        <div class="icon-circle"><i class="fas fa-bell"></i></div>
-        <span>Notificaciones</span>
-      </a>
-    </li>
-
-    <li class="{% if request.resolver_match.url_name == 'listar_usuario' %}active{% endif %}">
-      <a href="{% url 'gimnasio:listar_usuario' %}">
-        <div class="icon-circle"><i class="fas fa-users"></i></div>
-        <span>Usuarios</span>
-      </a>
-    </li>
-
-    <li class="{% if request.resolver_match.url_name == 'listar_registrovisitante' %}active{% endif %}">
-      <a href="{% url 'gimnasio:listar_registrovisitante' %}">
-        <div class="icon-circle"><i class="fas fa-walking"></i></div>
-        <span>Registro Visitantes</span>
-      </a>
-    </li>
-
-    {% endif %}
-
-    <li class="{% if request.resolver_match.url_name == 'listar_nutriciones' %}active{% endif %}">
-      <a href="{% if user.usuario.rol == 'Administrador' or user.is_superuser %}{% url 'gimnasio:listar_nutriciones' %}{% else %}{% url 'usuarios:mi_nutricion' %}{% endif %}">
-        <div class="icon-circle"><i class="fas fa-utensils"></i></div>
-        <span>Nutrición</span>
-      </a>
-    </li>
-
-    <li class="{% if request.resolver_match.url_name == 'listar_rutinas' %}active{% endif %}">
-      <a href="{% if user.usuario.rol == 'Administrador' or user.is_superuser %}{% url "gimnasio:listar_rutinas" %}{% else %}{% url "usuarios:mi_rutina" %}{% endif %}">
-        <div class="icon-circle"><i class="fas fa-dumbbell"></i></div>
-        <span>Rutinas</span>
-      </a>
-    </li>
-
-    {% if user.usuario.rol == 'Administrador' or user.is_superuser %}
-
-    <li class="{% if request.resolver_match.url_name == 'listar_masa_corporal_clas' %}active{% endif %}">
-      <a href="{% url 'gimnasio:listar_masa_corporal_clas' %}">
-        <div class="icon-circle"><i class="fas fa-weight"></i></div>
-        <span>Masa Corporal</span>
-      </a>
-    </li>
-
-    {% endif %}
+    /* PANEL DE USUARIO */
+    .user-panel-neon {
+        text-align: center;
+        padding: 30px 15px 20px;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        margin-bottom: 15px;
+    }
+    .profile-img-wrapper img {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #ffd700;
+        box-shadow: 0 0 15px rgba(255,215,0,0.3);
+        margin-bottom: 15px;
+        transition: 0.3s;
+    }
+    .profile-img-wrapper img:hover { transform: scale(1.05); }
     
-    <li class="{% if request.resolver_match.url_name == 'listar_certificacioninterna' %}active{% endif %}">
-       <a href="{% if user.usuario.rol == 'Administrador' or user.is_superuser %}{% url "gimnasio:listar_certificacioninterna" %}{% else %}{% url "usuarios:mi_certificacion" %}{% endif %}">
-        <div class="icon-circle"><i class="fas fa-medal"></i></div>
-        <span>Certificaciones</span>
-      </a>
-    </li>
+    .user-name { color: #fff; font-size: 16px; font-weight: 900; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px;}
+    .user-role { background: rgba(255,215,0,0.1); color: #ffd700; border: 1px solid #ffd700; padding: 3px 10px; border-radius: 15px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;}
 
-    {% if user.usuario.rol == 'Administrador' or user.is_superuser %}
+    /* ITEMS PRINCIPALES (DROPDOWNS) */
+    .nav-menu-neon { list-style: none; padding: 0 15px; margin: 0; }
+    .nav-item-neon { margin-bottom: 5px; }
+    
+    .nav-link-neon {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 12px 18px; color: #a0a0a0; text-decoration: none;
+        border-radius: 8px; transition: all 0.3s ease;
+        font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;
+        cursor: pointer;
+    }
+    .nav-link-neon:hover, .nav-link-neon[aria-expanded="true"] {
+        background: rgba(255,215,0,0.05); color: #ffd700;
+    }
+    
+    .nav-link-neon .menu-title { display: flex; align-items: center; gap: 12px; }
+    .nav-link-neon i.main-icon { color: #ffd700; font-size: 18px; width: 22px; text-align: center; }
+    .nav-link-neon i.arrow { transition: transform 0.3s ease; font-size: 12px; }
+    .nav-link-neon[aria-expanded="true"] i.arrow { transform: rotate(90deg); }
 
-    <li class="{% if request.resolver_match.url_name == 'listar_elementos' %}active{% endif %}">
-      <a href="{% url 'gimnasio:listar_elementos' %}">
-        <div class="icon-circle"><i class="fas fa-box"></i></div>
-        <span>Elementos</span>
-      </a>
-    </li>
+    /* SUBMENU (ENLACES HIJOS) */
+    .submenu-neon {
+        list-style: none; padding-left: 45px; margin: 5px 0 10px 0;
+    }
+    .submenu-neon li { margin-bottom: 2px; }
+    .submenu-neon li a {
+        display: block; padding: 8px 15px; color: #8b9eb0; text-decoration: none;
+        font-size: 12px; font-weight: 600; border-radius: 6px; transition: 0.3s;
+    }
+    .submenu-neon li a:hover {
+        background: rgba(255,255,255,0.05); color: #fff; border-left: 2px solid #ffd700;
+    }
+    .submenu-neon li.active a {
+        background: rgba(255,215,0,0.1); color: #ffd700; border-left: 3px solid #ffd700; font-weight: 800;
+    }
+</style>
 
-    <li class="{% if request.resolver_match.url_name == 'listar_mantenimiento' %}active{% endif %}">
-      <a href="{% url 'gimnasio:listar_mantenimiento' %}">
-        <div class="icon-circle"><i class="fas fa-tools"></i></div>
-        <span>Mantenimiento</span>
-      </a>
-    </li>
+<aside class="sidebar-neon" id="sidebar">
+    
+    <!-- PANEL DE USUARIO -->
+    <div class="user-panel-neon">
+        <div class="profile-img-wrapper">
+            <a href="{% url 'gimnasio:perfil_usuario' %}">
+                {% if user.usuario.foto %}
+                    <img src="{{ user.usuario.foto.url }}" alt="Avatar" />
+                {% else %}
+                    <img src="{% static 'img/img_usuario.png' %}" alt="Avatar" />
+                {% endif %}
+            </a>
+        </div>
+        <h3 class="user-name">{{ user.get_full_name|default:user.username }}</h3>
+        <span class="user-role">{{ user.usuario.rol|default:'Usuario' }}</span>
+    </div>
 
-    <li class="{% if request.resolver_match.url_name == 'listar_Reportes_estadisticas' %}active{% endif %}">
-      <a href="{% url 'gimnasio:listar_Reportes_estadisticas' %}">
-        <div class="icon-circle"><i class="fas fa-chart-bar"></i></div>
-        <span>Reportes</span>
-      </a>
-    </li>
+    <!-- MENÚ ACORDEÓN -->
+    <ul class="nav-menu-neon" id="sidebarAccordion">
 
-    <li class="{% if request.resolver_match.url_name == 'listar_categorias' %}active{% endif %}">
-      <a href="{% url 'gimnasio:listar_categorias' %}">
-        <div class="icon-circle"><i class="fas fa-tags"></i></div>
-        <span>Categoría</span>
-      </a>
-    </li>
+        <!-- INICIO (DASHBOARD) -->
+        <li class="nav-item-neon">
+            <a href="{% url 'gimnasio:dashboard' %}" class="nav-link-neon" style="background: rgba(255,215,0,0.1); color: #ffd700; border: 1px solid rgba(255,215,0,0.2);">
+                <div class="menu-title"><i class="fas fa-home main-icon"></i> <span>Dashboard Central</span></div>
+            </a>
+        </li>
 
-    <li class="{% if request.resolver_match.url_name == 'listar_turnodeentrenador' %}active{% endif %}">
-      <a href="{% url 'gimnasio:listar_turnodeentrenador' %}">
-        <div class="icon-circle"><i class="fas fa-clock"></i></div>
-        <span>Turnos Entrenadores</span>
-      </a>
-    </li>
+        <hr style="border-color: rgba(255,255,255,0.05); margin: 15px 0;">
 
-    {% endif %}
+        {% if user.usuario.rol == 'Administrador' or user.is_superuser %}
 
-    {% if user.usuario.rol == 'Administrador' or user.is_superuser %}
-    <li class="{% if request.resolver_match.url_name == 'listar_encuestas' %}active{% endif %}">
-      <a href="{% url 'gimnasio:listar_encuestas' %}">
-        <div class="icon-circle"><i class="fas fa-question-circle"></i></div>
-        <span>Encuestas</span>
-      </a>
-    </li>
+        <!-- 1. RECEPCIÓN & ACCESOS -->
+        <li class="nav-item-neon">
+            <a href="#menuRecepcion" data-bs-toggle="collapse" class="nav-link-neon" aria-expanded="false">
+                <div class="menu-title"><i class="fas fa-calendar-check main-icon"></i> <span>Recepción</span></div>
+                <i class="fas fa-chevron-right arrow"></i>
+            </a>
+            <ul class="collapse submenu-neon" id="menuRecepcion" data-bs-parent="#sidebarAccordion">
+                <li><a href="{% url 'gimnasio:listar_asistencia' %}">Control Asistencias</a></li>
+                <li><a href="{% url 'gimnasio:listar_turnodeentrenador' %}">Turnos Entrenadores</a></li>
+                <li><a href="{% url 'gimnasio:listar_registrovisitante' %}">Pases Temporales</a></li>
+            </ul>
+        </li>
 
-    {% endif %}
-    {% if user.usuario.rol == 'Cliente' %}
-    <li class="{% if request.resolver_match.url_name == 'listar_Soporte_PQRS' %}active{% endif %}">
-      <a href="{% url 'gimnasio:listar_Soporte_PQRS' %}">
-        <div class="icon-circle"><i class="fas fa-headset"></i></div>
-        <span>Soporte PQRS</span>
-      </a>
-    </li>
-    {% endif %}
+        <!-- 2. GESTIÓN DE ATLETAS -->
+        <li class="nav-item-neon">
+            <a href="#menuAtletas" data-bs-toggle="collapse" class="nav-link-neon" aria-expanded="false">
+                <div class="menu-title"><i class="fas fa-users main-icon"></i> <span>Gestión Atletas</span></div>
+                <i class="fas fa-chevron-right arrow"></i>
+            </a>
+            <ul class="collapse submenu-neon" id="menuAtletas" data-bs-parent="#sidebarAccordion">
+                <li><a href="{% url 'gimnasio:listar_usuario' %}">Directorio Usuarios</a></li>
+                <li><a href="{% url 'gimnasio:listar_membresia' %}">Suscripciones / Membresías</a></li>
+                <li><a href="{% url 'gimnasio:listar_rutinas' %}">Planes de Entrenamiento</a></li>
+                <li><a href="{% url 'gimnasio:listar_nutriciones' %}">Controles Nutricionales</a></li>
+                <li><a href="{% url 'gimnasio:listar_masa_corporal_clas' %}">Control Masa Corporal</a></li>
+            </ul>
+        </li>
 
-    <li class="{% if request.resolver_match.url_name == 'listar_sanciones_clas' %}active{% endif %}">
-       <a href="{% if user.usuario.rol == 'Administrador' or user.is_superuser %}{% url "gimnasio:listar_sanciones_clas" %}{% else %}{% url "usuarios:mi_sancion" %}{% endif %}">
-        <div class="icon-circle"><i class="fas fa-exclamation-triangle"></i></div>
-        <span>Sanciones</span>
-      </a>
-    </li>
-    {% if user.usuario.rol == 'Cliente' %}
-    <li class="{% if request.resolver_match.url_name == 'mis_encuestas' %}active{% endif %}">
-      <a href="{% url 'usuarios:mis_encuestas' %}">
-        <div class="icon-circle"><i class="fas fa-question-circle"></i></div>
-        <span>Encuestas</span>
-      </a>
-    </li>
-    {% endif %}
+        <!-- 3. INVENTARIO & EQUIPOS -->
+        <li class="nav-item-neon">
+            <a href="#menuInventario" data-bs-toggle="collapse" class="nav-link-neon" aria-expanded="false">
+                <div class="menu-title"><i class="fas fa-dumbbell main-icon"></i> <span>Inventario</span></div>
+                <i class="fas fa-chevron-right arrow"></i>
+            </a>
+            <ul class="collapse submenu-neon" id="menuInventario" data-bs-parent="#sidebarAccordion">
+                <li><a href="{% url 'gimnasio:listar_categorias' %}">Categorías de Equipo</a></li>
+                <li><a href="{% url 'gimnasio:listar_elementos' %}">Elementos Registrados</a></li>
+                <li><a href="{% url 'gimnasio:listar_mantenimiento' %}">Mantenimientos</a></li>
+            </ul>
+        </li>
 
-    {% if user.usuario.rol == 'Administrador' or user.is_superuser %}
-    <li class="{% if request.resolver_match.url_name == 'miPqrs' %}active{% endif %}">
-      <a href="{% url 'usuarios:miPqrs' %}">
-        <div class="icon-circle"><i class="fas fa-question-circle"></i></div>
-        <span>PQRS</span>
-      </a>
-    </li>
+        <!-- 4. ADMINISTRACIÓN & CONFIGURACIÓN -->
+        <li class="nav-item-neon">
+            <a href="#menuAdmin" data-bs-toggle="collapse" class="nav-link-neon" aria-expanded="false">
+                <div class="menu-title"><i class="fas fa-cogs main-icon"></i> <span>Administración</span></div>
+                <i class="fas fa-chevron-right arrow"></i>
+            </a>
+            <ul class="collapse submenu-neon" id="menuAdmin" data-bs-parent="#sidebarAccordion">
+                <li><a href="{% url 'gimnasio:listar_notificacion' %}">Notificaciones</a></li>
+                <li><a href="{% url 'usuarios:miPqrs' %}">Gestión PQRS</a></li>
+                <li><a href="{% url 'gimnasio:listar_sanciones_clas' %}">Sistema de Sanciones</a></li>
+                <li><a href="{% url 'gimnasio:listar_encuestas' %}">Gestor de Encuestas</a></li>
+                <li><a href="{% url 'gimnasio:listar_Reportes_estadisticas' %}">Reportes y Estadísticas</a></li>
+                <li><a href="{% url 'gimnasio:listar_certificacioninterna' %}">Certificaciones Internas</a></li>
+            </ul>
+        </li>
 
-    {% endif %}
-  </ul>
+        {% elif user.usuario.rol == 'Cliente' %}
+        
+        <!-- VISTA CLIENTE: MI PERFIL -->
+        <li class="nav-item-neon">
+            <a href="#menuMiPerfil" data-bs-toggle="collapse" class="nav-link-neon" aria-expanded="false">
+                <div class="menu-title"><i class="fas fa-user-circle main-icon"></i> <span>Mi Ficha Física</span></div>
+                <i class="fas fa-chevron-right arrow"></i>
+            </a>
+            <ul class="collapse submenu-neon" id="menuMiPerfil" data-bs-parent="#sidebarAccordion">
+                <li><a href="{% url 'gimnasio:perfil_usuario' %}">Datos Generales</a></li>
+                <li><a href="{% url 'usuarios:mi_rutina' %}">Mi Plan de Entrenamiento</a></li>
+                <li><a href="{% url 'usuarios:mi_nutricion' %}">Progreso Nutricional</a></li>
+                <li><a href="{% url 'usuarios:mi_certificacion' %}">Mis Certificados</a></li>
+            </ul>
+        </li>
+
+        <!-- VISTA CLIENTE: ATENCIÓN -->
+        <li class="nav-item-neon">
+            <a href="#menuAtencion" data-bs-toggle="collapse" class="nav-link-neon" aria-expanded="false">
+                <div class="menu-title"><i class="fas fa-headset main-icon"></i> <span>Atención al Atleta</span></div>
+                <i class="fas fa-chevron-right arrow"></i>
+            </a>
+            <ul class="collapse submenu-neon" id="menuAtencion" data-bs-parent="#sidebarAccordion">
+                <li><a href="{% url 'gimnasio:listar_Soporte_PQRS' %}">Soporte y PQRS</a></li>
+                <li><a href="{% url 'usuarios:mis_encuestas' %}">Encuestas Pendientes</a></li>
+                <li><a href="{% url 'usuarios:mi_sancion' %}">Historial de Sanciones</a></li>
+            </ul>
+        </li>
+
+        {% endif %}
+
+    </ul>
 </aside>
+
+<!-- Script para manejar la activación de la pestaña correcta si recargas la página -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    let currentUrl = window.location.pathname;
+    let submenuLinks = document.querySelectorAll('.submenu-neon li a');
+    
+    submenuLinks.forEach(link => {
+        if(link.getAttribute('href') === currentUrl) {
+            link.parentElement.classList.add('active');
+            let parentCollapse = link.closest('.collapse');
+            if(parentCollapse) {
+                parentCollapse.classList.add('show');
+                let parentNavLink = document.querySelector(`[data-bs-target="#${parentCollapse.id}"]`) || 
+                                    document.querySelector(`[href="#${parentCollapse.id}"]`);
+                if(parentNavLink) {
+                    parentNavLink.setAttribute('aria-expanded', 'true');
+                }
+            }
+        }
+    });
+});
+</script>
