@@ -7,6 +7,7 @@
         {% include "aside.html" %}
         <main class="content-area" id="content-area">{% block contenido %}{% endblock contenido %}</main>
     </div>
+    {% include 'footer.html' %}
 
     <script>
       const menuToggle = document.getElementById('menuToggle');
@@ -48,22 +49,34 @@
             min-height: 100vh;
             margin: 0;
             padding: 0;
+            overflow-x: hidden;
         }
         body {
             display: flex;
             flex-direction: column;
+            min-height: 100vh;
         }
         .main-container {
             flex: 1;
             display: flex;
             min-height: 0;
+            width: 100%;
         }
         .content-area {
             flex: 1;
             min-height: 0;
             overflow-y: auto;
+            overflow-x: hidden;
         }
         /* ===== FIN FIX ===== */
+
+        /* ===== PROTEGER IMÁGENES DEL ESCALADO DE TEXTO ===== */
+        img, svg, video, canvas {
+            max-width: 100%;
+            height: auto;
+            font-size: inherit !important; /* No escalar con el font-size del documento */
+        }
+        /* ===== FIN PROTECCIÓN IMÁGENES ===== */
 
         .search-container { max-width: 220px!important; width: 220px!important; position: relative; }
         #input-buscar { width: 100%!important; padding: 6px 12px!important; font-size: .85rem!important; background: rgba(255,255,255,.05)!important; border: 1px solid var(--border-color)!important; color: #fff!important; border-radius: var(--border-radius-btn)!important; }
@@ -72,10 +85,10 @@
         .resultado-item { display: flex; align-items: center; padding: 10px 16px; color: var(--text-muted); text-decoration: none; font-size: .88rem; transition: var(--transition); }
         .resultado-item:hover { background: var(--bg-surface-hover); color: var(--primary-blue); }
 
-        /* ===== ACCESIBILIDAD - POSICIÓN CORREGIDA ===== */
+        /* ===== ACCESIBILIDAD - POSICIÓN FIJA ===== */
         #accesibilidad-widget { 
             position: fixed; 
-            bottom: 20px; 
+            bottom: 80px; 
             right: 20px; 
             z-index: 10000; 
             font-family: sans-serif; 
@@ -383,11 +396,8 @@
       const msg = txt => { ind.innerText = txt; ind.style.display='block'; setTimeout(()=>ind.style.display='none', 2000); };
       
       const applyZoom = () => {
-        // Aplicar zoom al body completo en lugar de solo al content-area
-        b.style.fontSize = (cfg.z/100) + 'rem';
-        // También mantenemos zoom en content-area para elementos específicos
-        const contentArea = $('content-area');
-        if (contentArea) contentArea.style.zoom = cfg.z/100;
+        // Aplicar zoom solo al texto usando font-size (no afecta imágenes)
+        document.documentElement.style.fontSize = (cfg.z/100) + 'rem';
       };
       
       const apply = () => {
@@ -399,8 +409,8 @@
       };
       t.onclick = e => { e.stopPropagation(); p.classList.toggle('activo'); };
       document.onclick = e => { if(!$('accesibilidad-widget').contains(e.target)) p.classList.remove('activo'); };
-      $('btn-aumentar').onclick = () => { if(cfg.z<200) { cfg.z+=10; applyZoom(); save(); msg(cfg.z+'%'); } };
-      $('btn-disminuir').onclick = () => { if(cfg.z>70) { cfg.z-=10; applyZoom(); save(); msg(cfg.z+'%'); } };
+      $('btn-aumentar').onclick = () => { if(cfg.z<600) { cfg.z+=10; applyZoom(); save(); msg(cfg.z+'%'); } };
+      $('btn-disminuir').onclick = () => { if(cfg.z>25) { cfg.z-=10; applyZoom(); save(); msg(cfg.z+'%'); } };
       $('btn-contraste').onclick = () => { cfg.c=!cfg.c; apply(); save(); };
       $('btn-dislexia').onclick = () => { cfg.dx=!cfg.dx; apply(); save(); };
       
