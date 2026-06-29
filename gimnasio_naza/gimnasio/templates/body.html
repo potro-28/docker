@@ -3,9 +3,9 @@
 {% block body %}
   <body class="{% if user.usuario.genero_usuario == 'F' %}theme-soft{% else %}theme-strong{% endif %} sidebar-active">
     {% include 'header.html' %}
-    <div class="main-container">
+    <div class="main-container" id="main-container">
         {% include "aside.html" %}
-        <main class="content-area">{% block contenido %}{% endblock contenido %}</main>
+        <main class="content-area" id="content-area">{% block contenido %}{% endblock contenido %}</main>
     </div>
 
     <script>
@@ -43,41 +43,273 @@
     <script src="{% static 'lib/sweetalert2/sweetalert2.all.min.js' %}"></script>
     
     <style>
+        /* ===== FIX: Eliminar espacio vacío debajo del footer ===== */
+        html, body {
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+        .main-container {
+            flex: 1;
+            display: flex;
+            min-height: 0;
+        }
+        .content-area {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+        }
+        /* ===== FIN FIX ===== */
+
         .search-container { max-width: 220px!important; width: 220px!important; position: relative; }
-        #input-buscar { width: 100%!important; padding: 6px 12px!important; font-size: .85rem!important; background: rgba(255,255,255,.05)!important; border: 1px solid var(--border-color)!important; color: #fff!important; border-radius: var(--border-radius-btn)!important; }  
+        #input-buscar { width: 100%!important; padding: 6px 12px!important; font-size: .85rem!important; background: rgba(255,255,255,.05)!important; border: 1px solid var(--border-color)!important; color: #fff!important; border-radius: var(--border-radius-btn)!important; }
+        
         .resultados-dropdown { position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: var(--bg-surface); border-radius: var(--border-radius-card); box-shadow: 0 10px 30px rgba(0,0,0,.6); z-index: 9999; overflow: hidden; min-width: 240px; border: 1px solid var(--border-color); }
         .resultado-item { display: flex; align-items: center; padding: 10px 16px; color: var(--text-muted); text-decoration: none; font-size: .88rem; transition: var(--transition); }
         .resultado-item:hover { background: var(--bg-surface-hover); color: var(--primary-blue); }
 
-        /* ACCESIBILIDAD - POSICIÓN MARCADA EN LA IMAGEN */
-        #accesibilidad-widget { position: fixed; bottom: 50px; right: 10px; z-index: 10000; font-family: sans-serif; }
-        #btn-accesibilidad-toggle { width: 45px; height: 45px; border-radius: 50%; background: #000; border: 2px solid #fff; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,.4); transition: .2s; }
-        #btn-accesibilidad-toggle:hover { transform: scale(1.1); }
-        #btn-accesibilidad-toggle svg { width: 24px; height: 24px; fill: currentColor; }
-
-        #accesibilidad-panel { position: absolute; bottom: 55px; right: 0; width: 220px; background: #1a4a4a; border-radius: 15px; padding: 15px; display: none; flex-direction: column; gap: 10px; box-shadow: 0 8px 25px rgba(0,0,0,.5); border: 1px solid rgba(255,255,255,.1); }
+        /* ===== ACCESIBILIDAD - POSICIÓN CORREGIDA ===== */
+        #accesibilidad-widget { 
+            position: fixed; 
+            bottom: 20px; 
+            right: 20px; 
+            z-index: 10000; 
+            font-family: sans-serif; 
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+        }
+        #btn-accesibilidad-toggle { 
+            width: 50px; 
+            height: 50px; 
+            border-radius: 50%; 
+            background: #1a4a4a; 
+            border: 2px solid #ffd700; 
+            color: #ffd700; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            box-shadow: 0 4px 15px rgba(0,0,0,.6); 
+            transition: .3s ease;
+            flex-shrink: 0;
+        }
+        #btn-accesibilidad-toggle:hover { 
+            transform: scale(1.1);
+            background: #2a5a5a;
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.3);
+        }
+        #btn-accesibilidad-toggle:active {
+            transform: scale(0.95);
+        }
+        #btn-accesibilidad-toggle svg { 
+            width: 26px; 
+            height: 26px; 
+            fill: currentColor; 
+        }
+        #accesibilidad-panel { 
+            position: absolute; 
+            bottom: 65px; 
+            right: 0; 
+            width: 240px; 
+            background: #1a4a4a; 
+            border-radius: 15px; 
+            padding: 18px; 
+            display: none; 
+            flex-direction: column; 
+            gap: 12px; 
+            box-shadow: 0 12px 40px rgba(0,0,0,.7); 
+            border: 2px solid rgba(255, 215, 0, 0.2); 
+        }
         #accesibilidad-panel.activo { display: flex; }
-        .accesibilidad-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .accesibilidad-btn { background: #fff; border: none; border-radius: 10px; padding: 8px 2px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: .15s; color: #1a3a5c; font-size: 10px; font-weight: 700; text-align: center; line-height: 1.1; min-height: 60px; justify-content: center; }
-        .accesibilidad-btn:hover { background: #e0f7fa; transform: translateY(-2px); }
-        .accesibilidad-btn.activo { background: #ffd700; box-shadow: 0 0 0 2px #ffd70066; }
-        .accesibilidad-btn svg, .accesibilidad-btn .icono-letra { width: 20px; height: 20px; fill: #1a3a5c; font-size: 16px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
-
-        #daltonismo-submenu { display: none; grid-template-columns: 1fr 1fr; gap: 5px; }
+        .accesibilidad-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .accesibilidad-btn { 
+            background: #fff; 
+            border: none; 
+            border-radius: 12px; 
+            padding: 10px 4px; 
+            cursor: pointer; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 6px; 
+            transition: .2s ease; 
+            color: #1a3a5c; 
+            font-size: 11px; 
+            font-weight: 700; 
+            text-align: center; 
+            line-height: 1.1; 
+            min-height: 70px; 
+            justify-content: center;
+        }
+        .accesibilidad-btn:hover { 
+            background: #e0f7fa; 
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(224, 247, 250, 0.4);
+        }
+        .accesibilidad-btn.activo { 
+            background: #ffd700; 
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.4); 
+        }
+        .accesibilidad-btn svg, .accesibilidad-btn .icono-letra { 
+            width: 22px; 
+            height: 22px; 
+            fill: #1a3a5c; 
+            font-size: 16px; 
+            font-weight: bold; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+        }
+        #daltonismo-submenu { 
+            display: none; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255, 215, 0, 0.2);
+        }
         #daltonismo-submenu.visible { display: grid; }
-        .daltonismo-opcion { border: none; border-radius: 8px; padding: 6px 2px; cursor: pointer; font-size: 9px; font-weight: 700; color: #fff; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 3px; }
-        .daltonismo-opcion.activo { outline: 2px solid #fff; }
-        .daltonismo-ninguno { background: #6c757d; } .daltonismo-protanopia { background: #e74c3c; } .daltonismo-deuteranopia { background: #27ae60; } .daltonismo-tritanopia { background: #3498db; }
-
-        .btn-restablecer { background: #ff6b6b; border: none; border-radius: 10px; padding: 10px; cursor: pointer; color: #fff; font-size: 11px; font-weight: 700; width: 100%; display: flex; align-items: center; justify-content: center; gap: 5px; }
-        #indicador-accesibilidad { position: fixed; top: 20px; right: 20px; background: #1a4a4a; color: #fff; padding: 8px 15px; border-radius: 8px; font-size: 12px; font-weight: 700; display: none; z-index: 10001; box-shadow: 0 4px 12px rgba(0,0,0,.3); }
-
-        body.alto-contraste, body.alto-contraste * { background: #000!important; color: #ff0!important; border-color: #ff0!important; filter: contrast(1.2); }
+        .daltonismo-opcion { 
+            border: 2px solid transparent; 
+            border-radius: 10px; 
+            padding: 8px 4px; 
+            cursor: pointer; 
+            font-size: 10px; 
+            font-weight: 700; 
+            color: #fff; 
+            text-align: center; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 4px;
+            transition: .2s ease;
+        }
+        .daltonismo-opcion:hover {
+            transform: scale(1.05);
+        }
+        .daltonismo-opcion.activo { 
+            border: 2px solid #fff;
+            box-shadow: 0 0 10px currentColor;
+        }
+        .daltonismo-ninguno { background: #6c757d; } 
+        .daltonismo-protanopia { background: #e74c3c; } 
+        .daltonismo-deuteranopia { background: #27ae60; } 
+        .daltonismo-tritanopia { background: #3498db; }
+        .btn-restablecer { 
+            background: #ff6b6b; 
+            border: none; 
+            border-radius: 12px; 
+            padding: 12px; 
+            cursor: pointer; 
+            color: #fff; 
+            font-size: 12px; 
+            font-weight: 700; 
+            width: 100%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 6px;
+            transition: .2s ease;
+        }
+        .btn-restablecer:hover {
+            background: #ff5252;
+            transform: scale(1.02);
+        }
+        .btn-restablecer:active {
+            transform: scale(0.98);
+        }
+        #indicador-accesibilidad { 
+            position: fixed; 
+            top: 20px; 
+            right: 20px; 
+            background: #1a4a4a; 
+            color: #ffd700; 
+            padding: 10px 16px; 
+            border-radius: 8px; 
+            font-size: 12px; 
+            font-weight: 700; 
+            display: none; 
+            z-index: 10001; 
+            box-shadow: 0 4px 12px rgba(0,0,0,.3);
+            border: 1px solid #ffd700;
+        }
+        body.alto-contraste, body.alto-contraste * { 
+            background: #000!important; 
+            color: #ff0!important; 
+            border-color: #ff0!important; 
+            filter: contrast(1.2); 
+        }
         @font-face { font-family: 'OpenDyslexic'; src: url('https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.0/ttf/OpenDyslexic-Regular.ttf'); }
         body.modo-dislexia, body.modo-dislexia * { font-family: 'OpenDyslexic', sans-serif!important; }
         body.daltonismo-protanopia { filter: url('#protanopia')!important; }
         body.daltonismo-deuteranopia { filter: url('#deuteranopia')!important; }
         body.daltonismo-tritanopia { filter: url('#tritanopia')!important; }
+
+        /* ===== FOOTER FIX: Nunca se pierde al hacer zoom ===== */
+        .footer-neon {
+            background: #050505;
+            border-top: 1px solid rgba(255, 215, 0, 0.2);
+            padding: 15px 0;
+            width: 100%;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 1;
+        }
+        .footer-text {
+            color: #8b9eb0;
+            font-size: 13px;
+            margin: 0;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+        .footer-link {
+            color: #ffd700;
+            text-decoration: none;
+            font-weight: 700;
+            transition: 0.3s;
+        }
+        .footer-link:hover {
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        .footer-social i {
+            font-size: 18px;
+            color: #a0a0a0;
+            margin-left: 15px;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .footer-social i:hover {
+            color: #ffd700;
+            transform: scale(1.1);
+        }
+        .footer-neon .dropdown-menu {
+            background-color: #111111;
+            border: 1px solid #ffd700;
+            border-radius: 10px;
+            padding: 8px 0;
+            min-width: 210px;
+        }
+        .footer-neon .dropdown-item {
+            color: #ffd700;
+            font-weight: 600;
+            font-size: 13px;
+            padding: 8px 16px;
+            transition: all 0.3s ease;
+        }
+        .footer-neon .dropdown-item:hover,
+        .footer-neon .dropdown-item:focus {
+            background-color: #222222;
+            color: #ffffff;
+        }
+        .footer-neon .dropdown-divider {
+            border-color: rgba(255, 215, 0, 0.3);
+        }
     </style>
 
     <script>
@@ -147,29 +379,33 @@
       const $ = id => document.getElementById(id), b = document.body, s = localStorage;
       const t = $('btn-accesibilidad-toggle'), p = $('accesibilidad-panel'), ind = $('indicador-accesibilidad');
       let cfg = JSON.parse(s.getItem('acc_cfg') || '{"z":100,"l":false,"d":null,"c":false,"dx":false}');
-
       const save = () => s.setItem('acc_cfg', JSON.stringify(cfg));
       const msg = txt => { ind.innerText = txt; ind.style.display='block'; setTimeout(()=>ind.style.display='none', 2000); };
       
+      const applyZoom = () => {
+        // Aplicar zoom al body completo en lugar de solo al content-area
+        b.style.fontSize = (cfg.z/100) + 'rem';
+        // También mantenemos zoom en content-area para elementos específicos
+        const contentArea = $('content-area');
+        if (contentArea) contentArea.style.zoom = cfg.z/100;
+      };
+      
       const apply = () => {
-        b.style.zoom = cfg.z/100;
+        applyZoom();
         b.classList.toggle('alto-contraste', cfg.c); $('btn-contraste').classList.toggle('activo', cfg.c);
         b.classList.toggle('modo-dislexia', cfg.dx); $('btn-dislexia').classList.toggle('activo', cfg.dx);
         $('btn-lector').classList.toggle('activo', cfg.l);
         if(cfg.d) { b.classList.add('daltonismo-'+cfg.d); $('btn-daltonismo').classList.add('activo'); }
       };
-
       t.onclick = e => { e.stopPropagation(); p.classList.toggle('activo'); };
       document.onclick = e => { if(!$('accesibilidad-widget').contains(e.target)) p.classList.remove('activo'); };
-
-      $('btn-aumentar').onclick = () => { if(cfg.z<200) { cfg.z+=10; b.style.zoom=cfg.z/100; save(); msg(cfg.z+'%'); } };
-      $('btn-disminuir').onclick = () => { if(cfg.z>70) { cfg.z-=10; b.style.zoom=cfg.z/100; save(); msg(cfg.z+'%'); } };
+      $('btn-aumentar').onclick = () => { if(cfg.z<200) { cfg.z+=10; applyZoom(); save(); msg(cfg.z+'%'); } };
+      $('btn-disminuir').onclick = () => { if(cfg.z>70) { cfg.z-=10; applyZoom(); save(); msg(cfg.z+'%'); } };
       $('btn-contraste').onclick = () => { cfg.c=!cfg.c; apply(); save(); };
       $('btn-dislexia').onclick = () => { cfg.dx=!cfg.dx; apply(); save(); };
       
       const read = () => { if(!cfg.l) return; const txt = window.getSelection().toString(); if(txt) { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(txt); u.lang='es-ES'; speechSynthesis.speak(u); } };
       $('btn-lector').onclick = () => { cfg.l=!cfg.l; apply(); save(); if(cfg.l) document.onmouseup=read; else document.onmouseup=null; };
-
       $('btn-daltonismo').onclick = () => $('daltonismo-submenu').classList.toggle('visible');
       document.querySelectorAll('.daltonismo-opcion').forEach(btn => {
         btn.onclick = () => {
@@ -179,11 +415,11 @@
           apply(); save();
         };
       });
-
       $('btn-restablecer').onclick = () => { s.removeItem('acc_cfg'); location.reload(); };
       apply(); if(cfg.l) document.onmouseup=read;
     })();
     </script>
+
     {% block js %}{% endblock %}
   </body>
 {% endblock body %}
