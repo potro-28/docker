@@ -3,7 +3,7 @@ import re
 from django.forms import ModelForm, formset_factory, inlineformset_factory
 from gimnasio.models import *
 from django import forms
-from datetime import date
+from datetime import date, time
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.shortcuts import render
@@ -104,6 +104,26 @@ class ElementoForm(forms.ModelForm):
 # ==========================================
 # FORMULARIO DE ACCESO
 # ==========================================
+# ============================================================
+# Este archivo contiene SOLO las clases que cambian.
+# Reemplaza las clases correspondientes en tu forms.py existente
+# por estas versiones. No borres el resto de tu forms.py.
+# ============================================================
+
+import re
+from datetime import date, time, datetime, timedelta
+from django import forms
+from django.forms import ModelForm
+from django.contrib.auth.models import User
+from django.utils import timezone
+
+from .models import Usuario, Asistencia, Membresia
+
+
+# ==========================================
+# FORMULARIO DE ACCESO (sin cambios funcionales,
+# se deja igual a como ya lo tenías)
+# ==========================================
 
 class UserForm(forms.ModelForm):
 
@@ -135,23 +155,39 @@ class UserForm(forms.ModelForm):
 
 
 # ==========================================
-# FORMULARIO DE USUARIO
+# FORMULARIO DE USUARIO (CORREGIDO)
 # ==========================================
-
-
-# forms.py
-
-import re
-from datetime import date
-from django import forms
-from .models import Usuario
+#
+# Bugs que tenía el original y que se corrigen aquí:
+#
+# 1. clean_fecha_nacimiento() definía un campo de formulario
+#    (forms.DateField(...)) DENTRO del método, sin usarlo para
+#    nada, y luego declaraba un SEGUNDO clean_fecha_nacimiento
+#    anidado dentro del primero. En Python, una función definida
+#    dentro de otra función no se ejecuta solo por estar ahí: el
+#    primer clean_fecha_nacimiento devolvía cleaned_data sin
+#    haber asignado fecha_nacimiento (NameError potencial) y el
+#    "real" (el de adentro) jamás era llamado por Django, porque
+#    Django solo conoce el método de nivel de clase con ese nombre.
+#    Al haber dos `def` con el mismo nombre en la clase, el segundo
+#    sobrescribe al primero en el namespace de la clase — así que
+#    en la práctica funcionaba solo "por accidente", pero el código
+#    muerto confundía y arriesgaba romperse con cualquier edición.
+#
+# 2. clean_telefono_usuario() tenía código MUERTO después de un
+#    `return telefono`: las líneas de validación de edad (`if fecha
+#    >= date.today(): ...`) nunca se ejecutaban porque están después
+#    del return, y además usaban una variable `fecha` que no existe
+#    en ese método (era código que pertenecía a clean_fecha_nacimiento
+#    y quedó mal pegado).
+#
+# Abajo: una sola versión limpia de cada método, cada validación en
+# su lugar correcto.
 
 
 class UsuarioForm(forms.ModelForm):
-    
-    foto = forms.ImageField(
-        required=False
-    )
+
+    foto = forms.ImageField(required=False)
 
     class Meta:
         model = Usuario
@@ -171,14 +207,7 @@ class UsuarioForm(forms.ModelForm):
             'foto',
         ]
 
-        exclude = ['user', 'estado', 'fecha_registro']
-
         widgets = {
-
-            # ==========================================
-            # DOCUMENTO
-            # ==========================================
-
             'documento': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Ingrese documento',
@@ -187,19 +216,9 @@ class UsuarioForm(forms.ModelForm):
                 'title': 'Solo números entre 7 y 10 dígitos',
                 'oninput': 'this.value=this.value.replace(/[^0-9]/g,"")'
             }),
-
-            # ==========================================
-            # TIPO DOCUMENTO
-            # ==========================================
-
             'tipo_documento': forms.Select(attrs={
                 'class': 'form-select'
             }),
-
-            # ==========================================
-            # NOMBRE
-            # ==========================================
-
             'nombre_usuario': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Ingrese nombres',
@@ -207,11 +226,6 @@ class UsuarioForm(forms.ModelForm):
                 'title': 'Solo letras y espacios',
                 'autocomplete': 'off'
             }),
-
-            # ==========================================
-            # APELLIDO
-            # ==========================================
-
             'apellido_usuario': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Ingrese apellidos',
@@ -219,20 +233,10 @@ class UsuarioForm(forms.ModelForm):
                 'title': 'Solo letras y espacios',
                 'autocomplete': 'off'
             }),
-
-            # ==========================================
-            # FECHA NACIMIENTO
-            # ==========================================
-
             'fecha_nacimiento': forms.DateInput(attrs={
                 'type': 'date',
                 'class': 'form-control'
             }),
-
-            # ==========================================
-            # TELEFONO
-            # ==========================================
-
             'telefono_usuario': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Ingrese teléfono',
@@ -241,52 +245,27 @@ class UsuarioForm(forms.ModelForm):
                 'title': 'Debe iniciar en 3 y tener 10 dígitos',
                 'oninput': 'this.value=this.value.replace(/[^0-9]/g,"")'
             }),
-
-            # ==========================================
-            # CORREO
-            # ==========================================
-
             'correo_usuario': forms.EmailInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Ingrese correo',
                 'autocomplete': 'off'
             }),
-
-            # ==========================================
-            # PESO
-            # ==========================================
-
             'peso_usuario': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Peso en kg',
                 'min': '30',
                 'max': '150'
             }),
-
-            # ==========================================
-            # ALTURA
-            # ==========================================
-
             'altura_usuario': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Altura en cm',
                 'min': '100',
                 'max': '230'
             }),
-
-            # ==========================================
-            # ROL
-            # ==========================================
-
             'rol': forms.Select(attrs={
                 'class': 'form-select',
                 'required': 'required'
             }),
-
-            # ==========================================
-            # FOTO
-            # ==========================================
-
             'foto': forms.ClearableFileInput(attrs={
                 'class': 'form-control',
                 'accept': '.jpg,.jpeg,.png,.webp'
@@ -296,147 +275,188 @@ class UsuarioForm(forms.ModelForm):
     # =====================================================
     # VALIDAR ROL
     # =====================================================
-
     def clean_rol(self):
-
         rol = self.cleaned_data.get('rol')
-
         if not rol:
-            raise forms.ValidationError(
-                'Debe seleccionar un rol válido.'
-            )
-
+            raise forms.ValidationError('Debe seleccionar un rol válido.')
         return rol
 
     # =====================================================
     # VALIDAR NOMBRE
     # =====================================================
-
     def clean_nombre_usuario(self):
+        nombre = self.cleaned_data.get('nombre_usuario', '').strip()
 
-        nombre = self.cleaned_data.get(
-            'nombre_usuario',
-            ''
-        ).strip()
-
-        if not re.match(
-            r'^[A-Za-záéíóúÁÉÍÓÚñÑ ]+$',
-            nombre
-        ):
-            raise forms.ValidationError(
-                'El nombre solo puede contener letras.'
-            )
+        if not re.match(r'^[A-Za-záéíóúÁÉÍÓÚñÑ ]+$', nombre):
+            raise forms.ValidationError('El nombre solo puede contener letras.')
 
         if len(nombre) < 2:
-            raise forms.ValidationError(
-                'El nombre es demasiado corto.'
-            )
+            raise forms.ValidationError('El nombre es demasiado corto.')
 
         limpio = nombre.lower().replace(' ', '')
-
         if len(set(limpio)) == 1:
-            raise forms.ValidationError(
-                'Ingrese un nombre válido.'
-            )
+            raise forms.ValidationError('Ingrese un nombre válido.')
 
         return nombre.title()
 
     # =====================================================
     # VALIDAR APELLIDO
     # =====================================================
-
     def clean_apellido_usuario(self):
+        apellido = self.cleaned_data.get('apellido_usuario', '').strip()
 
-        apellido = self.cleaned_data.get(
-            'apellido_usuario',
-            ''
-        ).strip()
-
-        if not re.match(
-            r'^[A-Za-záéíóúÁÉÍÓÚñÑ ]+$',
-            apellido
-        ):
-            raise forms.ValidationError(
-                'El apellido solo puede contener letras.'
-            )
+        if not re.match(r'^[A-Za-záéíóúÁÉÍÓÚñÑ ]+$', apellido):
+            raise forms.ValidationError('El apellido solo puede contener letras.')
 
         if len(apellido) < 2:
-            raise forms.ValidationError(
-                'El apellido es demasiado corto.'
-            )
+            raise forms.ValidationError('El apellido es demasiado corto.')
 
         limpio = apellido.lower().replace(' ', '')
-
         if len(set(limpio)) == 1:
-            raise forms.ValidationError(
-                'Ingrese un apellido válido.'
-            )
+            raise forms.ValidationError('Ingrese un apellido válido.')
 
         return apellido.title()
 
     # =====================================================
-    # VALIDAR FECHA NACIMIENTO
+    # VALIDAR FECHA NACIMIENTO (única versión, limpia)
+    # Edad permitida: entre 12 y 90 años, igual que la regla
+    # que ya usas en el JS del wizard de asistencia.
     # =====================================================
-
-    def clean_fecha_nacimiento(self):
-
-        fecha_nacimiento = forms.DateField(
-        widget=forms.DateInput(
-            attrs={'type': 'date'},
-            format='%Y-%m-%d'
-        ),
-        input_formats=['%Y-%m-%d']
-    )
     def clean_fecha_nacimiento(self):
         fecha_nacimiento = self.cleaned_data.get('fecha_nacimiento')
 
         if fecha_nacimiento is None:
-            raise forms.ValidationError("Por favor ingresa una fecha de nacimiento.")
+            raise forms.ValidationError('Por favor ingresa una fecha de nacimiento.')
 
         hoy = date.today()
 
         if fecha_nacimiento >= hoy:
-            raise forms.ValidationError("La fecha de nacimiento no puede ser hoy ni una fecha futura.")
+            raise forms.ValidationError('La fecha de nacimiento no puede ser hoy ni una fecha futura.')
 
         if fecha_nacimiento.year < 1900:
-            raise forms.ValidationError("La fecha de nacimiento debe ser posterior al año 1900.")
+            raise forms.ValidationError('La fecha de nacimiento debe ser posterior al año 1900.')
 
-        edad_minima = hoy.replace(year=hoy.year - 5)
+        edad = hoy.year - fecha_nacimiento.year - (
+            (hoy.month, hoy.day) < (fecha_nacimiento.month, fecha_nacimiento.day)
+        )
 
-        if fecha_nacimiento > edad_minima:
-            raise forms.ValidationError("La fecha de nacimiento no es válida, verifica el año ingresado.")
+        if edad < 12:
+            raise forms.ValidationError('El usuario debe tener mínimo 12 años.')
 
-        return fecha_nacimiento    
+        if edad > 90:
+            raise forms.ValidationError('Verifica el año ingresado; la edad máxima permitida es 90 años.')
+
+        return fecha_nacimiento
+
+    # =====================================================
+    # VALIDAR TELÉFONO (única versión, sin código muerto)
+    # =====================================================
     def clean_telefono_usuario(self):
         telefono = self.cleaned_data.get('telefono_usuario')
         if telefono:
             if not re.match(r'^3\d{9}$', telefono):
-                raise forms.ValidationError('El teléfono debe contener exactamente 10 dígitos y comenzar con 3.')
+                raise forms.ValidationError(
+                    'El teléfono debe contener exactamente 10 dígitos y comenzar con 3.'
+                )
         return telefono
 
-        if fecha >= date.today():
+    # =====================================================
+    # VALIDAR CORREO (duplicados, dejado explícito porque
+    # el modelo ya tiene unique=True pero así el mensaje de
+    # error es más claro en el form)
+    # =====================================================
+    def clean_correo_usuario(self):
+        correo = self.cleaned_data.get('correo_usuario', '').strip()
+        if correo:
+            qs = Usuario.objects.filter(correo_usuario__iexact=correo)
+            if self.instance and self.instance.pk:
+                qs = qs.exclude(pk=self.instance.pk)
+            if qs.exists():
+                raise forms.ValidationError('Este correo ya está registrado.')
+        return correo
 
-            raise forms.ValidationError(
-                'La fecha debe ser anterior al día actual.'
-            )
+    # =====================================================
+    # VALIDAR DOCUMENTO (duplicados)
+    # =====================================================
+    def clean_documento(self):
+        documento = self.cleaned_data.get('documento', '').strip()
+        if documento:
+            if not documento.isdigit():
+                raise forms.ValidationError('El documento solo puede contener números.')
+            if not (7 <= len(documento) <= 10):
+                raise forms.ValidationError('El documento debe tener entre 7 y 10 dígitos.')
 
-        edad = (
-            date.today().year - fecha.year
-            -
-            (
-                (date.today().month, date.today().day)
-                <
-                (fecha.month, fecha.day)
-            )
-        )
+            qs = Usuario.objects.filter(documento=documento)
+            if self.instance and self.instance.pk:
+                qs = qs.exclude(pk=self.instance.pk)
+            if qs.exists():
+                raise forms.ValidationError('Este documento ya está registrado.')
+        return documento
 
-        if edad < 16:
+    # =====================================================
+    # VALIDAR PESO / ALTURA
+    # =====================================================
+    def clean_peso_usuario(self):
+        peso = self.cleaned_data.get('peso_usuario')
+        if peso is not None and not (30 <= peso <= 150):
+            raise forms.ValidationError('El peso debe estar entre 30 kg y 150 kg.')
+        return peso
 
-            raise forms.ValidationError(
-                'El usuario debe tener mínimo 16 años.'
-            )
+    def clean_altura_usuario(self):
+        altura = self.cleaned_data.get('altura_usuario')
+        if altura is not None and not (1.00 <= altura <= 2.30):
+            raise forms.ValidationError('La altura debe estar entre 1.00 m y 2.30 m.')
+        return altura
 
-        return fecha
+
+# ==========================================
+# VALIDADORES REUTILIZABLES PARA USERNAME Y PASSWORD
+# (usados por el wizard, tanto en backend como referencia
+# para mantener el mismo criterio en frontend)
+# ==========================================
+
+USERNAME_REGEX = re.compile(r'^[A-Za-z0-9]+$')
+
+# Mín. 8 caracteres, al menos 1 mayúscula, 1 número y 1 símbolo
+PASSWORD_REGEX = re.compile(
+    r'^(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s])(?=.{8,}).+$'
+)
+
+
+def validar_username(username):
+    """
+    Solo letras y números, sin espacios ni símbolos.
+    Devuelve un string de error o None si es válido.
+    """
+    username = (username or '').strip()
+    if not username:
+        return 'El nombre de usuario es requerido.'
+    if len(username) < 4:
+        return 'Debe tener al menos 4 caracteres.'
+    if len(username) > 30:
+        return 'No puede tener más de 30 caracteres.'
+    if not USERNAME_REGEX.match(username):
+        return 'Solo se permiten letras y números, sin espacios ni símbolos.'
+    return None
+
+
+def validar_password(password):
+    """
+    Mín. 8 caracteres, 1 mayúscula, 1 número, 1 símbolo.
+    Devuelve un string de error o None si es válida.
+    """
+    if not password:
+        return 'La contraseña es requerida.'
+    if len(password) < 8:
+        return 'Debe tener al menos 8 caracteres.'
+    if not re.search(r'[A-Z]', password):
+        return 'Debe contener al menos una letra mayúscula.'
+    if not re.search(r'\d', password):
+        return 'Debe contener al menos un número.'
+    if not re.search(r'[^\w\s]', password):
+        return 'Debe contener al menos un símbolo (ej: ! @ # $ % &).'
+    return None
+
 class MantenimientoForm(forms.ModelForm):
     class Meta:
         model = Mantenimiento

@@ -35,7 +35,17 @@
     .input-dark { background: rgba(0,0,0,0.6) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: #fff !important; border-radius: 6px; transition: 0.3s; padding: 12px 15px; font-family: 'Poppins', sans-serif; position: relative; z-index: 2;}
     .input-dark:focus { background: #000 !important; border-color: #ffd700 !important; box-shadow: 0 0 15px rgba(255, 215, 0, 0.3) !important; outline: none;}
     .input-dark::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer;}
-    
+
+    /* BARRA DE FORTALEZA DE CONTRASEÑA */
+    .password-strength-wrap { margin-top: 8px; position: relative; z-index: 2; }
+    .password-strength-bar { height: 5px; border-radius: 3px; background: rgba(255,255,255,0.08); overflow: hidden; }
+    .password-strength-fill { height: 100%; width: 0%; border-radius: 3px; transition: width 0.25s ease, background-color 0.25s ease; background: #ff4d4f; }
+    .password-strength-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #6c757d; margin-top: 4px; display: block; font-weight: 700; }
+    .password-rules { list-style: none; padding: 0; margin: 8px 0 0; font-size: 11px; }
+    .password-rules li { color: #6c757d; margin-bottom: 3px; transition: color 0.2s; }
+    .password-rules li.ok { color: #2ecc71; }
+    .password-rules li i { width: 14px; display: inline-block; }
+
     /* BOTONES HERO SESGADOS */
     .btn-hero-gold {
         background: #ffd700; color: #000; border: none; font-weight: 900; 
@@ -123,22 +133,35 @@
         <div id="paso1">
           <h6 class="fw-bold text-uppercase mb-3 border-bottom pb-2" style="color: #fff; border-color: rgba(255,255,255,0.05) !important; font-size: 13px;"><i class="fas fa-lock me-2" style="color: #ffd700;"></i> Datos de Acceso</h6>
           <div class="row g-3 mb-4">
-            <div class="col-md-6"><input type="text" id="username" class="form-control input-dark" placeholder="Usuario (Login)"></div>
+            <div class="col-md-6">
+              <input type="text" id="username" class="form-control input-dark" placeholder="Usuario (Login)" maxlength="30" autocomplete="off">
+              <small class="text-muted" style="font-size: 10px; display:block; margin-top:4px;">Solo letras y números, sin espacios ni símbolos. Mínimo 4 caracteres.</small>
+            </div>
             <div class="col-md-6">
               <div class="input-group">
-                <input type="password" id="password" class="form-control input-dark" placeholder="Contraseña" style="border-right: none !important;">
+                <input type="password" id="password" class="form-control input-dark" placeholder="Contraseña" style="border-right: none !important;" autocomplete="new-password">
                 <button type="button" class="btn input-dark border-start-0" id="btnTogglePassword" style="border-left: none !important;"><i class="fas fa-eye" id="iconPassword" style="color: #eeeef0;"></i></button>
+              </div>
+              <div class="password-strength-wrap" id="passwordStrengthWrap" style="display:none;">
+                <div class="password-strength-bar"><div class="password-strength-fill" id="passwordStrengthFill"></div></div>
+                <span class="password-strength-label" id="passwordStrengthLabel">Muy débil</span>
+                <ul class="password-rules" id="passwordRules">
+                    <li id="ruleLen"><i class="fas fa-circle-notch"></i> Mínimo 8 caracteres</li>
+                    <li id="ruleUpper"><i class="fas fa-circle-notch"></i> Al menos 1 mayúscula</li>
+                    <li id="ruleNumber"><i class="fas fa-circle-notch"></i> Al menos 1 número</li>
+                    <li id="ruleSymbol"><i class="fas fa-circle-notch"></i> Al menos 1 símbolo (!@#$%...)</li>
+                </ul>
               </div>
             </div>
           </div>
 
           <h6 class="fw-bold text-uppercase mb-3 border-bottom pb-2 mt-4" style="color: #fff; border-color: rgba(255,255,255,0.05) !important; font-size: 13px;"><i class="fas fa-id-badge me-2" style="color: #ffd700;"></i> Datos Personales</h6>
           <div class="row g-3 mb-4">
-            <div class="col-md-6"><input id="documento" class="form-control input-dark" placeholder="N° Documento"></div>
-            <div class="col-md-6"><input id="correo_usuario" type="email" class="form-control input-dark" placeholder="Correo Electrónico"></div>
-            <div class="col-md-6"><input id="nombre_usuario" class="form-control input-dark" placeholder="Nombres"></div>
-            <div class="col-md-6"><input id="apellido_usuario" class="form-control input-dark" placeholder="Apellidos"></div>
-            <div class="col-md-6"><input id="telefono_usuario" class="form-control input-dark" placeholder="Teléfono"></div>
+            <div class="col-md-6"><input id="documento" class="form-control input-dark" placeholder="N° Documento" maxlength="10" inputmode="numeric"></div>
+            <div class="col-md-6"><input id="correo_usuario" type="email" class="form-control input-dark" placeholder="Correo Electrónico" autocomplete="off"></div>
+            <div class="col-md-6"><input id="nombre_usuario" class="form-control input-dark" placeholder="Nombres" autocomplete="off"></div>
+            <div class="col-md-6"><input id="apellido_usuario" class="form-control input-dark" placeholder="Apellidos" autocomplete="off"></div>
+            <div class="col-md-6"><input id="telefono_usuario" class="form-control input-dark" placeholder="Teléfono" inputmode="numeric"></div>
             <div class="col-md-6"><input type="date" id="fecha_nacimiento" class="form-control input-dark" title="Fecha Nacimiento"></div>
             <div class="col-md-12">
               <select id="genero_usuario" class="form-select input-dark mb-3">
@@ -198,6 +221,18 @@
     const $ = (id) => document.getElementById(id);
     const btnSiguiente = $("btnSiguiente");
     let paso = 1;
+
+    // ================= REGLAS COMPARTIDAS (deben coincidir con forms.py) =================
+    const USERNAME_REGEX = /^[A-Za-z0-9]+$/;
+
+    function evaluarPassword(password) {
+        return {
+            len: password.length >= 8,
+            upper: /[A-Z]/.test(password),
+            number: /\d/.test(password),
+            symbol: /[^\w\s]/.test(password)
+        };
+    }
 
     function setFechasDefault() {
         const hoy = new Date();
@@ -289,6 +324,7 @@
             const err = document.getElementById("err_wizard_" + c.id);
             if (err) err.innerHTML = "";
         });
+        if ($("passwordStrengthWrap")) $("passwordStrengthWrap").style.display = "none";
         setFechasDefault();
         paso = 1;
     }
@@ -351,38 +387,32 @@
         }
 
         // --- VALIDACIONES BACKEND EN TIEMPO REAL (AJAX) ---
-    function validarBackend(input, campo, valor) {
-        if (!valor.trim()) return;
+        function validarBackend(input, campo, valor) {
+            if (!valor.trim()) return;
+            renderEstado(input, null);
 
-        // Mientras se espera la respuesta del servidor, no dejamos
-        // un mensaje de error viejo pegado en el campo.
-        renderEstado(input, null);
-
-        fetch(`/gimnasio/validar-atleta/?campo=${campo}&valor=${encodeURIComponent(valor)}`)
-            .then(res => {
-                if (!res.ok) throw new Error("Respuesta no válida del servidor");
-                return res.json();
-            })
-            .then(data => {
-                if (data.existe) {
-                    renderEstado(input, false, data.mensaje || `Este ${campo} ya se encuentra registrado.`);
-                } else {
+            fetch(`/gimnasio/validar-atleta/?campo=${campo}&valor=${encodeURIComponent(valor)}`)
+                .then(res => {
+                    if (!res.ok) throw new Error("Respuesta no válida del servidor");
+                    return res.json();
+                })
+                .then(data => {
+                    if (data.existe) {
+                        renderEstado(input, false, data.mensaje || `Este ${campo} ya se encuentra registrado.`);
+                    } else {
+                        renderEstado(input, true);
+                    }
+                })
+                .catch(() => {
                     renderEstado(input, true);
-                }
-            })
-            .catch(() => {
-                // Si el endpoint falla, no dejamos el campo marcado en rojo
-                // con un mensaje de validación local que ya no aplica.
-                renderEstado(input, true);
-            });
-    }
-        // Helper seguro: solo agrega el listener si el elemento existe
+                });
+        }
+
         function on(id, evento, handler) {
             const el = $(id);
             if (el) el.addEventListener(evento, handler);
         }
 
-        // --- Si el modal del wizard existe, inyectamos los contenedores de error y sus listeners ---
         if ($("modalWizard")) {
             document.querySelectorAll("#modalWizard .form-control, #modalWizard .form-select").forEach(input => {
                 if (!document.getElementById("err_wizard_" + input.id)) {
@@ -398,21 +428,69 @@
                 }
             });
 
+            // --- USERNAME: solo letras y números, sin espacios ni símbolos ---
             on("username", "input", function () {
+                // Sanitiza en vivo: elimina cualquier caracter que no sea letra/número
+                const limpio = this.value.replace(/[^A-Za-z0-9]/g, "");
+                if (limpio !== this.value) this.value = limpio;
+
                 if (!this.value.trim()) { renderEstado(this, false, "El nombre de usuario es requerido."); return; }
                 if (this.value.length < 4) { renderEstado(this, false, "Debe tener al menos 4 caracteres."); return; }
+                if (this.value.length > 30) { renderEstado(this, false, "No puede tener más de 30 caracteres."); return; }
+                if (!USERNAME_REGEX.test(this.value)) { renderEstado(this, false, "Solo letras y números, sin espacios ni símbolos."); return; }
                 validarBackend(this, "username", this.value);
             });
 
+            // --- PASSWORD: mín 8, mayúscula, número, símbolo + barra de fortaleza ---
             on("password", "input", function () {
-                if (!this.value.trim()) { renderEstado(this, false, "La contraseña es requerida."); return; }
-                if (this.value.length < 6) { renderEstado(this, false, "Debe contener mínimo 6 caracteres."); return; }
+                const valor = this.value;
+                const reglas = evaluarPassword(valor);
+
+                const wrap = $("passwordStrengthWrap");
+                if (wrap) wrap.style.display = valor ? "block" : "none";
+
+                // Marcar reglas individuales
+                const marcar = (id, ok) => {
+                    const li = $(id);
+                    if (!li) return;
+                    li.classList.toggle("ok", ok);
+                    const icon = li.querySelector("i");
+                    if (icon) icon.className = ok ? "fas fa-check-circle" : "fas fa-circle-notch";
+                };
+                marcar("ruleLen", reglas.len);
+                marcar("ruleUpper", reglas.upper);
+                marcar("ruleNumber", reglas.number);
+                marcar("ruleSymbol", reglas.symbol);
+
+                // Barra de fortaleza (0 a 4 reglas cumplidas)
+                const cumplidas = Object.values(reglas).filter(Boolean).length;
+                const fill = $("passwordStrengthFill");
+                const label = $("passwordStrengthLabel");
+                if (fill && label) {
+                    const porcentaje = (cumplidas / 4) * 100;
+                    fill.style.width = porcentaje + "%";
+                    if (cumplidas <= 1) { fill.style.background = "#ff4d4f"; label.textContent = "Muy débil"; label.style.color = "#ff4d4f"; }
+                    else if (cumplidas === 2) { fill.style.background = "#ff9f43"; label.textContent = "Débil"; label.style.color = "#ff9f43"; }
+                    else if (cumplidas === 3) { fill.style.background = "#f1c40f"; label.textContent = "Aceptable"; label.style.color = "#f1c40f"; }
+                    else { fill.style.background = "#2ecc71"; label.textContent = "Fuerte"; label.style.color = "#2ecc71"; }
+                }
+
+                if (!valor.trim()) { renderEstado(this, false, "La contraseña es requerida."); return; }
+                if (!reglas.len) { renderEstado(this, false, "Debe tener al menos 8 caracteres."); return; }
+                if (!reglas.upper) { renderEstado(this, false, "Debe contener al menos una mayúscula."); return; }
+                if (!reglas.number) { renderEstado(this, false, "Debe contener al menos un número."); return; }
+                if (!reglas.symbol) { renderEstado(this, false, "Debe contener al menos un símbolo (!@#$%...)."); return; }
                 renderEstado(this, true);
             });
 
             on("documento", "input", function () {
+                // Sanitiza en vivo: solo dígitos
+                const limpio = this.value.replace(/\D/g, "");
+                if (limpio !== this.value) this.value = limpio;
+
                 if (!this.value.trim()) { renderEstado(this, false, "El documento es requerido."); return; }
                 if (!/^\d+$/.test(this.value)) { renderEstado(this, false, "Solo se admiten números."); return; }
+                if (this.value.length < 7 || this.value.length > 10) { renderEstado(this, false, "Debe tener entre 7 y 10 dígitos."); return; }
                 validarBackend(this, "documento", this.value);
             });
 
@@ -424,15 +502,26 @@
             });
 
             on("nombre_usuario", "input", function () {
-                if (!this.value.trim()) { renderEstado(this, false, "El nombre es requerido."); return; }
+                const valor = this.value.trim();
+                if (!valor) { renderEstado(this, false, "El nombre es requerido."); return; }
+                if (!/^[A-Za-záéíóúÁÉÍÓÚñÑ\s]+$/.test(valor)) { renderEstado(this, false, "Solo se permiten letras y espacios."); return; }
+                if (valor.length < 2) { renderEstado(this, false, "El nombre es demasiado corto."); return; }
                 renderEstado(this, true);
             });
 
             on("apellido_usuario", "input", function () {
-                renderEstado(this, this.value.trim() ? true : null);
+                const valor = this.value.trim();
+                if (!valor) { renderEstado(this, null); return; }
+                if (!/^[A-Za-záéíóúÁÉÍÓÚñÑ\s]+$/.test(valor)) { renderEstado(this, false, "Solo se permiten letras y espacios."); return; }
+                if (valor.length < 2) { renderEstado(this, false, "El apellido es demasiado corto."); return; }
+                renderEstado(this, true);
             });
 
             on("telefono_usuario", "input", function () {
+                // Sanitiza en vivo: solo dígitos (permitiendo + inicial)
+                const limpio = this.value.replace(/(?!^\+)[^\d]/g, "");
+                if (limpio !== this.value) this.value = limpio;
+
                 if (!this.value.trim()) { renderEstado(this, null); return; }
                 if (!/^\+?\d{7,15}$/.test(this.value)) { renderEstado(this, false, "Número de teléfono inválido."); return; }
                 renderEstado(this, true);
@@ -440,6 +529,8 @@
 
             on("fecha_nacimiento", "change", function () {
                 if (!this.value) { renderEstado(this, null); return; }
+                const hoyStr = new Date().toLocaleDateString("en-CA");
+                if (this.value >= hoyStr) { renderEstado(this, false, "La fecha no puede ser hoy ni futura."); return; }
                 const edad = new Date().getFullYear() - new Date(this.value).getFullYear();
                 if (edad < 12 || edad > 90) { renderEstado(this, false, "Edad permitida entre 12 y 90 años."); return; }
                 renderEstado(this, true);
@@ -449,6 +540,20 @@
                 on(id, "change", function () {
                     renderEstado(this, this.value ? true : null);
                 });
+            });
+
+            on("peso_usuario", "input", function () {
+                if (!this.value.trim()) { renderEstado(this, null); return; }
+                const peso = parseFloat(this.value);
+                if (isNaN(peso) || peso < 30 || peso > 300) { renderEstado(this, false, "El peso debe estar entre 30 kg y 300 kg."); return; }
+                renderEstado(this, true);
+            });
+
+            on("altura_usuario", "input", function () {
+                if (!this.value.trim()) { renderEstado(this, null); return; }
+                const altura = parseFloat(this.value);
+                if (isNaN(altura) || altura < 0.5 || altura > 2.5) { renderEstado(this, false, "La altura debe estar entre 0.5 m y 2.5 m."); return; }
+                renderEstado(this, true);
             });
 
             // --- VALIDACIÓN FECHAS DE MEMBRESÍA (igual a MembresiaForm.clean) ---
@@ -512,11 +617,15 @@
             window.validarTodoPaso1 = function () {
                 ["username", "password", "documento", "nombre_usuario"].forEach(id => {
                     const el = $(id);
-                    if (el && !el.value.trim()) renderEstado(el, false, "Este campo es obligatorio.");
+                    if (el && el.value.trim()) {
+                        // dispara el evento 'input' para que se re-evalúen las reglas
+                        el.dispatchEvent(new Event("input"));
+                    } else if (el) {
+                        renderEstado(el, false, "Este campo es obligatorio.");
+                    }
                 });
             };
         } else {
-            // El modal del wizard no existe en esta plantilla: no-op para evitar errores si se llaman
             window.validarFechasMembresia = function () {};
             window.validarTodoPaso1 = function () {};
         }
@@ -588,6 +697,5 @@
             });
         }
     })();
-</script>
 </script>
 {% endblock %}
