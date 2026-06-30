@@ -93,19 +93,6 @@
                 </div>
             </div>
             {% endif %}
-
-            {% for field in form.visible_fields %}
-            <div class="form-group mb-4 stagger-2">
-                <label class="form-label-custom">{% if field.name == 'nombre_elemento' %} Equipo Asociado {% else %} {{ field.label }} {% endif %}</label>
-                <div class="d-flex gap-2">
-                    {{ field|add_class:'form-control input-dark' }}
-                    {% if field.name == 'nombre_elemento' %}
-                    <button type="button" class="btn-add-cat" data-bs-toggle="modal" data-bs-target="#modalElemento" title="Nuevo Equipo"><i class="ri-add-line"></i></button>
-                    {% endif %}
-                </div>
-                {% for error in field.errors %}<div class="text-danger small mt-1 fw-bold"><i class="fas fa-exclamation-triangle"></i> {{ error }}</div>{% endfor %}
-            </div>
-            {% endfor %}
         </div>
         {% endfor %}
     </div>

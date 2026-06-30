@@ -4,12 +4,31 @@
     /* =========================================
        DISEÑO PREMIUM DEL MENÚ LATERAL (ASIDE)
        ========================================= */
+    /* =========================================
+       DISEÑO PREMIUM DEL MENÚ LATERAL (ASIDE)
+       ========================================= */
     .sidebar-neon {
         background: #050505;
         border-right: 1px solid rgba(255,215,0,0.1);
+        
+        /* Forzar que el contenedor mida exactamente la pantalla y use scroll */
+        position: sticky;
+        top: 0;
         height: 100vh;
-        overflow-y: auto;
-        padding-bottom: 30px;
+        max-height: 100vh;
+        overflow-y: scroll; /* Cambiado a scroll para forzar el comportamiento */
+        
+        /* ESPACIO EXTRA ENORME AL FINAL: 
+           Esto creará un "colchón" de 200 píxeles abajo para que puedas seguir bajando */
+        padding-bottom: 150px !important; 
+    }
+
+    /* Asegurar que la lista interna permita la altura total */
+    .nav-menu-neon { 
+        list-style: none; 
+        padding: 0 15px; 
+        margin: 0;
+        display: block;
     }
 
     .sidebar-neon::-webkit-scrollbar { width: 5px; }
@@ -72,6 +91,82 @@
     .submenu-neon li.active a {
         background: rgba(255,215,0,0.1); color: #ffd700; border-left: 3px solid #ffd700; font-weight: 800;
     }
+
+    @media (max-width:991px){
+
+        .sidebar-neon{
+
+            position:fixed;
+            left:-270px;
+            top:70px;
+
+            width:260px;
+
+            height:calc(100vh - 70px);
+
+            transition:.3s;
+
+            z-index:9999;
+
+        }
+
+        .sidebar-neon.mobile-active{
+
+            left:0;
+
+        }
+
+    }
+
+    @media (max-width:991px){
+
+        .sidebar-neon{
+            position: fixed;
+            left:-280px;
+            top:70px;
+            width:260px;
+            height:calc(100vh - 70px);
+            transition:.3s;
+            z-index:999;
+        }
+
+        .sidebar-neon.mobile-active{
+            left:0;
+        }
+
+    }
+
+    @media (max-width:768px){
+
+        .profile-img-wrapper img{
+
+            width:60px;
+            height:60px;
+
+        }
+
+        .user-name{
+
+            font-size:14px;
+
+        }
+
+        .nav-link-neon{
+
+            font-size:12px;
+            padding:10px 15px;
+
+        }
+
+        .submenu-neon{
+
+            padding-left:25px;
+
+        }
+
+    }
+
+    
 </style>
 
 <aside class="sidebar-neon" id="sidebar">
