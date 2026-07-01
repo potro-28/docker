@@ -15,7 +15,7 @@ def seleccion_plan_ia(request, usuario_id):
     print("======================================================", flush=True)
     '''
     # Obtener el usuario cliente objetivo
-    usuario = get_object_or_404(Usuario, id=usuario_id)
+    usuario = get_object_or_404(Usuario, id=usuario_id, rol='cliente')
     
     # Inicializar el motor predictivo de IA
     motor_ia = MotorRecomendacionGym()
