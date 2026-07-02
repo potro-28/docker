@@ -79,6 +79,12 @@
 
     /* MODAL QR */
     .modal-dark .modal-content { background: #0a0a0a; border: 1px solid #ffd700; color: #fff; box-shadow: 0 0 50px rgba(0,0,0,0.9); }
+
+    /* FIX DROPDOWN Z-INDEX */
+    .dropdown-menu { z-index: 999999 !important; }
+    .header-mobile-wrap { position: relative; z-index: 1000 !important; }
+    .dataTables_wrapper { z-index: 1 !important; }
+    .card-dash { z-index: 1 !important; }
 </style>
 
 <link rel="stylesheet" href="{% static 'lib/datatables-1.10.20/css/dataTables.bootstrap4.min.css' %}">
@@ -94,11 +100,11 @@
             <button type="button" class="btn-hero-outline" data-bs-toggle="modal" data-bs-target="#modalQR">
                 <span><i class="fas fa-qrcode"></i> Escanear QR</span>
             </button>
-            <div class="dropdown" style="position: relative; z-index: 9999 !important;">
+            <div class="dropdown" style="position: relative; z-index: 99999 !important;" id="export-dropdown">
                 <button class="btn-hero-outline dropdown-toggle" type="button" data-bs-toggle="dropdown" style="transform: skewX(0); border-radius: 4px;">
                     <i class="fas fa-file-export me-2"></i> Exportar
                 </button>
-                <ul class="dropdown-menu dropdown-menu-dark bg-dark border-warning w-100 text-center mt-2">
+                <ul class="dropdown-menu dropdown-menu-dark bg-dark border-warning w-100 text-center mt-2" style="z-index: 999999 !important;">
                     <li><a class="dropdown-item fw-bold" href="{% url 'gimnasio:exportar_asistencia_excel' %}"><i class="fas fa-file-excel me-2 text-success"></i> Excel</a></li>
                     <li><a class="dropdown-item fw-bold" href="{% url 'gimnasio:exportar_asistencia_pdf' %}"><i class="fas fa-file-pdf me-2 text-danger"></i> PDF</a></li>
                 </ul>
@@ -201,6 +207,12 @@ $(document).ready(function() {
 
     $('#min-date, #max-date').on('change', function() { table.draw(); });
     $('#clear-dates').on('click', function() { $('#min-date, #max-date').val(''); table.draw(); });
+
+    // Fix dropdown z-index
+    $('#export-dropdown').on('show.bs.dropdown', function() {
+        $(this).css('z-index', '999999');
+        $('.dropdown-menu').css('z-index', '999999');
+    });
 
     {% if messages %}
         {% for message in messages %}

@@ -238,11 +238,28 @@
             box-shadow: 0 4px 12px rgba(0,0,0,.3);
             border: 1px solid #ffd700;
         }
-        body.alto-contraste, body.alto-contraste * { 
-            background: #000!important; 
+        body.alto-contraste { 
+            background: url("/static/imagen/imagen_login.jpg") !important; 
+            background-size: cover !important;
+            background-position: center !important;
+            background-repeat: no-repeat !important;
             color: #ff0!important; 
             border-color: #ff0!important; 
             filter: contrast(1.2); 
+        }
+        body.alto-contraste * { 
+            color: #ff0!important; 
+            border-color: #ff0!important; 
+        }
+        body.alto-contraste #accesibilidad-widget #btn-accesibilidad-toggle {
+            background: #006600!important;
+            border: 3px solid #ffd700!important;
+            color: #ffd700!important;
+            box-shadow: 0 0 15px #ffd700!important;
+        }
+        body.alto-contraste #accesibilidad-widget #btn-accesibilidad-toggle:hover {
+            background: #008800!important;
+            box-shadow: 0 0 25px #ffd700!important;
         }
         @font-face { font-family: 'OpenDyslexic'; src: url('https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.0/ttf/OpenDyslexic-Regular.ttf'); }
         body.modo-dislexia, body.modo-dislexia * { font-family: 'OpenDyslexic', sans-serif!important; }
