@@ -1417,7 +1417,6 @@ class TurnodeentrenadorForm(ModelForm):
                 'class': 'form-control',
             }),
         }
-
     def clean_fecha_turno_inicio(self):
         inicio = self.cleaned_data.get('fecha_turno_inicio')
         hoy = timezone.now().date()

@@ -69,11 +69,7 @@
                     <div class="ia-metric"><i class="fas fa-bolt"></i> Enfoque: {{ planes.opcion_2.enfoque_rutina }}</div>
                     <div class="ia-content">
                         <p><strong>Rutina:</strong> {{ planes.opcion_2.rutina_ejemplo }}</p>
-                        <hr style="border-color: var(--border-color);">
-                        <p><strong>Meta Diaria:</strong> <i class="fas fa-fire" style="color: #ff4d4f;"></i> {{ planes.opcion_2.nutricion_objetivo }}</p>
-                        <p><strong>Macros:</strong> {{ planes.opcion_2.macros_sugeridos }}</p>
-                    </div>
-                    <div class="mt-4 text-center">
+                        <hr style="border-color: var(--
                         <button type="submit" name="opcion_elegida" value="opcion_2" class="btn btn-primary w-100" style="background: linear-gradient(135deg, #ffd700, #b8860b); color: #000; border: none; border-radius: var(--border-radius-btn); font-weight: 700;">ELEGIR ESTE PLAN</button>
                     </div>
                 </div>
@@ -81,7 +77,11 @@
         </div>
     </form>
 
-    <div class="disclaimer-box">
+    <div class="disclaimer-box">border-color);">
+                        <p><strong>Meta Diaria:</strong> <i class="fas fa-fire" style="color: #ff4d4f;"></i> {{ planes.opcion_2.nutricion_objetivo }}</p>
+                        <p><strong>Macros:</strong> {{ planes.opcion_2.macros_sugeridos }}</p>
+                    </div>
+                    <div class="mt-4 text-center">
         <p style="color: #fff; font-size: 0.85rem; margin: 0;">{{ planes.Advertencia }}</p>
     </div>
 </div>

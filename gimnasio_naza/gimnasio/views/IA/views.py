@@ -9,18 +9,10 @@ from gimnasio.servicios.ia_engine import MotorRecomendacionGym
 
 @login_required
 def seleccion_plan_ia(request, usuario_id):
-    '''
-    print("======================================================", flush=True)
-    print(f"LLEGÓ UNA PETICIÓN AL NAVEGADOR PARA EL USUARIO {usuario_id}", flush=True)
-    print("======================================================", flush=True)
-    '''
-    # Obtener el usuario cliente objetivo
-    usuario = get_object_or_404(Usuario, id=usuario_id, rol='cliente')
+    # Quitamos , rol='cliente' para que encuentre a tu usuario administrador ID 7
+    usuario = get_object_or_404(Usuario, id=usuario_id) 
     
-    # Inicializar el motor predictivo de IA
     motor_ia = MotorRecomendacionGym()
-    
-    # Generar las dos propuestas basadas en el dataset e IMC
     planes = motor_ia.generar_recomendaciones(usuario.id)
     
     if request.method == 'POST':
