@@ -603,6 +603,14 @@ class MembresiaForm(ModelForm):
             self.fields['qr_code'].disabled = True
             self.fields['qr_code'].required = False
 
+        if 'estado' in self.fields:
+            if not self.instance.pk:
+                # CREAR: estado fijo en 'activo', no editable por el usuario
+                self.fields['estado'].initial = 'activo'  # o True si es BooleanField
+                self.fields['estado'].disabled = True
+                self.fields['estado'].required = False
+            # EDITAR: se deja el campo tal cual, editable
+
     class Meta:
         model = Membresia
         fields = '__all__'
@@ -631,6 +639,8 @@ class MembresiaForm(ModelForm):
             # CREAR: la fecha de inicio debe ser exactamente hoy
             if fecha_inicio != hoy:
                 self.add_error('fecha_inicio', 'La fecha de inicio debe ser la actual')
+            # Forzar estado activo sin importar lo que llegue en el POST
+            cleaned_data['estado'] = 'activo'  # o True si es BooleanField
         else:
             # EDITAR: se permite cambiar el día, pero debe seguir
             # dentro del mes y año actual
@@ -639,11 +649,8 @@ class MembresiaForm(ModelForm):
                     'fecha_inicio',
                     'La fecha de inicio debe estar dentro del mes y año actual'
                 )
+            # estado queda tal como lo eligió el usuario en cleaned_data['estado']
 
-        # fecha_fin siempre se recalcula a partir de fecha_inicio,
-        # así que ya no hace falta validarla manualmente contra el form:
-        # eliminamos las comparaciones viejas (fin > hoy+30, fin < hoy+30, etc.)
-        # porque cleaned_data['fecha_fin'] se sobreescribe de todas formas.
         cleaned_data['fecha_fin'] = fecha_inicio + timedelta(days=30)
 
         membresia_existente = Membresia.objects.filter(

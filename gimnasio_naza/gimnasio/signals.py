@@ -1,10 +1,10 @@
 from django.db.models.signals import post_migrate, post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import Group, Permission
-from datetime import datetime, timedelta
-from gimnasio.models import Usuario, Membresia, Notificacion, Mantenimiento,Notificacion,Asistencia
+from datetime import datetime, timedelta, timezone
+from gimnasio.models import Usuario, Membresia, Notificacion, Mantenimiento, Notificacion, Asistencia
 from gimnasio.utilities.notificaciones import NotificacionManager
-from gimnasio.utilities.calcular_dias import calcular_dias,calcular_dias_restantes,buscar_mantenimiento
+from gimnasio.utilities.calcular_dias import calcular_dias, calcular_dias_restantes, buscar_mantenimiento
 import logging
 
 logger = logging.getLogger(__name__)
@@ -63,6 +63,8 @@ def enviar_correo_bienvenida(sender, instance, created, **kwargs):
 def notificar_cambio_membresia(sender, instance, created, **kwargs):
     """
     Envía notificación cuando cambia el estado de una membresía o se crea una nueva.
+    Este es el ÚNICO punto donde se envía la confirmación de membresía nueva,
+    ya sea creada manualmente o desde crear_membresia_auto.
     """
     usuario = instance.fk_usuario
     if created:
@@ -72,7 +74,7 @@ def notificar_cambio_membresia(sender, instance, created, **kwargs):
             logger.info(f"✓ Confirmación de membresía enviada a {usuario.nombre_usuario}")
         except Exception as e:
             logger.error(f"Error notificando nueva membresía: {e}")
-    
+
     else:
         # Cambio de estado de membresía
         try:
@@ -96,18 +98,18 @@ def notificar_mantenimiento(sender, instance, created, **kwargs):
                 logger.info(f"✓ Notificaciones de mantenimiento enviadas a {usuarios.count()} usuarios")
         except Exception as e:
             logger.error(f"Error notificando mantenimiento: {e}")
-            
-            
-@receiver(post_save,sender=Notificacion)
-def notificar(sender,instance,created,**kwargs):
+
+
+@receiver(post_save, sender=Notificacion)
+def notificar(sender, instance, created, **kwargs):
     if created:
         try:
             notificaciones = instance.tipo_notificacion
             print(instance.detalle_notificacion)
-            membresia = Membresia.objects.filter(fk_usuario = instance.fk_usuario).first()
+            membresia = Membresia.objects.filter(fk_usuario=instance.fk_usuario).first()
             if notificaciones == 'MEMBRESIA':
                 if instance.detalle_notificacion == 'Bienvenida':
-                   NotificacionManager.enviar_bienvenida(instance.fk_usuario)
+                    NotificacionManager.enviar_bienvenida(instance.fk_usuario)
                 elif instance.detalle_notificacion == 'Membresía_activada':
                     NotificacionManager.enviar_confirmacion_membresia(membresia)
                 elif instance.detalle_notificacion == 'Membresía_vencida':
@@ -115,10 +117,31 @@ def notificar(sender,instance,created,**kwargs):
                 else:
                     NotificacionManager.enviar_alerta_vencimiento(membresia, calcular_dias_restantes(instance.fk_usuario))
             elif notificaciones == 'MANTENIMIENTO':
-                NotificacionManager.enviar_notificacion_mantenimiento(instance.fk_usuario,buscar_mantenimiento())
+                NotificacionManager.enviar_notificacion_mantenimiento(instance.fk_usuario, buscar_mantenimiento())
             else:
                 usuario = instance.fk_usuario
-                NotificacionManager.enviar_alerta_inasistencia(usuario,calcular_dias(usuario))
+                NotificacionManager.enviar_alerta_inasistencia(usuario, calcular_dias(usuario))
         except Exception as e:
-            logger.error(f"Error notificando ")
-            
+            logger.error(f"Error notificando: {e}")
+
+
+@receiver(post_save, sender=Usuario)
+def crear_membresia_auto(sender, instance, created, **kwargs):
+    """
+    Crea automáticamente una membresía cuando se registra un usuario con rol Cliente.
+    La notificación de confirmación NO se envía aquí: la dispara automáticamente
+    el signal post_save de Membresia (notificar_cambio_membresia) al hacer .create().
+    """
+    if instance.rol == 'Cliente' and created:
+        try:
+            membresia = Membresia.objects.create(
+                fk_usuario=instance,
+                fecha_inicio=datetime.now(),
+                fecha_fin=datetime.now() + timedelta(days=30),
+                estado='activo'
+            )
+            logger.info(f"Membresía creada automáticamente para {instance.nombre_usuario}")
+
+
+        except Exception as e:
+            logger.error(f"Error creando membresía automática: {e}")
