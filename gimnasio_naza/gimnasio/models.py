@@ -92,6 +92,7 @@ class Membresia(models.Model):
         img = qr.make_image(fill_color="black", back_color="white")
         buffer = BytesIO()
         img.save(buffer, format="PNG")
+        buffer.seek(0)
 
         nombre_archivo = f"qr_{datos_qr}.png"
         self.qr_code.save(f"qr_{nombre_archivo}.png", File(buffer), save=False)

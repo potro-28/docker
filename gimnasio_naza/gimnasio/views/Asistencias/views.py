@@ -287,7 +287,7 @@ class QR_register(View):
             if not membresia:
                 return JsonResponse({
                     'status': 404,
-                    'mensaje': 'No se encontró membresía activa para este usuario'
+                    'mensaje': 'NO TIENE MEMBRESÍA ACTIVA ESTE USUARIO'
                 }, status=404)
 
             hoy = date.today()
