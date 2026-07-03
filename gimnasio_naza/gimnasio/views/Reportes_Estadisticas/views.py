@@ -84,6 +84,8 @@ class Reportes_estadisticasListView(TemplateView):
 
         # TOTAL SANCIONES
         context['total_sanciones'] = Sancion.objects.count()
+        # TOTAL REPORTES
+        context['total_reportes'] = Reportes_estadisticas.objects.count()
 
         # USUARIOS ACTIVOS
         context['usuarios_activos'] = Usuario.objects.filter(
@@ -142,15 +144,17 @@ class Reportes_estadisticasListView(TemplateView):
             'Membresías',
             'Asistencias',
             'Elementos',
-            'Encuestas'
+            'Encuestas',
+            'Reportes'
         ]
 
         datos_estadisticas = [
-            Usuario.objects.count(),
+            context['total_usuarios'],
             Membresia.objects.count(),
             Asistencia.objects.count(),
-            Elemento.objects.count(),
-            Encuesta.objects.count()
+            context['total_elementos'],
+            context['total_encuestas'],
+            context['total_reportes']
         ]
 
         context['labels_estadisticas'] = json.dumps(
@@ -206,14 +210,16 @@ class Reportes_estadisticasListView(TemplateView):
         context['porcentaje_inactivas'] = 0
 
         # =================================================
-        # LISTADO REPORTES
+        # HISTORIAL DE REPORTES
         # =================================================
 
-        context['object_list'] = Reportes_estadisticas.objects.all()
+        context['object_list'] = (
+            Reportes_estadisticas.objects
+            .select_related('fk_usuario')
+            .order_by('-fecha_generacion')
+        )
 
         return context
-
-
 # =========================================================
 # CREAR REPORTE
 # =========================================================

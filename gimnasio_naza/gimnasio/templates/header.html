@@ -206,13 +206,13 @@
         </button>
         <ul class="dropdown-menu dropdown-menu-end" style="background: var(--bg-surface); border: 1px solid var(--border-color);">
           <li>
-            <a class="dropdown-item waves-effect" href="/gimnasio/backup/" style="color: var(--text-dark);"><i class="fa-solid fa-folder-open me-2" style="color:var(--primary-blue);"></i>Ir a Backup</a>
+            <a class="dropdown-item waves-effect" href="/gimnasio/backup/" style="color: var(--text-dark);"><i class="fa-solid fa-folder-open me-2" style="color:var(--primary-blue);"></i>Ir a respaldo</a>
           </li>
           <li>
             <form action="/gimnasio/backup/" method="post">
               {% csrf_token %}
               <input type="hidden" name="accion" value="backup_completo" />
-              <button type="submit" class="dropdown-item waves-effect" style="color: var(--text-dark); background:transparent; border:none; text-align:left; width:100%;"><i class="fa-solid fa-download me-2" style="color:var(--primary-blue);"></i>Backup completo</button>
+              <button type="submit" class="dropdown-item waves-effect" style="color: var(--text-dark); background:transparent; border:none; text-align:left; width:100%;"><i class="fa-solid fa-download me-2" style="color:var(--primary-blue);"></i>Respaldo completo</button>
             </form>
           </li>
         </ul>
