@@ -74,8 +74,8 @@ class ElementoForm(forms.ModelForm):
         return serial
     def clean_nombre_elemento(self):
         nombre_elemento = self.cleaned_data.get('nombre_elemento')
-        if nombre_elemento and not re.match(r'^[a-zA-Z\s]+$', nombre_elemento):
-            raise forms.ValidationError('El nombre del elemento solo puede contener letras y espacios.')
+        if nombre_elemento and not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+$', nombre_elemento):
+            raise forms.ValidationError('El nombre del elemento solo puede contener letras.')
         return nombre_elemento
     def clean_fecha_ingreso(self):
         fecha_ingreso = self.cleaned_data.get('fecha_ingreso')
@@ -84,13 +84,8 @@ class ElementoForm(forms.ModelForm):
         return fecha_ingreso
     def clean_marca(self):
         marca = self.cleaned_data.get('marca')
-        if marca:
-            if marca != marca.strip():
-                raise forms.ValidationError('La marca no puede contener espacios al inicio ni al final.')
-        if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$', marca):
-            raise forms.ValidationError('La marca solo puede contener letras y espacios.')
-        if '  ' in marca:
-            raise forms.ValidationError('La marca no puede contener espacios consecutivos.')
+        if marca and not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+$', marca):
+            raise forms.ValidationError('La marca solo puede contener letras.')
         return marca
     def clean_imagen(self):
         imagen = self.cleaned_data.get('imagen')

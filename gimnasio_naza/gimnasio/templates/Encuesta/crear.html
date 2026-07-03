@@ -14,10 +14,6 @@
         border-radius: 15px; padding: 0; box-shadow: 0 15px 35px rgba(0,0,0,0.9); 
         border: 1px solid rgba(255,215,0,0.1); overflow: hidden; margin-bottom: 25px;
     }
-    .card-dash::before {
-        content: ''; position: absolute; top: 0; left: -15px; width: 20px; height: 100%;
-        background: #ffd700; transform: skewX(-15deg); box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); z-index: 0;
-    }
 
     .header-neon { background: rgba(0,0,0,0.5); padding: 25px 35px; border-bottom: 1px solid rgba(255,255,255,0.05); position: relative; z-index: 2;}
     .header-neon h3 { margin: 0; font-weight: 900; font-size: 1.5rem; text-transform: uppercase; color: #fff; letter-spacing: 1px;}
@@ -59,22 +55,21 @@
         <div class="card-body p-4 p-md-5">
             <div class="row g-4 position-relative" style="z-index: 2;">
                 {% for field in form.visible_fields %}
-                <div class="col-md-6 form-group">
-                    <label class="form-label-custom">{{ field.label }}</label>
-                    
+                <div class="form-group mb-4">
+                    <label style="color: #a0a0a0; font-size: 11px; font-weight: 800; text-transform: uppercase;">
+                        {% if field.name == 'fk_usuario' %}
+                            Usuario:
+                        {% else %}
+                            {{ field.label }}:
+                        {% endif %}
+                    </label>
                     {% if field.name == 'fk_usuario' %}
-                        <div class="d-flex align-items-center gap-2">
-                            {{ field|add_class:'form-select input-dark' }}
-                            <button type="button" class="btn" style="background: rgba(255, 215, 0, 0.1); color: #ffd700; border: 1px solid #ffd700; padding: 10px 15px; border-radius: 6px;" data-bs-toggle="modal" data-bs-target="#modalUsuario">
-                                <i class="fas fa-plus"></i>
-                            </button>
+                        <div class="d-flex gap-2">
+                            {{ field|add_class:'form-control input-dark' }}
+                            
                         </div>
                     {% else %}
-                        {{ field|add_class:'form-control input-dark'|attr:'id:id_nombre' }}
-                    {% endif %}
-
-                    {% if field.errors %}
-                        <div class="invalid-feedback d-block fw-bold mt-1" style="color: #ff4d4f;">{{ field.errors|striptags }}</div>
+                        {{ field|add_class:'form-control input-dark' }}
                     {% endif %}
                 </div>
                 {% endfor %}
