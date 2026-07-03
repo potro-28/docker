@@ -40,6 +40,12 @@
     table.dataTable tbody td { padding: 15px !important; border: none !important; vertical-align: middle; color: #fff !important; background-color: transparent !important; font-size: 13px;}
     .page-item.active .page-link { background-color: #ffd700 !important; border-color: #ffd700 !important; color: #000 !important; font-weight: 900; }
     .page-item .page-link { background-color: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); color: #fff;}
+
+    /* FIX DROPDOWN Z-INDEX */
+    .dropdown-menu { z-index: 999999 !important; }
+    .d-flex.flex-column { position: relative; z-index: 1000 !important; }
+    .dataTables_wrapper { z-index: 1 !important; }
+    .card-dash { z-index: 1 !important; }
 </style>
 
 <link rel="stylesheet" href="{% static 'lib/datatables-1.10.20/css/dataTables.bootstrap4.min.css' %}">
@@ -51,11 +57,11 @@
     <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mb-4 gap-3 stagger-1">
         <h3 class="header-title"><i class="fas fa-users" style="color: #ffd700; margin-right: 10px;"></i> Listado de Atletas / Usuarios</h3>
         <div class="d-flex gap-3 flex-wrap">
-            <div class="dropdown" style="position: relative; z-index: 10;">
+            <div class="dropdown" style="position: relative; z-index: 99999 !important;" id="export-dropdown">
                 <button class="btn-hero-outline dropdown-toggle" type="button" data-bs-toggle="dropdown" style="transform: skewX(0); border-radius: 4px;">
                     <i class="fas fa-file-export me-2"></i> Exportar
                 </button>
-                <ul class="dropdown-menu dropdown-menu-dark bg-dark border-warning mt-2">
+                <ul class="dropdown-menu dropdown-menu-dark bg-dark border-warning mt-2" style="z-index: 999999 !important;">
                     <li><a class="dropdown-item fw-bold" href="{% url 'gimnasio:exportar_usuarios_excel' %}"><i class="fas fa-file-excel me-2 text-success"></i> Formato Excel</a></li>
                     <li><a class="dropdown-item fw-bold" href="{% url 'gimnasio:exportar_usuarios_pdf' %}"><i class="fas fa-file-pdf me-2 text-danger"></i> Formato PDF</a></li>
                 </ul>
@@ -199,6 +205,12 @@ $(function () {
             }
         ]
 
+    });
+
+    // Fix dropdown z-index
+    $('#export-dropdown').on('show.bs.dropdown', function() {
+        $(this).css('z-index', '999999');
+        $('.dropdown-menu').css('z-index', '999999');
     });
 
 });

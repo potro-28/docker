@@ -3,7 +3,13 @@ import re
 from django.forms import ModelForm, formset_factory, inlineformset_factory
 from gimnasio.models import *
 from django import forms
+
 from datetime import date, datetime, time, timedelta
+
+from datetime import date, time
+
+from datetime import date, time
+
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.shortcuts import render
@@ -11,20 +17,16 @@ from django.db.models import Count
 from django.forms import BaseInlineFormSet
 from django.contrib.auth.forms import PasswordResetForm
 from .models import Usuario
-from django.contrib.auth.forms import PasswordResetForm
-from .models import Usuario # Asegúrate de que el nombre sea correcto
+from datetime import datetime, timedelta
 
 class CustomPasswordResetForm(PasswordResetForm):
     def get_users(self, email):
-        # Buscamos en tu modelo personalizado 'Usuario'
         usuarios_perfil = Usuario.objects.filter(correo_usuario__iexact=email)
         
         if usuarios_perfil.exists():
             usuarios_reales = []
             for perfil in usuarios_perfil:
                 if perfil.user:
-                    # TRUCO: Le asignamos temporalmente el correo del perfil 
-                    # al objeto User de Django para que el enviador lo encuentre
                     perfil.user.email = perfil.correo_usuario
                     usuarios_reales.append(perfil.user)
             return usuarios_reales
@@ -33,14 +35,12 @@ class CustomPasswordResetForm(PasswordResetForm):
 
     def send_mail(self, subject_template_name, email_template_name, context, 
                   from_email, to_email, html_email_template_name=None):
-        
-        # Forzamos el nombre de la URL con el namespace 'login'
         context['password_reset_confirm_url_name'] = 'login:password_reset_confirm'
-        
         super().send_mail(
             subject_template_name, email_template_name, context, 
             from_email, to_email, html_email_template_name
         )
+
 class ElementoForm(forms.ModelForm):
     class Meta:
         model = Elemento
@@ -48,7 +48,6 @@ class ElementoForm(forms.ModelForm):
         widgets = {
             'fecha_ingreso': forms.DateInput(attrs={'type': 'date'}),
         }
-
 
     def clean(self):
         cleaned_data = super().clean()
@@ -58,7 +57,6 @@ class ElementoForm(forms.ModelForm):
         
         if fecha_ingreso and fecha_ingreso > timezone.now().date():
             raise forms.ValidationError('La fecha de ingreso no puede ser futura.')
-
     
         qs = Elemento.objects.all()
         if self.instance and self.instance.pk:
@@ -67,31 +65,31 @@ class ElementoForm(forms.ModelForm):
         if serial and nombre_elemento and qs.filter(serial=serial,nombre_elemento=nombre_elemento).exists():
             raise forms.ValidationError('Ya existe un elemento con ese serial y nombre.')
         return cleaned_data
+
     def clean_serial(self):
         serial = self.cleaned_data.get('serial')
         if serial and not re.match(r'^[A-Z0-9]{5,10}$', serial):
             raise forms.ValidationError('El serial debe contener entre 5 y 10 caracteres alfanuméricos en mayúsculas.')
         return serial
+
     def clean_nombre_elemento(self):
         nombre_elemento = self.cleaned_data.get('nombre_elemento')
-        if nombre_elemento and not re.match(r'^[a-zA-Z\s]+$', nombre_elemento):
-            raise forms.ValidationError('El nombre del elemento solo puede contener letras y espacios.')
+        if nombre_elemento and not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+$', nombre_elemento):
+            raise forms.ValidationError('El nombre del elemento solo puede contener letras.')
         return nombre_elemento
+
     def clean_fecha_ingreso(self):
         fecha_ingreso = self.cleaned_data.get('fecha_ingreso')
         if fecha_ingreso and fecha_ingreso > timezone.now().date():
             raise forms.ValidationError('La fecha de ingreso no puede ser futura.')
         return fecha_ingreso
+
     def clean_marca(self):
         marca = self.cleaned_data.get('marca')
-        if marca:
-            if marca != marca.strip():
-                raise forms.ValidationError('La marca no puede contener espacios al inicio ni al final.')
-        if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$', marca):
-            raise forms.ValidationError('La marca solo puede contener letras y espacios.')
-        if '  ' in marca:
-            raise forms.ValidationError('La marca no puede contener espacios consecutivos.')
+        if marca and not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+$', marca):
+            raise forms.ValidationError('La marca solo puede contener letras.')
         return marca
+
     def clean_imagen(self):
         imagen = self.cleaned_data.get('imagen')
         if imagen:
@@ -101,14 +99,15 @@ class ElementoForm(forms.ModelForm):
         return imagen
 
 
-# ==========================================
+
+# 
 # FORMULARIO DE ACCESO
-# ==========================================
-# ============================================================
+# 
+# ====
 # Este archivo contiene SOLO las clases que cambian.
 # Reemplaza las clases correspondientes en tu forms.py existente
 # por estas versiones. No borres el resto de tu forms.py.
-# ============================================================
+# ====
 
 import re
 from datetime import date, time, datetime, timedelta
@@ -120,13 +119,16 @@ from django.utils import timezone
 from .models import Usuario, Asistencia, Membresia
 
 
-# ==========================================
+# 
 # FORMULARIO DE ACCESO (sin cambios funcionales,
 # se deja igual a como ya lo tenías)
-# ==========================================
+# 
+
+
+
+
 
 class UserForm(forms.ModelForm):
-
     password = forms.CharField(
         label="Contraseña",
         required=False,
@@ -137,7 +139,7 @@ class UserForm(forms.ModelForm):
                 'autocomplete': 'new-password',
                 'id': 'password-field'
             },
-            render_value=False   # ← CAMBIAR ESTO
+            render_value=False
         )
     )
 
@@ -156,14 +158,17 @@ class UserForm(forms.ModelForm):
             )
         }
 
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+
+
         # Nunca mostrar el hash de la contraseña
         self.initial['password'] = ''
-# ==========================================
+# 
 # FORMULARIO DE USUARIO (CORREGIDO)
-# ==========================================
+# 
 #
 # Bugs que tenía el original y que se corrigen aquí:
 #
@@ -194,56 +199,102 @@ class UserForm(forms.ModelForm):
 
 class UsuarioForm(forms.ModelForm):
 
+
+    def clean_password(self):
+        password = self.cleaned_data.get('password')
+        
+        if password:
+            if len(password) < 7:
+                raise forms.ValidationError('La contraseña debe tener al menos 7 caracteres.')
+            
+            if not re.search(r'[A-Z]', password):
+                raise forms.ValidationError('La contraseña debe contener al menos una letra mayúscula.')
+            
+            if not re.search(r'[a-z]', password):
+                raise forms.ValidationError('La contraseña debe contener al menos una letra minúscula.')
+            
+            if not re.search(r'[0-9]', password):
+                raise forms.ValidationError('La contraseña debe contener al menos un número.')
+            
+            if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+                raise forms.ValidationError('La contraseña debe contener al menos un carácter especial (!@#$%^&*(),.?":{}|<>).')
+        
+        return password
+
+class UsuarioForm(forms.ModelForm):
+
+
+    def clean_password(self):
+        password = self.cleaned_data.get('password')
+        
+        if password:
+            if len(password) < 7:
+                raise forms.ValidationError('La contraseña debe tener al menos 7 caracteres.')
+            
+            if not re.search(r'[A-Z]', password):
+                raise forms.ValidationError('La contraseña debe contener al menos una letra mayúscula.')
+            
+            if not re.search(r'[a-z]', password):
+                raise forms.ValidationError('La contraseña debe contener al menos una letra minúscula.')
+            
+            if not re.search(r'[0-9]', password):
+                raise forms.ValidationError('La contraseña debe contener al menos un número.')
+            
+            if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+                raise forms.ValidationError('La contraseña debe contener al menos un carácter especial (!@#$%^&*(),.?":{}|<>).')
+        
+        return password
+
+class UsuarioForm(forms.ModelForm):
+
     foto = forms.ImageField(required=False)
 
     class Meta:
         model = Usuario
-
         fields = [
-            'documento',
-            'tipo_documento',
-            'nombre_usuario',
-            'apellido_usuario',
-            'fecha_nacimiento',
-            'telefono_usuario',
-            'correo_usuario',
-            'peso_usuario',
-            'altura_usuario',
-            'rol',
-            'genero_usuario',
-            'foto',
+            'documento', 'tipo_documento', 'nombre_usuario', 'apellido_usuario',
+            'fecha_nacimiento', 'telefono_usuario', 'correo_usuario',
+            'peso_usuario', 'altura_usuario', 'rol', 'genero_usuario', 'foto',
         ]
+
+
+
+
+        exclude = ['user', 'estado', 'fecha_registro']
+
 
         widgets = {
             'documento': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Ingrese documento',
-                'maxlength': '10',
-                'pattern': '[0-9]{7,10}',
+                'class': 'form-control', 'placeholder': 'Ingrese documento',
+                'maxlength': '10', 'pattern': '[0-9]{7,10}',
                 'title': 'Solo números entre 7 y 10 dígitos',
                 'oninput': 'this.value=this.value.replace(/[^0-9]/g,"")'
             }),
+
             'tipo_documento': forms.Select(attrs={
                 'class': 'form-select'
             }),
+
+            'tipo_documento': forms.Select(attrs={'class': 'form-select'}),
+
+
+            'tipo_documento': forms.Select(attrs={'class': 'form-select'}),
+
             'nombre_usuario': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Ingrese nombres',
-                'pattern': '[A-Za-záéíóúÁÉÍÓÚñÑ ]+',
-                'title': 'Solo letras y espacios',
+                'class': 'form-control', 'placeholder': 'Ingrese nombres',
+                'pattern': '[A-Za-záéíóúÁÉÍÓÚñÑ ]+', 'title': 'Solo letras y espacios',
                 'autocomplete': 'off'
             }),
             'apellido_usuario': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Ingrese apellidos',
-                'pattern': '[A-Za-záéíóúÁÉÍÓÚñÑ ]+',
-                'title': 'Solo letras y espacios',
+                'class': 'form-control', 'placeholder': 'Ingrese apellidos',
+                'pattern': '[A-Za-záéíóúÁÉÍÓÚñÑ ]+', 'title': 'Solo letras y espacios',
                 'autocomplete': 'off'
             }),
 
-            # ==========================================
+
+            # 
             # FECHA NACIMIENTO
-            # ==========================================
+            # 
 
             'fecha_nacimiento': forms.DateInput(
                 format='%Y-%m-%d',
@@ -253,42 +304,50 @@ class UsuarioForm(forms.ModelForm):
                 }
             ),
 
-            # ==========================================
+            # 
             # TELEFONO
-            # ==========================================
+            # 
+
+
+
+            'fecha_nacimiento': forms.DateInput(attrs={
+                'type': 'date',
+                'class': 'form-control'
+            }),
+
+            'fecha_nacimiento': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+
+
+            'fecha_nacimiento': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
 
             'telefono_usuario': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Ingrese teléfono',
-                'maxlength': '10',
-                'pattern': '3[0-9]{9}',
+                'class': 'form-control', 'placeholder': 'Ingrese teléfono',
+                'maxlength': '10', 'pattern': '3[0-9]{9}',
                 'title': 'Debe iniciar en 3 y tener 10 dígitos',
                 'oninput': 'this.value=this.value.replace(/[^0-9]/g,"")'
             }),
             'correo_usuario': forms.EmailInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Ingrese correo',
-                'autocomplete': 'off'
+                'class': 'form-control', 'placeholder': 'Ingrese correo', 'autocomplete': 'off'
             }),
             'peso_usuario': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Peso en kg',
-                'min': '30',
-                'max': '150'
+                'class': 'form-control', 'placeholder': 'Peso en kg', 'min': '30', 'max': '150'
             }),
             'altura_usuario': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Altura en cm',
-                'min': '100',
-                'max': '230'
+                'class': 'form-control', 'placeholder': 'Altura en cm', 'min': '100', 'max': '230'
             }),
+
             'rol': forms.Select(attrs={
                 'class': 'form-select',
                 'required': 'required'
             }),
+
+            'rol': forms.Select(attrs={'class': 'form-select', 'required': 'required'}),
+
+
+            'rol': forms.Select(attrs={'class': 'form-select', 'required': 'required'}),
+
             'foto': forms.ClearableFileInput(attrs={
-                'class': 'form-control',
-                'accept': '.jpg,.jpeg,.png,.webp'
+                'class': 'form-control', 'accept': '.jpg,.jpeg,.png,.webp'
             }),
         }
         
@@ -297,18 +356,24 @@ class UsuarioForm(forms.ModelForm):
 
         self.fields['fecha_nacimiento'].input_formats = ['%Y-%m-%d']
 
-    # =====================================================
+
+    # ====
     # VALIDAR ROL
-    # =====================================================
+    # ====
+
+
+
+
     def clean_rol(self):
         rol = self.cleaned_data.get('rol')
         if not rol:
             raise forms.ValidationError('Debe seleccionar un rol válido.')
         return rol
 
-    # =====================================================
+
+    # ====
     # VALIDAR NOMBRE
-    # =====================================================
+    # ====
     def clean_nombre_usuario(self):
         nombre = self.cleaned_data.get('nombre_usuario', '').strip()
 
@@ -324,9 +389,9 @@ class UsuarioForm(forms.ModelForm):
 
         return nombre.title()
 
-    # =====================================================
+    # ====
     # VALIDAR APELLIDO
-    # =====================================================
+    # ====
     def clean_apellido_usuario(self):
         apellido = self.cleaned_data.get('apellido_usuario', '').strip()
 
@@ -342,11 +407,12 @@ class UsuarioForm(forms.ModelForm):
 
         return apellido.title()
 
-    # =====================================================
+    # ====
     # VALIDAR FECHA NACIMIENTO (única versión, limpia)
     # Edad permitida: entre 12 y 90 años, igual que la regla
     # que ya usas en el JS del wizard de asistencia.
-    # =====================================================
+    # ====
+
 
     def clean_fecha_nacimiento(self):
         fecha = self.cleaned_data.get('fecha_nacimiento')
@@ -356,7 +422,66 @@ class UsuarioForm(forms.ModelForm):
                 "Por favor ingresa una fecha de nacimiento."
             )
 
+
+    def clean_nombre_usuario(self):
+        nombre = self.cleaned_data.get('nombre_usuario', '').strip()
+        if not re.match(r'^[A-Za-záéíóúÁÉÍÓÚñÑ ]+$', nombre):
+            raise forms.ValidationError('El nombre solo puede contener letras.')
+        if len(nombre) < 2:
+            raise forms.ValidationError('El nombre es demasiado corto.')
+        limpio = nombre.lower().replace(' ', '')
+        if len(set(limpio)) == 1:
+            raise forms.ValidationError('Ingrese un nombre válido.')
+        return nombre.title()
+
+    def clean_apellido_usuario(self):
+        apellido = self.cleaned_data.get('apellido_usuario', '').strip()
+        if not re.match(r'^[A-Za-záéíóúÁÉÍÓÚñÑ ]+$', apellido):
+            raise forms.ValidationError('El apellido solo puede contener letras.')
+        if len(apellido) < 2:
+            raise forms.ValidationError('El apellido es demasiado corto.')
+        limpio = apellido.lower().replace(' ', '')
+        if len(set(limpio)) == 1:
+            raise forms.ValidationError('Ingrese un apellido válido.')
+        return apellido.title()
+
+
+
+    def clean_nombre_usuario(self):
+        nombre = self.cleaned_data.get('nombre_usuario', '').strip()
+        if not re.match(r'^[A-Za-záéíóúÁÉÍÓÚñÑ ]+$', nombre):
+            raise forms.ValidationError('El nombre solo puede contener letras.')
+        if len(nombre) < 2:
+            raise forms.ValidationError('El nombre es demasiado corto.')
+        limpio = nombre.lower().replace(' ', '')
+        if len(set(limpio)) == 1:
+            raise forms.ValidationError('Ingrese un nombre válido.')
+        return nombre.title()
+
+    def clean_apellido_usuario(self):
+        apellido = self.cleaned_data.get('apellido_usuario', '').strip()
+        if not re.match(r'^[A-Za-záéíóúÁÉÍÓÚñÑ ]+$', apellido):
+            raise forms.ValidationError('El apellido solo puede contener letras.')
+        if len(apellido) < 2:
+            raise forms.ValidationError('El apellido es demasiado corto.')
+        limpio = apellido.lower().replace(' ', '')
+        if len(set(limpio)) == 1:
+            raise forms.ValidationError('Ingrese un apellido válido.')
+        return apellido.title()
+
+
+    def clean_fecha_nacimiento(self):
+        fecha_nacimiento = self.cleaned_data.get('fecha_nacimiento')
+        if fecha_nacimiento is None:
+
+            raise forms.ValidationError('Por favor ingresa una fecha de nacimiento.')
+
+
+            raise forms.ValidationError("Por favor ingresa una fecha de nacimiento.")
+
+
         hoy = date.today()
+
 
         if fecha >= hoy:
             raise forms.ValidationError(
@@ -367,6 +492,18 @@ class UsuarioForm(forms.ModelForm):
             raise forms.ValidationError(
                 "La fecha debe ser posterior al año 1900."
             )
+
+        if fecha_nacimiento >= hoy:
+
+            raise forms.ValidationError('La fecha de nacimiento no puede ser hoy ni una fecha futura.')
+
+
+        hoy = date.today()
+        if fecha_nacimiento >= hoy:
+            raise forms.ValidationError("La fecha de nacimiento no puede ser hoy ni una fecha futura.")
+
+        if fecha_nacimiento.year < 1900:
+            raise forms.ValidationError('La fecha de nacimiento debe ser posterior al año 1900.')
 
         edad = (
             hoy.year
@@ -383,7 +520,30 @@ class UsuarioForm(forms.ModelForm):
                 "El usuario debe tener mínimo 16 años."
             )
 
+
         return fecha   
+
+        if edad > 90:
+            raise forms.ValidationError('Verifica el año ingresado; la edad máxima permitida es 90 años.')
+
+        return fecha_nacimiento
+
+    # ====
+    # VALIDAR TELÉFONO (única versión, sin código muerto)
+    # ====
+
+            raise forms.ValidationError("La fecha de nacimiento no puede ser hoy ni una fecha futura.")
+        if fecha_nacimiento.year < 1900:
+            raise forms.ValidationError("La fecha de nacimiento debe ser posterior al año 1900.")
+        edad_minima = hoy.replace(year=hoy.year - 5)
+        if fecha_nacimiento > edad_minima:
+            raise forms.ValidationError("La fecha de nacimiento no es válida, verifica el año ingresado.")
+        return fecha_nacimiento
+
+
+
+
+
     def clean_telefono_usuario(self):
         telefono = self.cleaned_data.get('telefono_usuario')
         if telefono:
@@ -393,11 +553,12 @@ class UsuarioForm(forms.ModelForm):
                 )
         return telefono
 
-    # =====================================================
+
+    # ====
     # VALIDAR CORREO (duplicados, dejado explícito porque
     # el modelo ya tiene unique=True pero así el mensaje de
     # error es más claro en el form)
-    # =====================================================
+    # ====
     def clean_correo_usuario(self):
         correo = self.cleaned_data.get('correo_usuario', '').strip()
         if correo:
@@ -408,9 +569,9 @@ class UsuarioForm(forms.ModelForm):
                 raise forms.ValidationError('Este correo ya está registrado.')
         return correo
 
-    # =====================================================
+    # ====
     # VALIDAR DOCUMENTO (duplicados)
-    # =====================================================
+    # ====
     def clean_documento(self):
         documento = self.cleaned_data.get('documento', '').strip()
         if documento:
@@ -426,9 +587,9 @@ class UsuarioForm(forms.ModelForm):
                 raise forms.ValidationError('Este documento ya está registrado.')
         return documento
 
-    # =====================================================
+    # ====
     # VALIDAR PESO / ALTURA
-    # =====================================================
+    # ====
     def clean_peso_usuario(self):
         peso = self.cleaned_data.get('peso_usuario')
         if peso is not None and not (30 <= peso <= 150):
@@ -442,11 +603,11 @@ class UsuarioForm(forms.ModelForm):
         return altura
 
 
-# ==========================================
+# 
 # VALIDADORES REUTILIZABLES PARA USERNAME Y PASSWORD
 # (usados por el wizard, tanto en backend como referencia
 # para mantener el mismo criterio en frontend)
-# ==========================================
+# 
 
 USERNAME_REGEX = re.compile(r'^[A-Za-z0-9]+$')
 
@@ -490,15 +651,26 @@ def validar_password(password):
         return 'Debe contener al menos un símbolo (ej: ! @ # $ % &).'
     return None
 
+
+
+
+
 class MantenimientoForm(forms.ModelForm):
     class Meta:
         model = Mantenimiento
         fields = "__all__"
         widgets = {
+
             "fecha_programada": forms.DateInput(attrs={"type": "date"}),
             "descripcion": forms.Textarea(attrs={
                 "class": "form-control",
                 "placeholder": "Ingrese la descripción"
+
+            'fecha_programada': forms.DateInput(attrs={'type': 'date'}),
+            'fecha_realizada': forms.DateInput(attrs={'type': 'date'}),
+            'descripcion': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ingrese la descripcion del mantenimiento'
             }),
         }
 
@@ -523,13 +695,10 @@ class MantenimientoForm(forms.ModelForm):
                 )
 
         return cleaned_data
-    
-    
-class AsistenciaForm(forms.ModelForm):
 
+class AsistenciaForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         if not self.instance.pk:
             self.fields['fecha_asistencia'].initial = datetime.now().strftime('%d-%m-%Y')
             self.fields['hora_ingreso'].initial = datetime.now().strftime('%H:%M')
@@ -538,19 +707,12 @@ class AsistenciaForm(forms.ModelForm):
         model = Asistencia
         fields = '__all__'
         widgets = {
-            'hora_ingreso': forms.TimeInput(attrs={
-                'class': 'form-control',
-                'type': 'time',
-            }),
-            'fecha_asistencia': forms.DateInput(attrs={
-                'class': 'form-control',
-                'type': 'date',
-            }),
+            'hora_ingreso': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
+            'fecha_asistencia': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
         }
 
     def clean(self):
         cleaned_data = super().clean()
-
         fecha_asistencia = cleaned_data.get('fecha_asistencia')
         hora_ingreso = cleaned_data.get('hora_ingreso')
         fk_membresia = cleaned_data.get('fk_membresia')
@@ -561,20 +723,14 @@ class AsistenciaForm(forms.ModelForm):
         hoy = date.today()
 
         if not self.instance.pk:
-            # CREAR: la fecha debe ser exactamente hoy
             if fecha_asistencia != hoy:
                 self.add_error('fecha_asistencia', 'Al crear una asistencia, la fecha debe ser la actual')
         else:
-            # EDITAR: se permite cambiar el día, pero debe seguir
-            # dentro de la semana actual (lunes a domingo)
-            inicio_semana = hoy - timedelta(days=hoy.weekday())  # lunes
-            fin_semana = inicio_semana + timedelta(days=6)       # domingo
+            inicio_semana = hoy - timedelta(days=hoy.weekday())
+            fin_semana = inicio_semana + timedelta(days=6)
 
             if not (inicio_semana <= fecha_asistencia <= fin_semana):
-                self.add_error(
-                    'fecha_asistencia',
-                    'La fecha de asistencia debe estar dentro de la semana actual'
-                )
+                self.add_error('fecha_asistencia', 'La fecha de asistencia debe estar dentro de la semana actual')
 
         asistencia_existente = Asistencia.objects.filter(
             fk_membresia__fk_usuario=fk_membresia.fk_usuario,
@@ -591,9 +747,8 @@ class AsistenciaForm(forms.ModelForm):
                 self.add_error('hora_ingreso', 'No se permiten registros entre las 9:00 PM y las 5:00 AM')
 
         return cleaned_data
-        
-class MembresiaForm(ModelForm):
 
+class MembresiaForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         hoy = datetime.now().date()
@@ -615,14 +770,8 @@ class MembresiaForm(ModelForm):
         model = Membresia
         fields = '__all__'
         widgets = {
-            'fecha_inicio': forms.DateInput(attrs={
-                'class': 'form-control',
-                'type': 'date',
-            }),
-            'fecha_fin': forms.DateInput(attrs={
-                'class': 'form-control',
-                'type': 'date',
-            }),
+            'fecha_inicio': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'fecha_fin': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
         }
 
     def clean(self):
@@ -636,20 +785,21 @@ class MembresiaForm(ModelForm):
         hoy = date.today()
 
         if not self.instance.pk:
-            # CREAR: la fecha de inicio debe ser exactamente hoy
             if fecha_inicio != hoy:
                 self.add_error('fecha_inicio', 'La fecha de inicio debe ser la actual')
             # Forzar estado activo sin importar lo que llegue en el POST
             cleaned_data['estado'] = 'activo'  # o True si es BooleanField
         else:
-            # EDITAR: se permite cambiar el día, pero debe seguir
-            # dentro del mes y año actual
             if fecha_inicio.month != hoy.month or fecha_inicio.year != hoy.year:
+<<<<<<< HEAD
                 self.add_error(
                     'fecha_inicio',
                     'La fecha de inicio debe estar dentro del mes y año actual'
                 )
             # estado queda tal como lo eligió el usuario en cleaned_data['estado']
+=======
+                self.add_error('fecha_inicio', 'La fecha de inicio debe estar dentro del mes y año actual')
+>>>>>>> Zamir
 
         cleaned_data['fecha_fin'] = fecha_inicio + timedelta(days=30)
 
@@ -660,46 +810,28 @@ class MembresiaForm(ModelForm):
         ).exclude(pk=self.instance.pk)
 
         if membresia_existente.exists():
-            self.add_error(
-                'fk_usuario',
-                'El usuario ya tiene una membresia registrada en este mes'
-            )
+            self.add_error('fk_usuario', 'El usuario ya tiene una membresia registrada en este mes')
 
         return cleaned_data
 
 class NotificacionForm(forms.ModelForm):
-    def __init__(self,*args, **kwargs):
-        super().__init__(*args,**kwargs)
-        self.initial["fecha_envio"] = (
-            timezone.now() + timedelta(minutes=1)
-        ).strftime("%Y-%m-%dT%H:%M")
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.initial["fecha_envio"] = (timezone.now() + timedelta(minutes=1)).strftime("%Y-%m-%dT%H:%M")
+
     class Meta:
         model = Notificacion
         fields = '__all__'
-        widgets ={
+        widgets = {
             'fk_usuario': forms.Select(attrs={'class': 'form-control'}),
-            
-            'tipo_notificacion': forms.Select(attrs={
-                'class': 'form-control',
-            }),
-            'canal_notificacion': forms.Select(attrs={
-                'class': 'form-control',
-            }),
-            'fk_membresia': forms.Select(attrs={
-                'class': 'form-control',
-            }),
-            'fk_asistencia': forms.Select(attrs={
-                'class': 'form-control',
-            }),
-            'fk_mantenimiento': forms.Select(attrs={
-                'class': 'form-control',
-            }),
-            'fecha_envio': forms.DateTimeInput(attrs={
-                 "class": "form-control",
-                 "type": "datetime-local"
-            })
+            'tipo_notificacion': forms.Select(attrs={'class': 'form-control'}),
+            'canal_notificacion': forms.Select(attrs={'class': 'form-control'}),
+            'fk_membresia': forms.Select(attrs={'class': 'form-control'}),
+            'fk_asistencia': forms.Select(attrs={'class': 'form-control'}),
+            'fk_mantenimiento': forms.Select(attrs={'class': 'form-control'}),
+            'fecha_envio': forms.DateTimeInput(attrs={"class": "form-control", "type": "datetime-local"})
         }
-    
+
     def clean(self):
         cleaned_data = super().clean()
         tipo_notificacion = cleaned_data.get('tipo_notificacion')
@@ -709,11 +841,6 @@ class NotificacionForm(forms.ModelForm):
         if exist_notificacion and exit_canal:
             self.add_error('tipo_notificacion', 'Ya existe una notificación con este tipo y canal')
         return cleaned_data
-        
-        
-        
-
-
 
 class EncuestaForm(forms.ModelForm):
     miembros = forms.ModelMultipleChoiceField(
@@ -726,41 +853,25 @@ class EncuestaForm(forms.ModelForm):
         model = Encuesta
         fields = ['nombre', 'estado', 'fk_usuario', 'miembros']
         widgets = {
-            'nombre' : forms.TextInput(attrs={ 
-                'class':'form-control',
-                'placeholder': 'Ingrese el nombre de la encuesta'}),
-            
-            'estado':
-                forms.Select(attrs={
-                'class':'form-control'}),
-            'fk_usuario':
-                forms.Select(attrs={
-                    'class':'form-control',
-                })      
+            'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el nombre de la encuesta'}),
+            'estado': forms.Select(attrs={'class': 'form-control'}),
+            'fk_usuario': forms.Select(attrs={'class': 'form-control'})
         }
 
     def clean_nombre(self):
         nombre = self.cleaned_data.get('nombre')
-
         if not nombre:
             raise forms.ValidationError("El nombre es obligatorio")
-
         nombre = nombre.strip()
-
         if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$', nombre):
             raise forms.ValidationError("El nombre solo puede contener letras")
-
         existe = Encuesta.objects.filter(nombre__iexact=nombre)
-
         if self.instance.pk:
             existe = existe.exclude(pk=self.instance.pk)
-
         if existe.exists():
             raise forms.ValidationError("Ya existe una encuesta con ese nombre")
-        
         if len(set(nombre.replace(" ", "").lower())) == 1:
             raise forms.ValidationError("El nombre no puede contener solo letras repetidas")
-
         return nombre
 
 class PreguntaForm(forms.ModelForm):
@@ -772,18 +883,11 @@ class PreguntaForm(forms.ModelForm):
             'rows': 3
         })
     )
-
     requerida = forms.BooleanField(
         required=False,
         initial=True,
-        widget=forms.CheckboxInput(attrs={
-            'class': 'form-check-input'
-        })
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
     )
-
-    class Meta:
-        model = Pregunta
-        fields = '__all__'
 
     class Meta:
         model = Pregunta
@@ -793,256 +897,120 @@ class PreguntaForm(forms.ModelForm):
             'tipo': forms.Select(attrs={'class': 'form-control'}),
             'requerida': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
+
     def clean_pregunta(self):
         pregunta = self.cleaned_data.get('pregunta')
-
         if not pregunta:
             raise forms.ValidationError("La pregunta es obligatoria")
-
         pregunta = pregunta.strip()
-
-        #Solo números (incluye espacios)
         if pregunta.replace(" ", "").isdigit():
             raise forms.ValidationError("La pregunta no puede contener solo números")
-        
         if not re.search(r'[a-zA-ZáéíóúÁÉÍÓÚñÑ]', pregunta):
             raise forms.ValidationError("La pregunta debe contener al menos una letra")
-
         return pregunta
-    # forms.py
+
     def clean_opciones(self):
         opciones = self.cleaned_data.get('opciones')
         tipo = self.cleaned_data.get('tipo')
-        # Validar que si es opción múltiple, existan opciones
         if tipo in ['multiple_choice', 'check_boxes', 'dropdown'] and not opciones:
             raise forms.ValidationError("Debe proporcionar opciones para este tipo de pregunta")
         if opciones:
-            # Convierte el texto "1,2" en una lista de Python ['1', '2'] para el JSONField
             return [op.strip() for op in opciones.split(',') if op.strip()]
         return None
-    
+
 class BasePreguntaFormSet(BaseInlineFormSet):
     def clean(self):
         super().clean()
-
         if any(self.errors):
             return
-
         total = 0
-
         for form in self.forms:
             if form.cleaned_data and not form.cleaned_data.get('DELETE', False):
                 pregunta = form.cleaned_data.get('pregunta')
-
                 if not pregunta:
                     raise forms.ValidationError("No puede haber preguntas vacías")
-
                 total += 1
-
         if total == 0:
             raise forms.ValidationError("Debe agregar al menos una pregunta")
-        
-PreguntaFormSet = inlineformset_factory(
-    Encuesta, 
-    Pregunta, 
-    form=PreguntaForm, 
-    formset=BasePreguntaFormSet,
-    extra=1,        #Solo 1 pregunta inicial
-    can_delete=True,
-    max_num=20,     #Permite hasta 20 preguntas
-    validate_max=False
-)
-class Soporte_PQRSForm(ModelForm):
 
+PreguntaFormSet = inlineformset_factory(
+    Encuesta, Pregunta, form=PreguntaForm, formset=BasePreguntaFormSet,
+    extra=1, can_delete=True, max_num=20, validate_max=False
+)
+
+class Soporte_PQRSForm(ModelForm):
     class Meta:
         model = Soporte_PQRS
         fields = '__all__'
-
         widgets = {
-            'tipo': forms.Select(attrs={
-                'class': 'form-control',
-                'placeholder': 'Ingrese el tipo de soporte pqr'
-            }),
-
-            'descripcion': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Ingrese la descripcion del soporte pqr'
-            }),
-
-            'fecha_ingreso': forms.DateInput(
-                format='%Y-%m-%d',
-                attrs={
-                    'class': 'form-control',
-                    'type': 'date'
-                }
-            ),
-
-            'estado': forms.Select(attrs={
-                'class': 'form-control',
-                'placeholder': 'Ingrese el estado del soporte pqr',
-                'rows': 3,
-                'cols': 3
-            }),
-
-            'fk_usuario': forms.Select(attrs={
-                'class': 'form-control',
-            })
+            'tipo': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Ingrese el tipo de soporte pqr'}),
+            'descripcion': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese la descripcion del soporte pqr'}),
+            'fecha_ingreso': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'type': 'date'}),
+            'estado': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Ingrese el estado del soporte pqr', 'rows': 3, 'cols': 3}),
+            'fk_usuario': forms.Select(attrs={'class': 'form-control'})
         }
 
     def clean_descripcion(self):
-
         descripcion = self.cleaned_data['descripcion'].strip()
-
-        # VALIDAR MAXIMO
         if len(descripcion) > 200:
-            raise forms.ValidationError(
-                "La descripción no debe tener más de 200 caracteres"
-            )
-
-        # VALIDAR MINIMO
+            raise forms.ValidationError("La descripción no debe tener más de 200 caracteres")
         if len(descripcion) < 10:
-            raise forms.ValidationError(
-                "La descripción debe tener mínimo 10 caracteres"
-            )
-
-        # NO PERMITIR CARACTERES ESPECIALES
+            raise forms.ValidationError("La descripción debe tener mínimo 10 caracteres")
         if re.search(r'[{}[\]<>*/\\|°¬¨+=~`%^]', descripcion):
-            raise forms.ValidationError(
-                "No se permiten caracteres especiales"
-            )
-
-        # NO PERMITIR NUMEROS REPETIDOS
-        # ejemplo: 111111111
+            raise forms.ValidationError("No se permiten caracteres especiales")
         if re.search(r'(\d)\1{3,}', descripcion):
-            raise forms.ValidationError(
-                "No se permiten números repetidos excesivamente"
-            )
-
-        # NO PERMITIR LETRAS REPETIDAS
-        # ejemplo: aaaaaaaa
+            raise forms.ValidationError("No se permiten números repetidos excesivamente")
         if re.search(r'([a-zA-Z])\1{3,}', descripcion.lower()):
-            raise forms.ValidationError(
-                "No se permiten letras repetidas excesivamente"
-            )
-
+            raise forms.ValidationError("No se permiten letras repetidas excesivamente")
         palabras = descripcion.split()
-
         for palabra in palabras:
-
             palabra_lower = palabra.lower()
-
-            # NO PERMITIR jajajajaja
             if re.fullmatch(r'(ha|ja|je|ji|jo|ju)+', palabra_lower):
-                raise forms.ValidationError(
-                    "Ingrese una descripción coherente"
-                )
-
-            # NO PERMITIR palabras iguales
-            # ejemplo: aaaaaaaa
+                raise forms.ValidationError("Ingrese una descripción coherente")
             if len(set(palabra_lower)) == 1:
-                raise forms.ValidationError(
-                    "La descripción contiene palabras inválidas"
-                )
-
-            # NO PERMITIR TEXTO RANDOM
-            # ejemplo: asdfghjkl, qwertyui
+                raise forms.ValidationError("La descripción contiene palabras inválidas")
             if re.fullmatch(r'[a-zA-Z0-9]{8,}', palabra):
-
-                vocales = sum(
-                    1 for letra in palabra_lower
-                    if letra in "aeiou"
-                )
-
-                consonantes = sum(
-                    1 for letra in palabra_lower
-                    if letra.isalpha() and letra not in "aeiou"
-                )
-
+                vocales = sum(1 for letra in palabra_lower if letra in "aeiou")
+                consonantes = sum(1 for letra in palabra_lower if letra.isalpha() and letra not in "aeiou")
                 if consonantes > vocales * 3:
-                    raise forms.ValidationError(
-                        "Ingrese una descripción válida y coherente"
-                    )
-
+                    raise forms.ValidationError("Ingrese una descripción válida y coherente")
                 if vocales > consonantes * 2:
-                    raise forms.ValidationError(
-                        "Ingrese una descripción válida y coherente"
-                    )
-
-            # NO PERMITIR MEZCLAS RANDOM DE LETRAS Y NUMEROS
-            # ejemplo: 765gtrhyte3wsdfghj
+                    raise forms.ValidationError("Ingrese una descripción válida y coherente")
             if re.fullmatch(r'[a-zA-Z0-9]{10,}', palabra):
-
                 letras = sum(c.isalpha() for c in palabra)
                 numeros = sum(c.isdigit() for c in palabra)
-
-                # MUCHAS letras y números juntos
                 if letras >= 5 and numeros >= 2:
-                    raise forms.ValidationError(
-                        "Ingrese una descripción coherente y válida"
-                    )
-
-                # PATRONES TIPO TECLADO
-                patrones_invalidos = [
-                    'asdf', 'qwerty', 'zxcv',
-                    'hjkl', 'poiuy', 'lkjh'
-                ]
-
+                    raise forms.ValidationError("Ingrese una descripción coherente y válida")
+                patrones_invalidos = ['asdf', 'qwerty', 'zxcv', 'hjkl', 'poiuy', 'lkjh']
                 for patron in patrones_invalidos:
-
                     if patron in palabra_lower:
-                        raise forms.ValidationError(
-                            "La descripción contiene texto inválido"
-                        )
-
+                        raise forms.ValidationError("La descripción contiene texto inválido")
         return descripcion
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         hoy = timezone.localdate()
-
         self.fields['fecha_ingreso'].initial = hoy.strftime('%Y-%m-%d')
-
         self.fields['fecha_ingreso'].widget.attrs['min'] = hoy.strftime('%Y-%m-%d')
-        
+
     def clean_fecha_ingreso(self):
         fecha_ingreso = self.cleaned_data.get('fecha_ingreso')
-
         if fecha_ingreso and fecha_ingreso < timezone.localdate():
-            raise forms.ValidationError(
-                'La fecha de ingreso no puede ser anterior a la de hoy'
-            )
-
+            raise forms.ValidationError('La fecha de ingreso no puede ser anterior a la de hoy')
         return fecha_ingreso
-        
+
 class Reportes_estadisticasForm(forms.ModelForm):
     class Meta:
         model = Reportes_estadisticas
         fields = '__all__'
         widgets = {
-            'tipo_reporte': forms.Select(attrs={ 
-                'class': 'form-control',
-            }),
-            'descripcion' : forms.TextInput(attrs={ 
-                'class':'form-control',
-                
-                'placeholder': 'Ingrese la descripcion del reporte o estadistica'}),
-            'fecha_generacion': forms.DateInput(attrs={ 
-                'class': 'form-control',
-                'type': 'date'
-            }),
-            'formato':
-                forms.Select(attrs={
-                'class':'form-control',  
-                'placeholder': 'Ingrese el formato del reporte',
-                'rows':3,
-                'cols':3}),
-            'fk_usuario':
-                forms.Select(attrs={
-                    'class':'form-control',
-                })      
+            'tipo_reporte': forms.Select(attrs={'class': 'form-control'}),
+            'descripcion': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese la descripcion del reporte o estadistica'}),
+            'fecha_generacion': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'formato': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Ingrese el formato del reporte', 'rows': 3, 'cols': 3}),
+            'fk_usuario': forms.Select(attrs={'class': 'form-control'})
         }
-    
+
     def clean_fecha_generacion(self):
         fecha_generacion = self.cleaned_data.get('fecha_generacion')
         if fecha_generacion > date.today():
@@ -1050,32 +1018,22 @@ class Reportes_estadisticasForm(forms.ModelForm):
         if fecha_generacion < date(2025, 1, 1):
             raise forms.ValidationError("La fecha no puede ser anterior al 1 de enero de 2025.")
         return fecha_generacion
-    
+
     def clean_descripcion(self):
         descripcion = self.cleaned_data['descripcion']
-
         if len(descripcion) < 10:
             raise forms.ValidationError("La descripción debe tener mínimo 10 caracteres")
         if len(descripcion) > 200:
-            raise forms.ValidationError("La descripcion  no debe tener mas de 200 caracteres")
-
+            raise forms.ValidationError("La descripcion no debe tener mas de 200 caracteres")
         return descripcion
-        
-class CategoriaForm(forms.ModelForm):
 
+class CategoriaForm(forms.ModelForm):
     class Meta:
         model = Categoria
         fields = '__all__'
-
         widgets = {
-            'nombre_categoria': forms.TextInput(attrs={
-                'class': 'form-control'
-            }),
-
-            'descripcion': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Ingrese la descripción'
-            }),
+            'nombre_categoria': forms.TextInput(attrs={'class': 'form-control'}),
+            'descripcion': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese la descripción'}),
         }
 
     def clean_nombre_categoria(self):
@@ -1108,36 +1066,22 @@ class CategoriaForm(forms.ModelForm):
             if len(descripcion) > 250:
                 raise forms.ValidationError("La descripción no puede tener más de 250 caracteres")
         return descripcion
-    
-    
-    
 
-
-    
 class NutricionForm(forms.ModelForm):
     class Meta:
         model = Nutricion
         fields = '__all__'
         widgets = {
-            'nombre' : forms.TextInput(attrs={
-                'placeholder': 'Ingrese el nombre de la nutricion'}),
-            
+            'nombre': forms.TextInput(attrs={'placeholder': 'Ingrese el nombre de la nutricion'})
         }
-        
 
 class RutinaForm(ModelForm):
     class Meta:
         model = Rutina
         fields = '__all__'
         widgets = {
-            'tipo': forms.Select(attrs={
-                'class': 'form-control'
-            }),
-            'dias_disponibles': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'min': 1,
-                'max': 7
-            }),
+            'tipo': forms.Select(attrs={'class': 'form-control'}),
+            'dias_disponibles': forms.NumberInput(attrs={'class': 'form-control', 'min': 1, 'max': 7}),
         }
 
     def clean_dias_disponibles(self):
@@ -1147,68 +1091,29 @@ class RutinaForm(ModelForm):
         return dias_disponibles
 
 class Masa_muscularForm(forms.ModelForm):
-
     class Meta:
-
         model = Masa_corporal
-
-        fields = [
-            'peso_cliente',
-            'fecha_control',
-            'altura_cliente',
-            'fk_Nutricion'
-        ]
-
+        fields = ['peso_cliente', 'fecha_control', 'altura_cliente', 'fk_Nutricion']
         widgets = {
-
-            'peso_cliente': forms.NumberInput(
-                attrs={
-                    'placeholder': 'Ejemplo: 80 kg',
-                    'step': '0.01'
-                }
-            ),
-
-            'altura_cliente': forms.NumberInput(
-                attrs={
-                    'placeholder': 'Ejemplo: 1.75 m',
-                    'step': '0.01'
-                }
-            ),
-
-            'fecha_control': forms.DateInput(
-                attrs={
-
-                    'type': 'date',
-
-                    # SOLO HOY
-                    'min': date.today().strftime('%Y-%m-%d'),
-
-                    'max': date.today().strftime('%Y-%m-%d'),
-
-                }
-            )
+            'peso_cliente': forms.NumberInput(attrs={'placeholder': 'Ejemplo: 80 kg', 'step': '0.01'}),
+            'altura_cliente': forms.NumberInput(attrs={'placeholder': 'Ejemplo: 1.75 m', 'step': '0.01'}),
+            'fecha_control': forms.DateInput(attrs={'type': 'date', 'min': date.today().strftime('%Y-%m-%d'), 'max': date.today().strftime('%Y-%m-%d')})
         }
 
     def clean_peso_cliente(self):
         peso = self.cleaned_data.get('peso_cliente')
-
         if peso <= 0:
             raise forms.ValidationError("El peso debe ser mayor que 0.")
-
         if peso < 30 or peso > 300:
             raise forms.ValidationError("El peso debe estar entre 30kg y 300kg.")
-
         return peso
 
     def clean_altura_cliente(self):
         altura = self.cleaned_data.get('altura_cliente')
-
         if altura <= 0:
             raise forms.ValidationError("La altura debe ser mayor que 0.")
-
         if altura < 0.5 or altura > 2.5:
             raise forms.ValidationError("La altura debe estar entre 0.5m y 2.5m.")
-
         return altura
 
     def clean_fecha_control(self):
@@ -1223,21 +1128,12 @@ class Masa_muscularForm(forms.ModelForm):
         cleaned_data = super().clean()
         fk_nutricion = cleaned_data.get('fk_Nutricion')
         fecha = cleaned_data.get('fecha_control')
-
         if fk_nutricion and fecha:
-            queryset = Masa_corporal.objects.filter(
-                fk_Nutricion=fk_nutricion,
-                fecha_control=fecha
-            )
-
+            queryset = Masa_corporal.objects.filter(fk_Nutricion=fk_nutricion, fecha_control=fecha)
             if self.instance.pk:
                 queryset = queryset.exclude(pk=self.instance.pk)
-
             if queryset.exists():
-                raise forms.ValidationError(
-                    "Ya existe un control para esta nutrición en esa fecha."
-                )
-
+                raise forms.ValidationError("Ya existe un control para esta nutrición en esa fecha.")
         return cleaned_data
 
 class SancionesForm(forms.ModelForm):
@@ -1251,92 +1147,57 @@ class SancionesForm(forms.ModelForm):
 
     def clean_motivo_sancion(self):
         motivo = self.cleaned_data.get('motivo_sancion')
-
         if not motivo or len(motivo.strip()) < 5:
             raise forms.ValidationError("El motivo debe tener al menos 5 caracteres.")
-
         motivo = motivo.strip()
-
         if not motivo[0].isalpha():
             raise forms.ValidationError("La descripción debe iniciar obligatoriamente con una letra.")
-
         return motivo
 
     def clean_duracion_sancion(self):
         duracion = self.cleaned_data.get('duracion_sancion')
-
         if duracion <= 0:
             raise forms.ValidationError("La duración debe ser mayor que 0 días.")
-
         if duracion > 365:
             raise forms.ValidationError("La duración no puede ser mayor a 365 días.")
-
         return duracion
 
     def clean(self):
         cleaned_data = super().clean()
-
         duracion = cleaned_data.get('duracion_sancion')
         usuario = cleaned_data.get('fk_usuario')
         tipo = cleaned_data.get('tipo_sancion')
         estado = cleaned_data.get('estado')
-
         fecha_inicio = date.today()
         cleaned_data['fecha_inicio'] = fecha_inicio
-
         if duracion:
             fecha_fin = fecha_inicio + timedelta(days=duracion)
             cleaned_data['fecha_fin'] = fecha_fin
-
         if usuario and tipo and estado == 'activa':
-            queryset = Sancion.objects.filter(
-                fk_usuario=usuario,
-                tipo_sancion=tipo,
-                estado='activa'
-            )
-
+            queryset = Sancion.objects.filter(fk_usuario=usuario, tipo_sancion=tipo, estado='activa')
             if self.instance.pk:
                 queryset = queryset.exclude(pk=self.instance.pk)
-
             if queryset.exists():
-                raise forms.ValidationError(
-                    "Este usuario ya tiene una sanción activa de este tipo."
-                )
-
+                raise forms.ValidationError("Este usuario ya tiene una sanción activa de este tipo.")
         return cleaned_data
 
     def clean(self):
         cleaned_data = super().clean()
-
         fecha_inicio = cleaned_data.get('fecha_inicio')
         fecha_fin = cleaned_data.get('fecha_fin')
         usuario = cleaned_data.get('fk_usuario')
         tipo = cleaned_data.get('tipo_sancion')
         estado = cleaned_data.get('estado')
-
         if fecha_inicio and fecha_fin:
             if fecha_fin <= fecha_inicio:
-                raise forms.ValidationError(
-                    "La fecha de fin debe ser mayor que la fecha de inicio."
-                )
-
+                raise forms.ValidationError("La fecha de fin debe ser mayor que la fecha de inicio.")
         if usuario and tipo and estado == 'activa':
-            queryset = Sancion.objects.filter(
-                fk_usuario=usuario,
-                tipo_sancion=tipo,
-                estado='activa'
-            )
-
+            queryset = Sancion.objects.filter(fk_usuario=usuario, tipo_sancion=tipo, estado='activa')
             if self.instance.pk:
                 queryset = queryset.exclude(pk=self.instance.pk)
-
             if queryset.exists():
-                raise forms.ValidationError(
-                    "Este usuario ya tiene una sanción activa de este tipo."
-                )
-
+                raise forms.ValidationError("Este usuario ya tiene una sanción activa de este tipo.")
         return cleaned_data
-
 
 class RegistrovisitantetemporalForm(ModelForm):
 
@@ -1344,6 +1205,7 @@ class RegistrovisitantetemporalForm(ModelForm):
         model = Registrovisitantestemporales
         fields = ['nombre', 'cedula']
         widgets = {
+
             'nombre': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Ingrese el nombre completo'
@@ -1394,6 +1256,20 @@ class RegistrovisitantetemporalForm(ModelForm):
 
         return cedula
     
+
+            'fecha_registro': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'fk_usuario': forms.Select(attrs={'class': 'form-control'}),
+        }
+
+    def clean_fecha_registro(self):
+        fecha_registro = self.cleaned_data.get('fecha_registro')
+        hoy = timezone.now().date()
+        if fecha_registro < hoy:
+            raise forms.ValidationError("La fecha de registro no puede ser en el pasado.")
+        if fecha_registro > hoy:
+            raise forms.ValidationError("La fecha de registro no puede ser en el futuro.")
+        return fecha_registro
+
 class TurnodeentrenadorForm(ModelForm):
     administrador = forms.ModelChoiceField(
         queryset=Usuario.objects.filter(rol='Administrador', estado='activo'),
@@ -1405,44 +1281,25 @@ class TurnodeentrenadorForm(ModelForm):
 
     class Meta:
         model = Turnosentrenadores
-        fields = [
-            'administrador',
-            'fecha_turno_inicio',
-            'fecha_turno_final',
-            'jornada',
-        ]
+        fields = ['administrador', 'fecha_turno_inicio', 'fecha_turno_final', 'jornada']
         widgets = {
-            'fecha_turno_inicio': forms.DateInput(attrs={
-                'class': 'form-control',
-                'type': 'date'
-            }),
-            'fecha_turno_final': forms.DateInput(attrs={
-                'class': 'form-control',
-                'type': 'date'
-            }),
-            'jornada': forms.Select(attrs={
-                'class': 'form-control',
-            }),
+            'fecha_turno_inicio': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'fecha_turno_final': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'jornada': forms.Select(attrs={'class': 'form-control'}),
         }
 
     def clean_fecha_turno_inicio(self):
         inicio = self.cleaned_data.get('fecha_turno_inicio')
         hoy = timezone.now().date()
-
         if inicio and inicio < hoy:
-            raise forms.ValidationError(
-                "La fecha de inicio no puede ser en el pasado."
-            )
+            raise forms.ValidationError("La fecha de inicio no puede ser en el pasado.")
         return inicio
 
     def clean_fecha_turno_final(self):
         fin = self.cleaned_data.get('fecha_turno_final')
         hoy = timezone.now().date()
-
         if fin and fin < hoy:
-            raise forms.ValidationError(
-                "La fecha de finalización no puede ser en el pasado."
-            )
+            raise forms.ValidationError("La fecha de finalización no puede ser en el pasado.")
         return fin
 
     def clean(self):
@@ -1450,54 +1307,31 @@ class TurnodeentrenadorForm(ModelForm):
         inicio = cleaned_data.get('fecha_turno_inicio')
         fin = cleaned_data.get('fecha_turno_final')
         jornada = cleaned_data.get('jornada')
-
         if inicio and fin and fin < inicio:
-            self.add_error(
-                'fecha_turno_final',
-                "La fecha final no puede ser menor a la fecha de inicio."
-            )
-
-        # VALIDACIÓN NUEVA: No permitir jornadas repetidas
+            self.add_error('fecha_turno_final', "La fecha final no puede ser menor a la fecha de inicio.")
         if jornada:
             turno = Turnosentrenadores.objects.filter(jornada=jornada)
-
-            # Si se está editando un turno, excluir el mismo registro
             if self.instance.pk:
                 turno = turno.exclude(pk=self.instance.pk)
-
             if turno.exists():
-                self.add_error(
-                    'jornada',
-                    "Esta jornada ya está asignada a otro entrenador."
-                )
-
+                self.add_error('jornada', "Esta jornada ya está asignada a otro entrenador.")
         return cleaned_data
+
 class CertificacioninternaForm(ModelForm):
     class Meta:
         model = Certificacion_interna
         fields = '__all__'
         widgets = {
-            'fecha_certificacion': forms.DateInput(attrs={
-                'class': 'form-control',
-                'type': 'date'
-            }),
-            'descripcion_certificacion': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Ingrese la descripcion de la certificacion interna'
-            }),
-            'fk_membresia': forms.Select(attrs={
-                'class': 'form-control',
-            }),
+            'fecha_certificacion': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'descripcion_certificacion': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese la descripcion de la certificacion interna'}),
+            'fk_membresia': forms.Select(attrs={'class': 'form-control'}),
         }
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        # Filtrar membresías con mínimo 10 asistencias
-        membresias_validas = Membresia.objects.annotate(
-            total_asistencias=Count('asistencia')
-        ).filter(total_asistencias__gte=1)
-
+        membresias_validas = Membresia.objects.annotate(total_asistencias=Count('asistencia')).filter(total_asistencias__gte=1)
         self.fields['fk_membresia'].queryset = membresias_validas
+
     def clean_descripcion_certificacion(self):
         descripcion_certificacion = self.cleaned_data['descripcion_certificacion']
         if len(descripcion_certificacion) < 10:
@@ -1505,20 +1339,14 @@ class CertificacioninternaForm(ModelForm):
         if descripcion_certificacion.isdigit():
             raise forms.ValidationError("La descripcion de la certificacion interna no puede ser solo números.")
         if not re.match(r'^[A-Za-zÁÉÍÓÚáéíóúÑñ]', descripcion_certificacion):
-            raise forms.ValidationError(
-                "La descripción debe comenzar con una letra."
-            )        
+            raise forms.ValidationError("La descripción debe comenzar con una letra.")
         return descripcion_certificacion
-    
+
     def clean_fecha_certificacion(self):
         fecha_certificacion = self.cleaned_data['fecha_certificacion']
         hoy = timezone.now().date()
         if fecha_certificacion < hoy:
-            raise forms.ValidationError(
-            "La fecha de certificación no puede ser una fecha pasada."
-        )
+            raise forms.ValidationError("La fecha de certificación no puede ser una fecha pasada.")
         if fecha_certificacion > hoy:
-            raise forms.ValidationError(
-            "La fecha de certificación no puede ser una fecha futura."
-        )
+            raise forms.ValidationError("La fecha de certificación no puede ser una fecha futura.")
         return fecha_certificacion
