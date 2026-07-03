@@ -26,19 +26,6 @@
     @media (min-width: 768px) {
         .card-dash { padding: 25px 25px 25px 40px; }
     }
-
-    .card-dash::before {
-        content: ''; 
-        position: absolute; 
-        top: -10%; 
-        left: -15px; 
-        width: 30px; 
-        height: 120%;
-        background: #ffd700; 
-        transform: skewX(-15deg); 
-        box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
-        z-index: 0; /* FIX: Franja al fondo */
-    }
     
     /* FIX: Capa de protección. Todo el contenido va aquí dentro */
     .card-dash-content {
