@@ -172,7 +172,20 @@ LOGGING = {
 LOGIN_URL = '/login/'  # Ajusta a la URL real de tu vista de login
 LOGIN_REDIRECT_URL = '/' # A dónde va tras loguearse
 
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 # Cierre automático de sesión (8 horas = 28800 segundos)
 SESSION_COOKIE_AGE = 28800
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_SAVE_EVERY_REQUEST = True  # Reinicia el contador si el usuario hace clic en algo
+=======
+=======
+>>>>>>> Stashed changes
+# Cierre automático de sesión (1 hora = 3600 segundos)
+SESSION_COOKIE_AGE = 3600 
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_SAVE_EVERY_REQUEST = True # Reinicia el contador si el usuario hace clic en algo
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes

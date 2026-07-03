@@ -38,6 +38,35 @@ def crear_categoria_ajax(request):
     })
 
 @csrf_exempt
+def obtener_elementos_por_categoria(request):
+    """Vista AJAX para obtener elementos filtrados por categoría"""
+    categoria_valor = request.GET.get('categoria_id')
+    if not categoria_valor:
+        return JsonResponse({'error': 'No se proporcionó categoría'}, status=400)
+    
+    try:
+        # Buscar categoría por valor (maquinas, mancuernas, etc.)
+        categoria = Categoria.objects.filter(nombre_categoria=categoria_valor).first()
+        if not categoria:
+            return JsonResponse({'error': 'Categoría no encontrada'}, status=404)
+        
+        elementos = Elemento.objects.filter(nombre_categoria=categoria, estado='M')
+        
+        elementos_list = []
+        for elem in elementos:
+            elementos_list.append({
+                'id': elem.id,
+                'nombre': elem.nombre_elemento,
+                'serial': elem.serial,
+                'marca': elem.marca,
+                'peso': elem.peso_elemento
+            })
+        
+        return JsonResponse({'elementos': elementos_list})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@csrf_exempt
 @require_POST
 
 def crear_elemento_ajax(request):
@@ -49,15 +78,14 @@ def crear_elemento_ajax(request):
             peso = request.POST.get('peso')
             unidad_peso = request.POST.get('unidad_peso')
             estado = request.POST.get('estado')
-            fecha_compra = request.POST.get('fecha_compra')
-            categoria_id = request.POST.get('categoria')
+            categoria_valor = request.POST.get('categoria')
             cantidad = request.POST.get('cantidad')
             foto = request.FILES.get('foto')
-
-            foto = request.FILES.get("imagen")
-            if not all([serial, marca, nombre, peso, estado, categoria_id, cantidad]):
+            if not all([serial, marca, nombre, peso, estado, categoria_valor, cantidad]):
                 return JsonResponse({'error': 'Todos los campos son obligatorios'}, status=400)
-            categoria = Categoria.objects.get(id=categoria_id)        
+            
+            # Buscar categoría por valor (maquinas, mancuernas, etc.)
+            categoria = Categoria.objects.get(nombre_categoria=categoria_valor)        
             elemento = Elemento.objects.create(
                 serial=serial,
                 marca=marca,
