@@ -18,10 +18,6 @@
     .btn-hero-gold { background: #ffd700; color: #000; border: none; font-weight: 900; padding: 12px 25px; font-size: 13px; text-transform: uppercase; display: inline-flex; align-items: center; gap: 8px; transform: skewX(-10deg); transition: 0.3s; text-decoration: none; cursor: pointer;}
     .btn-hero-gold span { transform: skewX(10deg); display: block; }
     .btn-hero-gold:hover { transform: skewX(-10deg) scale(1.05); box-shadow: 0 0 25px #ffd700; background: #fff; color: #000;}
-
-    .password-wrapper { position: relative; }
-    .toggle-password { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #ffd700; cursor: pointer; padding: 0; z-index: 10; }
-    .toggle-password:hover { color: #fff; }
 </style>
 
 <div class="container mt-4 mb-5 stagger-1">
@@ -46,7 +42,6 @@
                 {% endif %}
 
                 <!-- DATOS DE ACCESO -->
-
                     <h6 class="fw-bold text-uppercase mb-4 pb-2"
                         style="color:#ffd700;border-bottom:1px solid rgba(255,255,255,.1);font-size:14px;letter-spacing:1px;">
                         <i class="fas fa-lock me-2"></i> Credenciales de Acceso
@@ -100,56 +95,13 @@
 
                     </div>
 
-                <h6 class="fw-bold text-uppercase mb-4 pb-2" style="color: #ffd700; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 14px; letter-spacing: 1px;"><i class="fas fa-lock me-2"></i> Credenciales de Acceso</h6>
-                <div class="row mb-5">
-                    {% for field in user_form.visible_fields %}
-                        <div class="col-12 col-lg-6 mb-3">
-                            <label class="form-label-custom">{{ field.label }}</label>
-                            {% if field.name == 'password' %}
-
-                                <div style="position: relative;">
-                                    {% render_field field class="form-control input-dark" required="required" id="password-field" %}
-                                    <i class="fas fa-eye" id="toggle-password" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #ffd700;"></i>
-                                    <div id="password-feedback" style="display: none;"></div>
-                                </div>
-                            {% else %}
-                                {% render_field field class="form-control input-dark" required="required" %}
-                            {% endif %}
-
-
-
-                                <div class="password-wrapper">
-                                    {% render_field field class="form-control input-dark" required="required" autocomplete="new-password" %}
-                                    <button type="button" class="toggle-password" id="toggle-password">
-                                        <i class="fas fa-eye" id="eye-icon"></i>
-                                    </button>
-                                </div>
-                            {% elif field.name == 'username' %}
-                                {% render_field field class="form-control input-dark" required="required" autocomplete="off" %}
-                            {% else %}
-                                {% render_field field class="form-control input-dark" required="required" %}
-                            {% endif %}
-                            {% if field.name == 'password' %}
-                                <div id="password-feedback" style="display: none;"></div>
-                            {% endif %}
-
-
-                            {% if field.errors %}<div class="text-danger small mt-1 fw-bold" style="color:#ff4d4f!important;">{{ field.errors|striptags }}</div>{% endif %}
-                            <div class="invalid-feedback fw-bold" style="color:#ff4d4f;"></div>
-                        </div>
-                    {% endfor %}
-                </div>
-
                 <!-- DATOS PERSONALES -->
                 <h6 class="fw-bold text-uppercase mb-4 pb-2" style="color: #ffd700; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 14px; letter-spacing: 1px;"><i class="fas fa-id-card me-2"></i> Perfil Personal y Físico</h6>
                 <div class="row mb-4">
                     {% for field in form.visible_fields %}
                         <div class="col-12 col-md-6 mb-3">
                             <label class="form-label-custom">{{ field.label }}</label>
-
                             {% render_field field class="form-control input-dark" %}
-
-                            {% render_field field class="form-control input-dark" required="required" autocomplete="off" %}
                             {% if field.errors %}<div class="text-danger small mt-1 fw-bold" style="color:#ff4d4f!important;">{{ field.errors|striptags }}</div>{% endif %}
                             <div class="invalid-feedback fw-bold" style="color:#ff4d4f;"></div>
                         </div>
@@ -168,9 +120,9 @@
 </div>
 {% endblock %}
 
-{% block js %}`
-<script>
+{% block js %}
 
+<script>
 document.addEventListener('DOMContentLoaded', function () {
 
     const boton = document.getElementById('toggle-password');
@@ -201,25 +153,17 @@ document.addEventListener('DOMContentLoaded', function () {
   const passwordInput = document.getElementById('password-field');
   const IconEye = document.getElementById('eye-icon');
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Toggle mostrar/ocultar contraseña
-    const togglePassword = document.getElementById('toggle-password');
-    const passwordInput = document.querySelector('[name="password"]');
-    const eyeIcon = document.getElementById('eye-icon');
-
-    if (togglePassword && passwordInput && eyeIcon) {
-        togglePassword.addEventListener('click', function() {
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                eyeIcon.classList.remove('fa-eye');
-                eyeIcon.classList.add('fa-eye-slash');
-            } else {
-                passwordInput.type = 'password';
-                eyeIcon.classList.remove('fa-eye-slash');
-                eyeIcon.classList.add('fa-eye');
-            }
-        });
-    }
+  if (passwordInput.type === 'password'){
+    passwordInput.type = 'text';
+    IconEye.classList.remove('fa-eye')
+    IconEye.classList.add('fa-eye-slash');
+  }else{
+    passwordInput.type = 'password';
+    IconEye.classList.remove('fa-eye-slash');
+    IconEye.classList.add('fa-eye')
+  }
+})
+document.addEventListener('DOMContentLoaded', function () {
 
     // ─── Utilidades ───────────────────────────────────────────────
     function setError(field, msg) {
@@ -393,68 +337,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // ─── Validación de contraseña ──────────────────────────────────
-    const passwordField = document.querySelector('[name="password"]');
-    const passwordFeedback = document.getElementById('password-feedback');
-
-    if (passwordField && passwordFeedback) {
-        passwordField.addEventListener('input', function () {
-            const valor = this.value;
-
-            // Ocultar mensaje cuando está vacío
-            if (valor.trim() === '') {
-                passwordFeedback.style.display = 'none';
-                this.classList.remove('is-valid');
-                this.classList.remove('is-invalid');
-                return;
-            }
-
-            let errores = [];
-
-            // Mínimo 7 caracteres
-            if (valor.length < 7) {
-                errores.push('Mínimo 7 caracteres');
-            }
-
-            // Al menos una mayúscula
-            if (!/[A-Z]/.test(valor)) {
-                errores.push('Una letra mayúscula');
-            }
-
-            // Al menos una minúscula
-            if (!/[a-z]/.test(valor)) {
-                errores.push('Una letra minúscula');
-            }
-
-            // Al menos un número
-            if (!/[0-9]/.test(valor)) {
-                errores.push('Un número');
-            }
-
-            // Al menos un carácter especial
-            if (!/[!@#$%^&*(),.?":{}|<>]/.test(valor)) {
-                errores.push('Un carácter especial (!@#$%^&*(),.?":{}|<>)');
-            }
-
-            if (errores.length > 0) {
-                passwordFeedback.style.display = 'block';
-                passwordFeedback.className = 'small mt-2 text-danger';
-                passwordFeedback.innerHTML = 'Falta: ' + errores.join(', ');
-                this.classList.remove('is-valid');
-                this.classList.add('is-invalid');
-            } else {
-                passwordFeedback.style.display = 'block';
-                passwordFeedback.className = 'small mt-2 text-success';
-                passwordFeedback.innerHTML = '✓ Contraseña segura';
-                this.classList.remove('is-invalid');
-                this.classList.add('is-valid');
-            }
-        });
-    }
-
     // ─── Submit: validar todo antes de enviar ─────────────────────
     document.querySelectorAll('form').forEach(function (form) {
         form.addEventListener('submit', function (event) {
+
             let valido = true;
 
             if (campoNombre   && !validarNombreApellido(campoNombre,   'Nombre'))   valido = false;
@@ -483,10 +369,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             form.classList.add('was-validated');
+
         }, false);
     });
-});
 
+});
 const passwordField = document.getElementById('password-field');
 const passwordFeedback = document.getElementById('password-feedback');
 

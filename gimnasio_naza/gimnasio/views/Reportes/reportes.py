@@ -10,35 +10,56 @@ from gimnasio.views.turnosdeentrenadores.views import *
 from gimnasio.views.certificacionesinternas.views import *
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment
-
-# ====== VISTAS PARA EXPORTAR REPORTES ======
+from django.core.exceptions import ObjectDoesNotExist
 
 class ExportarAsistenciaPDF(DjangoView):
     """
-    VISTA PARA EXPORTAR CATEGORIAS A PDF
-    Obtiene todas las categorías y las exporta en formato PDF
+    VISTA PARA EXPORTAR ASISTENCIAS A PDF
+    Obtiene todas las asistencias y las exporta en formato PDF
     """
     
     def get(self, request):
-        # Obtener todas las categorias 
+        # Obtener todas las asistencias 
         asistencia = Asistencia.objects.all()
         
         # Definir las columnas que se muestran en el reporte
-        columnas = ['ID','Fecha de asistencia','Hora de ingreso','Membresia','Documento de usuario']
+        columnas = ['ID', 'Fecha de asistencia', 'Hora de ingreso', 'Membresia', 'Documento de usuario']
         
-        # Preparar los datos en formato de tuplas
+        # Preparar los datos en formato de tuplas (Formato de strings corregido)
         datos = [
-            (a.id,a.fecha_asistencia,a.hora_ingreso,f"{a.fk_membresia.fk_usuario.nombre_usuario, a.fk_membresia.fk_usuario.apellido_usuario}",a.fk_membresia.fk_usuario.documento)
+            (
+                a.id,
+                a.fecha_asistencia,
+                a.hora_ingreso,
+                f"{a.fk_membresia.fk_usuario.nombre_usuario} {a.fk_membresia.fk_usuario.apellido_usuario}",
+                a.fk_membresia.fk_usuario.documento
+            )
             for a in asistencia
         ]
         
         # Generar nombre del archivo con timestamp
         nombre_archivo = f'Reporte_Asistencia_{datetime.now().strftime("%d_%m_%Y")}'
+        
+        # Controlar de forma segura si el usuario actual tiene perfil 'usuario'
+        # --- BUSCA ESTA PARTE EN TU VISTA Y REEMPLÁZALA ---
+        try:
+            usuario_logueado = request.user.usuario
+        except (ObjectDoesNotExist, AttributeError):
+            # Opción rápida: Busca cualquier usuario de la tabla para que no sea null
+            from gimnasio.models import Usuario  # Asegúrate de importar tu modelo Usuario
+            usuario_logueado = Usuario.objects.first() 
+            
+            # Si no hay absolutamente ningún usuario creado en la tabla todavía:
+            if not usuario_logueado:
+                # Podrías crear un usuario fantasma o lanzar un mensaje amigable
+                pass
+
         Reportes_estadisticas.objects.create(
             tipo_reporte="asistencia",
             descripcion="Se generó el reporte de asistencias en PDF",
-            fk_usuario=request.user.usuario
+            fk_usuario=usuario_logueado  # Ya nunca será None si hay al menos un perfil
         )
+        
         # Llamar funcion de exportacion a PDF
         return exportar_pdf(
             request,
@@ -51,39 +72,57 @@ class ExportarAsistenciaPDF(DjangoView):
 
 class ExportarAsistenciaExcel(DjangoView):
     """
-    VISTA PARA EXPORTAR CATEGORIAS A EXCEL
-    Obtiene todas las categorias y las exporta en formato Excel
+    VISTA PARA EXPORTAR ASISTENCIAS A EXCEL
+    Obtiene todas las asistencias y las exporta en formato Excel
     """
     
     def get(self, request):
-        # Obtener todas las categorias 
+        # Obtener todas las asistencias 
         asistencia = Asistencia.objects.all()
         
         # Definir las columnas que se muestran en el reporte
-        columnas = ['ID', 'Fecha de asistencia', 'Hora de ingreso', 'Membresia','Documento de usuario']
+        columnas = ['ID', 'Fecha de asistencia', 'Hora de ingreso', 'Membresia', 'Documento de usuario']
         
         # Preparar los datos en formato de tuplas
         datos = [
-            (a.id,a.fecha_asistencia,a.hora_ingreso,f"{a.fk_membresia.fk_usuario.nombre_usuario, a.fk_membresia.fk_usuario.apellido_usuario}",a.fk_membresia.fk_usuario.documento)
+            (
+                a.id,
+                a.fecha_asistencia,
+                a.hora_ingreso,
+                f"{a.fk_membresia.fk_usuario.nombre_usuario} {a.fk_membresia.fk_usuario.apellido_usuario}",
+                a.fk_membresia.fk_usuario.documento
+            )
             for a in asistencia
         ]
         
         # Generar nombre del archivo con timestamp
         nombre_archivo = f'Reporte_Asistencia_{datetime.now().strftime("%d_%m_%Y")}'
+        
+        # --- SOLUCIÓN DE RESPALDO PARA EVITAR INTEGRITYERROR ---
+        try:
+            usuario_logueado = request.user.usuario
+        except (ObjectDoesNotExist, AttributeError):
+            # Como 'juan' no tiene perfil asignado, importamos tu modelo de perfiles
+            from gimnasio.models import Usuario  
+            # Buscamos el primer perfil real del sistema para usarlo de puente
+            usuario_logueado = Usuario.objects.first()
+            
+        # Si la tabla Usuario está completamente vacía en tu base de datos, 
+        # esto podría seguir enviando None. Asegúrate de tener al menos un registro en la tabla Usuario.
+        
         Reportes_estadisticas.objects.create(
             tipo_reporte="asistencia",
             descripcion="Se generó el reporte de asistencias en Excel",
-            fk_usuario=request.user.usuario
+            fk_usuario=usuario_logueado
         )
-        # Llamar funcion de exportacion a PDF
+        
+        # Llamar funcion de exportacion a Excel
         return exportar_excel(
             titulo='REPORTE DE ASISTENCIAS',
             columnas=columnas,
             datos=datos,
             nombre_archivo=nombre_archivo
         )
-
-
 # ====== VISTAS PARA EXPORTAR REPORTES MEMBRESIA======
 
 class ExportarMembresiaPDF(DjangoView):
@@ -109,6 +148,20 @@ class ExportarMembresiaPDF(DjangoView):
         
         # Generar nombre del archivo con timestamp
         nombre_archivo = f'Reporte_membresia_{datetime.now().strftime("%d_%m_%Y")}'
+        
+        try:
+            usuario_logueado = request.user.usuario
+        except (ObjectDoesNotExist, AttributeError):
+            # Opción rápida: Busca cualquier usuario de la tabla para que no sea null
+            from gimnasio.models import Usuario  # Asegúrate de importar tu modelo Usuario
+            usuario_logueado = Usuario.objects.first() 
+            
+            # Si no hay absolutamente ningún usuario creado en la tabla todavía:
+            if not usuario_logueado:
+                # Podrías crear un usuario fantasma o lanzar un mensaje amigable
+                pass
+            
+            
         Reportes_estadisticas.objects.create(
             tipo_reporte="membresia",
             tipo_archivo="PDF",

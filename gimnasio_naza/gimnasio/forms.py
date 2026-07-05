@@ -471,17 +471,14 @@ class UsuarioForm(forms.ModelForm):
 
 
     def clean_fecha_nacimiento(self):
-        fecha_nacimiento = self.cleaned_data.get('fecha_nacimiento')
-        if fecha_nacimiento is None:
+        fecha = self.cleaned_data.get('fecha_nacimiento')
 
-            raise forms.ValidationError('Por favor ingresa una fecha de nacimiento.')
-
-
-            raise forms.ValidationError("Por favor ingresa una fecha de nacimiento.")
-
+        if not fecha:
+            raise forms.ValidationError(
+                "Por favor ingresa una fecha de nacimiento."
+            )
 
         hoy = date.today()
-
 
         if fecha >= hoy:
             raise forms.ValidationError(
@@ -492,18 +489,6 @@ class UsuarioForm(forms.ModelForm):
             raise forms.ValidationError(
                 "La fecha debe ser posterior al año 1900."
             )
-
-        if fecha_nacimiento >= hoy:
-
-            raise forms.ValidationError('La fecha de nacimiento no puede ser hoy ni una fecha futura.')
-
-
-        hoy = date.today()
-        if fecha_nacimiento >= hoy:
-            raise forms.ValidationError("La fecha de nacimiento no puede ser hoy ni una fecha futura.")
-
-        if fecha_nacimiento.year < 1900:
-            raise forms.ValidationError('La fecha de nacimiento debe ser posterior al año 1900.')
 
         edad = (
             hoy.year
@@ -520,29 +505,7 @@ class UsuarioForm(forms.ModelForm):
                 "El usuario debe tener mínimo 16 años."
             )
 
-
-        return fecha   
-
-        if edad > 90:
-            raise forms.ValidationError('Verifica el año ingresado; la edad máxima permitida es 90 años.')
-
-        return fecha_nacimiento
-
-    # ====
-    # VALIDAR TELÉFONO (única versión, sin código muerto)
-    # ====
-
-            raise forms.ValidationError("La fecha de nacimiento no puede ser hoy ni una fecha futura.")
-        if fecha_nacimiento.year < 1900:
-            raise forms.ValidationError("La fecha de nacimiento debe ser posterior al año 1900.")
-        edad_minima = hoy.replace(year=hoy.year - 5)
-        if fecha_nacimiento > edad_minima:
-            raise forms.ValidationError("La fecha de nacimiento no es válida, verifica el año ingresado.")
-        return fecha_nacimiento
-
-
-
-
+        return fecha
 
     def clean_telefono_usuario(self):
         telefono = self.cleaned_data.get('telefono_usuario')
@@ -660,17 +623,12 @@ class MantenimientoForm(forms.ModelForm):
         model = Mantenimiento
         fields = "__all__"
         widgets = {
-
             "fecha_programada": forms.DateInput(attrs={"type": "date"}),
+            "fecha_realizada": forms.DateInput(attrs={"type": "date"}),
             "descripcion": forms.Textarea(attrs={
                 "class": "form-control",
-                "placeholder": "Ingrese la descripción"
-
-            'fecha_programada': forms.DateInput(attrs={'type': 'date'}),
-            'fecha_realizada': forms.DateInput(attrs={'type': 'date'}),
-            'descripcion': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Ingrese la descripcion del mantenimiento'
+                "placeholder": "Ingrese la descripción del mantenimiento",
+                "rows": 3  # Agregado para que no use el tamaño gigante por defecto de Textarea
             }),
         }
 
@@ -681,7 +639,6 @@ class MantenimientoForm(forms.ModelForm):
         elemento = cleaned_data.get("nombre_elemento")
 
         if elemento and fecha_programada:
-
             qs = Mantenimiento.objects.filter(
                 nombre_elemento=elemento
             )
@@ -791,15 +748,11 @@ class MembresiaForm(ModelForm):
             cleaned_data['estado'] = 'activo'  # o True si es BooleanField
         else:
             if fecha_inicio.month != hoy.month or fecha_inicio.year != hoy.year:
-<<<<<<< HEAD
                 self.add_error(
                     'fecha_inicio',
                     'La fecha de inicio debe estar dentro del mes y año actual'
                 )
             # estado queda tal como lo eligió el usuario en cleaned_data['estado']
-=======
-                self.add_error('fecha_inicio', 'La fecha de inicio debe estar dentro del mes y año actual')
->>>>>>> Zamir
 
         cleaned_data['fecha_fin'] = fecha_inicio + timedelta(days=30)
 
@@ -1199,13 +1152,12 @@ class SancionesForm(forms.ModelForm):
                 raise forms.ValidationError("Este usuario ya tiene una sanción activa de este tipo.")
         return cleaned_data
 
-class RegistrovisitantetemporalForm(ModelForm):
+class RegistrovisitantetemporalForm(forms.ModelForm):
 
     class Meta:
         model = Registrovisitantestemporales
-        fields = ['nombre', 'cedula']
+        fields = ['nombre', 'cedula', 'fecha_registro']
         widgets = {
-
             'nombre': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Ingrese el nombre completo'
@@ -1214,63 +1166,49 @@ class RegistrovisitantetemporalForm(ModelForm):
                 'class': 'form-control',
                 'placeholder': 'Ingrese la cédula'
             }),
+            'fecha_registro': forms.DateInput(attrs={
+                'class': 'form-control', 
+                'type': 'date'
+            }),
+            'fk_usuario': forms.Select(attrs={
+                'class': 'form-control'
+            }),
         }
 
     def clean_nombre(self):
         nombre = self.cleaned_data.get('nombre')
-
         if not nombre:
             raise forms.ValidationError("El nombre es obligatorio.")
-
         nombre = nombre.strip()
-
         if len(nombre) < 3:
-            raise forms.ValidationError(
-                "El nombre debe tener mínimo 3 caracteres."
-            )
-
+            raise forms.ValidationError("El nombre debe tener mínimo 3 caracteres.")
         if not all(c.isalpha() or c.isspace() for c in nombre):
-            raise forms.ValidationError(
-                "El nombre solo puede contener letras y espacios."
-            )
-
+            raise forms.ValidationError("El nombre solo puede contener letras y espacios.")
         return nombre.title()
 
     def clean_cedula(self):
         cedula = self.cleaned_data.get('cedula')
-
         if not cedula:
             raise forms.ValidationError("La cédula es obligatoria.")
-
         cedula = cedula.strip()
-
         if not cedula.isdigit():
-            raise forms.ValidationError(
-                "La cédula solo puede contener números."
-            )
-
+            raise forms.ValidationError("La cédula solo puede contener números.")
         if len(cedula) < 6 or len(cedula) > 12:
-            raise forms.ValidationError(
-                "La cédula debe tener entre 6 y 12 dígitos."
-            )
-
+            raise forms.ValidationError("La cédula debe tener entre 6 y 12 dígitos.")
         return cedula
-    
-
-            'fecha_registro': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'fk_usuario': forms.Select(attrs={'class': 'form-control'}),
-        }
 
     def clean_fecha_registro(self):
         fecha_registro = self.cleaned_data.get('fecha_registro')
-        hoy = timezone.now().date()
-        if fecha_registro < hoy:
-            raise forms.ValidationError("La fecha de registro no puede ser en el pasado.")
-        if fecha_registro > hoy:
-            raise forms.ValidationError("La fecha de registro no puede ser en el futuro.")
+        if fecha_registro:
+            hoy = timezone.now().date()
+            if fecha_registro < hoy:
+                raise forms.ValidationError("La fecha de registro no puede ser en el pasado.")
+            if fecha_registro > hoy:
+                raise forms.ValidationError("La fecha de registro no puede ser en el futuro.")
         return fecha_registro
 
-class TurnodeentrenadorForm(ModelForm):
+
+class TurnodeentrenadorForm(forms.ModelForm):
     administrador = forms.ModelChoiceField(
         queryset=Usuario.objects.filter(rol='Administrador', estado='activo'),
         empty_label="Seleccione un administrador",
@@ -1287,6 +1225,7 @@ class TurnodeentrenadorForm(ModelForm):
             'fecha_turno_final': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'jornada': forms.Select(attrs={'class': 'form-control'}),
         }
+
     def clean_fecha_turno_inicio(self):
         inicio = self.cleaned_data.get('fecha_turno_inicio')
         hoy = timezone.now().date()
@@ -1306,8 +1245,10 @@ class TurnodeentrenadorForm(ModelForm):
         inicio = cleaned_data.get('fecha_turno_inicio')
         fin = cleaned_data.get('fecha_turno_final')
         jornada = cleaned_data.get('jornada')
+
         if inicio and fin and fin < inicio:
             self.add_error('fecha_turno_final', "La fecha final no puede ser menor a la fecha de inicio.")
+
         if jornada:
             turno = Turnosentrenadores.objects.filter(jornada=jornada)
             if self.instance.pk:
