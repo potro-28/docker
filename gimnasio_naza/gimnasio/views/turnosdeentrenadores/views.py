@@ -44,6 +44,22 @@ class TurnodeentrenadorUpdateView(UpdateView):
     def form_valid(self, form):
         messages.success(self.request, 'Turno de entrenador actualizado correctamente')
         return super().form_valid(form)
+    
+    def get_initial(self):
+        initial = super().get_initial()
+
+        if self.object.fecha_turno_inicio:
+            initial['fecha_turno_inicio'] = self.object.fecha_turno_inicio.strftime('%Y-%m-%d')
+
+        return initial
+    
+    def get_initial(self):
+        initial = super().get_initial()
+
+        if self.object.fecha_turno_final:
+            initial['fecha_turno_final'] = self.object.fecha_turno_final.strftime('%Y-%m-%d')
+
+        return initial
 
 class TurnodeentrenadorDeleteView(DeleteView):
     model = Turnosentrenadores

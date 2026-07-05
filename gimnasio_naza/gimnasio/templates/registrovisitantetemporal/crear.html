@@ -6,9 +6,24 @@
 <style>
     .card-dash { position: relative; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(10px); border-radius: 15px; padding: 0; box-shadow: 0 15px 35px rgba(0,0,0,0.9); border: 1px solid rgba(255,215,0,0.1); margin-bottom: 25px; }
     .header-neon { background: rgba(0,0,0,0.5); padding: 25px 35px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .header-neon h3{
+        color: #fff;
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .header-neon h3 i{
+        color: #ffd700;
+        margin-right: 10px;
+    }
     .input-dark { background: rgba(0,0,0,0.6) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: #fff !important; border-radius: 6px; padding: 12px 15px; }
     .btn-hero-gold { background: #ffd700; color: #000; border: none; font-weight: 900; padding: 12px 25px; text-transform: uppercase; transform: skewX(-10deg); }
     .modal-content { background: #0a0a0a; border: 1px solid #ffd700; color: #fff; }
+    .input-dark::-webkit-calendar-picker-indicator{
+        filter: invert(1);
+        cursor: pointer;
+    }
 </style>
 
 <div class="container mt-4" style="max-width: 800px;">

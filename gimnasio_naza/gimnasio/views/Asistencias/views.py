@@ -247,8 +247,14 @@ class AsistenciaUpdateView(UpdateView):
     def form_valid(self, form):
         messages.success(self.request, "Asistencia editada correctamente")
         return super().form_valid(form)
+    
+    def get_initial(self):
+        initial = super().get_initial()
 
+        if self.object.fecha_asistencia:
+            initial['fecha_asistencia'] = self.object.fecha_asistencia.strftime('%Y-%m-%d')
 
+        return initial
 class AsistenciaDeleteView(DeleteView):
     model = Asistencia
     template_name = 'Asistencia/eliminar.html'

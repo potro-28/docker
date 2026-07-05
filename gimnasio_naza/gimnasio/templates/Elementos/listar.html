@@ -222,25 +222,6 @@ $(document).ready(function () {
         columnDefs: [ { orderable: false, searchable: false, targets: -1 } ]
     });
 
-    // Confirmación eliminar (Adaptada a modo oscuro)
-    $('.btn-eliminar').on('click', function (e) {
-        e.preventDefault();
-        var url = $(this).attr('href');
-        Swal.fire({
-            title: '¿Eliminar elemento?',
-            text: 'Esta acción no se puede deshacer.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Sí, eliminar',
-            cancelButtonText: 'Cancelar',
-            background: "rgba(10,10,10,0.95)", color: "#fff",
-            confirmButtonColor: '#ef4444', cancelButtonColor: 'rgba(255,255,255,0.1)',
-            customClass: { popup: 'border border-warning' }
-        }).then(function (result) {
-            if (result.isConfirmed) { window.location.href = url; }
-        });
-    });
-
     {% if messages %}
         {% for message in messages %}
         Swal.fire({

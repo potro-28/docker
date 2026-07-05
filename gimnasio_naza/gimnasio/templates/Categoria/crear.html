@@ -13,11 +13,6 @@
         border-radius: 15px; padding: 0; box-shadow: 0 15px 35px rgba(0,0,0,0.9); 
         border: 1px solid rgba(255,215,0,0.1); transition: 0.3s; overflow: hidden; margin-bottom: 25px;
     }
-    .card-dash::before {
-        content: ''; position: absolute; top: 0; left: -15px; width: 20px; height: 100%;
-        background: #ffd700; transform: skewX(-15deg); box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); z-index: 0;
-    }
-
     .header-neon { background: rgba(0,0,0,0.5); padding: 25px 35px; border-bottom: 1px solid rgba(255,255,255,0.05); position: relative; z-index: 2;}
     .header-neon h3 { margin: 0; font-weight: 900; font-size: 1.5rem; text-transform: uppercase; color: #fff; letter-spacing: 1px;}
     .header-neon h3 i { color: #ffd700; }
@@ -31,6 +26,7 @@
     .btn-hero-gold { background: #ffd700; color: #000; border: none; font-weight: 900; padding: 12px 25px; font-size: 13px; text-transform: uppercase; box-shadow: 0 0 15px rgba(255,215,0,0.3); transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; transform: skewX(-10deg); position: relative; z-index: 2; text-decoration: none; cursor: pointer; }
     .btn-hero-gold span { transform: skewX(10deg); display: block; }
     .btn-hero-gold:hover { transform: skewX(-10deg) scale(1.05); box-shadow: 0 0 25px #ffd700; background: #fff; color: #000;}
+    
 </style>
 
 <div class="container mt-4" style="max-width: 800px;">
@@ -51,14 +47,9 @@
 
                 <div class="form-group mb-4 stagger-2">
                     <label class="form-label-custom">Nombre de la categoría:</label>
-                    <select name="nombre_categoria" class="form-select input-dark" required>
-                        <option value="">-- Seleccione una categoría --</option>
-                        <option value="maquinas">Máquinas</option>
-                        <option value="mancuernas">Mancuernas</option>
-                        <option value="discos">Discos</option>
-                        <option value="accesorios">Accesorios</option>
-                        <option value="barras">Barras</option>
-                    </select>
+
+                    {{ form.nombre_categoria|add_class:'form-control input-dark'|attr:'placeholder:Ingrese el nombre de la categoría'|attr:'maxlength:100' }}
+
                     {% if form.nombre_categoria.errors %}
                         <div class="invalid-feedback d-block fw-bold mt-2" style="color: #ff4d4f !important;">
                             {{ form.nombre_categoria.errors|striptags }}

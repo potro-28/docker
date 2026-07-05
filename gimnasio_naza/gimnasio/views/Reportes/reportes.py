@@ -56,8 +56,9 @@ class ExportarAsistenciaPDF(DjangoView):
 
         Reportes_estadisticas.objects.create(
             tipo_reporte="asistencia",
+            tipo_archivo="PDF",
             descripcion="Se generó el reporte de asistencias en PDF",
-            fk_usuario=usuario_logueado  # Ya nunca será None si hay al menos un perfil
+            fk_usuario=usuario_logueado
         )
         
         # Llamar funcion de exportacion a PDF
@@ -112,6 +113,7 @@ class ExportarAsistenciaExcel(DjangoView):
         
         Reportes_estadisticas.objects.create(
             tipo_reporte="asistencia",
+            tipo_archivo="EXCEL",
             descripcion="Se generó el reporte de asistencias en Excel",
             fk_usuario=usuario_logueado
         )

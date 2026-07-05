@@ -13,11 +13,6 @@
         border-radius: 15px; padding: 0; box-shadow: 0 15px 35px rgba(0,0,0,0.9); 
         border: 1px solid rgba(255,215,0,0.1); transition: 0.3s; overflow: hidden; margin-bottom: 25px;
     }
-    .card-dash::before {
-        content: ''; position: absolute; top: 0; left: -15px; width: 20px; height: 100%;
-        background: #ffd700; transform: skewX(-15deg); box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); z-index: 0;
-    }
-
     .header-neon { background: rgba(0,0,0,0.5); padding: 25px 35px; border-bottom: 1px solid rgba(255,255,255,0.05); position: relative; z-index: 2;}
     .header-neon h3 { margin: 0; font-weight: 900; font-size: 1.5rem; text-transform: uppercase; color: #fff; letter-spacing: 1px;}
     .header-neon h3 i { color: #ffd700; }
@@ -53,6 +48,16 @@
     .btn-hero-gold:hover { transform: skewX(-10deg) scale(1.05); box-shadow: 0 0 25px #ffd700; background: #fff; color: #000;}
 
     .modal-dark .modal-content { background: #0a0a0a; border: 1px solid #ffd700; color: #fff; box-shadow: 0 0 50px rgba(0,0,0,0.9); }
+    #id_nombre_categoria{
+        background: rgba(0,0,0,.6) !important;
+        color:#fff !important;
+        border:1px solid rgba(255,255,255,.1) !important;
+    }
+
+    #id_nombre_categoria option{
+        background:#111;
+        color:#fff;
+    }
 </style>
 
 <div class="container mt-4" style="max-width: 1000px;">
@@ -95,7 +100,7 @@
                         <div class="col-md-6 mb-2">
                             <label class="form-label-custom">{{ field.label }}:</label>
                             <div class="nombre_categoria-wrapper">
-                                {% render_field field class="form-select input-dark" %}
+                                {% render_field field id="id_nombre_categoria" class+="form-select" %}
                                 <button type="button" class="btn" style="background: rgba(255, 215, 0, 0.1); color: #ffd700; border: 1px solid #ffd700; padding: 0; display:flex; justify-content:center; align-items:center;" data-bs-toggle="modal" data-bs-target="#modalnombre_categoria">
                                     <i class="ri-add-line fs-5"></i>
                                 </button>
@@ -105,7 +110,7 @@
 
                     {% elif field.name == 'unidad_peso' %}
                         <div class="col-md-6 mb-2 campo-unidad-peso">
-                            {% render_field field class="form-select input-dark" %}
+                            {% render_field field id="id_nombre_categoria" class+="form-select" %}
                         </div>
 
                     {% else %}
@@ -196,19 +201,68 @@
     // CREAR CATEGORÍA AJAX
     // =====================================================
     function crearnombre_categoria() {
-        let data = { nombre_nombre_categoria: document.getElementById("nombre_nombre_categoria").value, descripcion: document.getElementById("descripcion").value };
-        if (!data.nombre_nombre_categoria || !data.descripcion) { Swal.fire({background: "rgba(10,10,10,0.95)", color: "#fff", icon: "warning", title: "Error", text: "Todos los campos son obligatorios", confirmButtonColor: "#ffd700"}); return; }
 
-        fetch("{% url 'gimnasio:crear_nombre_categoria_ajax' %}", {
-            method: "POST", headers: { "Content-Type": "application/json", "X-CSRFToken": "{{ csrf_token }}" }, body: JSON.stringify(data)
-        }).then(response => response.json()).then(data => {
-            if (data.error) { Swal.fire({background: "rgba(10,10,10,0.95)", color: "#fff", icon: "error", title: "Error", text: data.error}); return; }
-            document.getElementById("id_nombre_categoria").value = data.nombre;
-            select.add(new Option(data.nombre, data.id, true, true));
-            bootstrap.Modal.getInstance(document.getElementById('modalnombre_categoria')).hide();
-            Swal.fire({background: "rgba(10,10,10,0.95)", color: "#fff", icon: "success", title: "Correcto", text: "Categoría creada exitosamente", confirmButtonColor: "#ffd700"});
+    let data = {
+        nombre_nombre_categoria: document.getElementById("nombre_categoria").value,
+        descripcion: document.getElementById("descripcion").value
+    };
+
+    if (!data.nombre_nombre_categoria || !data.descripcion) {
+        Swal.fire({
+            background: "rgba(10,10,10,0.95)",
+            color: "#fff",
+            icon: "warning",
+            title: "Error",
+            text: "Todos los campos son obligatorios",
+            confirmButtonColor: "#ffd700"
         });
+        return;
     }
+
+    fetch("{% url 'gimnasio:crear_nombre_categoria_ajax' %}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+
+        if (data.error) {
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: data.error
+            });
+            return;
+        }
+
+        const select = document.getElementById("id_nombre_categoria");
+
+        const option = document.createElement("option");
+        option.value = data.id;
+        option.text = data.nombre;
+
+        select.appendChild(option);
+        select.value = data.id;
+
+        select.dispatchEvent(new Event("change"));
+
+        bootstrap.Modal.getInstance(document.getElementById("modalnombre_categoria")).hide();
+
+        Swal.fire({
+            background: "rgba(10,10,10,0.95)",
+            color: "#fff",
+            icon: "success",
+            title: "Correcto",
+            text: "Categoría creada exitosamente",
+            confirmButtonColor: "#ffd700"
+        });
+
+    });
+}
 
     // =====================================================
     // VALIDACIONES VISUALES JS (ESTILO OSCURO)

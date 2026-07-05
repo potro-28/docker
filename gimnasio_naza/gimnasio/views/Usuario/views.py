@@ -165,6 +165,14 @@ class UsuarioUpdateView(LoginRequiredMixin, UpdateView):
         return self.render_to_response(
             self.get_context_data(form=usuario_form, user_form=user_form)
         )
+        
+    def get_initial(self):
+        initial = super().get_initial()
+
+        if self.object.fecha_nacimiento:
+            initial['fecha_nacimiento'] = self.object.fecha_nacimiento.strftime('%Y-%m-%d')
+
+        return initial
 
 
 # ==========================================

@@ -9,7 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from django.db import transaction
 from django.utils import timezone
-
+from django.contrib import messages
 @csrf_exempt
 @require_POST
 def crear_categoria_ajax(request):
@@ -132,13 +132,20 @@ class MantenimientoCreateView(CreateView):
 
     def get_initial(self):
         initial = super().get_initial()
+
         elemento_id = self.request.GET.get('elemento')
+
         if elemento_id:
             try:
-                initial['elemento'] = Elemento.objects.get(pk=elemento_id)
+                initial['nombre_elemento'] = Elemento.objects.get(pk=elemento_id)
             except Elemento.DoesNotExist:
                 pass
+
         return initial
+    
+    def form_valid(self, form):
+        messages.success(self.request, "El mantenimiento se creó correctamente.")
+        return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -155,6 +162,18 @@ class MantenimientoUpdateView(UpdateView):
     form_class = MantenimientoForm
     template_name = 'Mantenimiento/crear.html'
     success_url = reverse_lazy('gimnasio:listar_mantenimiento')
+    
+    def form_valid(self, form):
+        messages.success(self.request, "El mantenimiento se actualizó correctamente.")
+        return super().form_valid(form)
+    
+    def get_initial(self):
+        initial = super().get_initial()
+
+        if self.object.fecha_programada:
+            initial['fecha_programada'] = self.object.fecha_programada.strftime('%Y-%m-%d')
+
+        return initial
 
 class MantenimientoDeleteView(DeleteView):
     model = Mantenimiento
@@ -165,3 +184,7 @@ class MantenimientoDeleteView(DeleteView):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Eliminar Mantenimiento'
         return context
+    
+    def form_valid(self, form):
+        messages.success(self.request, "El mantenimiento se eliminó correctamente.")
+        return super().form_valid(form)

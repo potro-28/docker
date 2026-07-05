@@ -10,7 +10,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from gimnasio.models import *
 from gimnasio.forms import ElementoForm
-
+from django.contrib import messages
 
 @require_POST
 @csrf_exempt
@@ -22,8 +22,8 @@ def crear_nombre_categoria_ajax(request):
             descripcion=data['descripcion']
         )
         return JsonResponse({
-            'id': categoria.pk,
-            'nombre': categoria.get_nombre_categoria_display()
+            "id": categoria.id,
+            "nombre": categoria.nombre_categoria
         })
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
@@ -78,6 +78,10 @@ class ElementoCreateView(CreateView):
         context['list_url'] = reverse_lazy('gimnasio:listar_elementos')
         return context
 
+    def form_valid(self, form):
+        messages.success(self.request, 'El elemento se guardó correctamente.')
+        return super().form_valid(form)
+
 
 # ==============================
 # MODIFICAR ELEMENTO
@@ -95,10 +99,24 @@ class ElementoUpdateView(UpdateView):
         context['list_url'] = reverse_lazy('gimnasio:listar_elementos')
         return context
 
+    def form_valid(self, form):
+        messages.success(self.request, 'El elemento se editó correctamente.')
+        return super().form_valid(form)
+    
+    def get_initial(self):
+        initial = super().get_initial()
+
+        if self.object.fecha_ingreso:
+            initial['fecha_ingreso'] = self.object.fecha_ingreso.strftime('%Y-%m-%d')
+
+        return initial
+
 
 # ==============================
 # ELIMINAR ELEMENTO
 # ==============================
+
+from django.contrib import messages
 
 class ElementoDeleteView(DeleteView):
     model = Elemento
@@ -110,6 +128,10 @@ class ElementoDeleteView(DeleteView):
         context['titulo'] = 'Eliminar Elemento'
         context['list_url'] = reverse_lazy('gimnasio:listar_elementos')
         return context
+
+    def form_valid(self, form):
+        messages.success(self.request, "El elemento se eliminó correctamente")
+        return super().form_valid(form)
 
 
 # ==============================

@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.core.mail import send_mail
 from django.db.models import Count
 from django.db.models.functions import TruncMonth
-
+from django.contrib import messages
 from gimnasio.models import *
 from gimnasio.forms import MembresiaForm
 
@@ -127,8 +127,6 @@ class MembresiaListView(ListView):
         context['chart_data_mensual'] = json.dumps(totales_grafica)
 
         return context
-
-
 class MembresiaCreateView(CreateView):
     model = Membresia
     template_name = 'Membresia/crear.html'
@@ -140,6 +138,9 @@ class MembresiaCreateView(CreateView):
         context['titulo'] = 'Crear membresia'
         return context
 
+    def form_valid(self, form):
+        messages.success(self.request, "La membresía se creó correctamente.")
+        return super().form_valid(form)
 
 class MembresiaUpdateView(UpdateView):
     model = Membresia
@@ -153,6 +154,17 @@ class MembresiaUpdateView(UpdateView):
         context['listar_url'] = reverse_lazy('gimnasio:listar_membresia')
         return context
 
+    def form_valid(self, form):
+        messages.success(self.request, "La membresía se actualizó correctamente.")
+        return super().form_valid(form)
+    
+    def get_initial(self):
+        initial = super().get_initial()
+
+        if self.object.fecha_inicio:
+            initial['fecha_inicio'] = self.object.fecha_inicio.strftime('%Y-%m-%d')
+
+        return initial
 
 class MembresiaDeleteView(DeleteView):
     model = Membresia
@@ -165,6 +177,9 @@ class MembresiaDeleteView(DeleteView):
         context['listar_url'] = reverse_lazy('gimnasio:listar_membresia')
         return context
 
+    def form_valid(self, form):
+        messages.success(self.request, "La membresía se eliminó correctamente.")
+        return super().form_valid(form)
 
 def send_email(request):
     subject = request.POST.get("subject", "")

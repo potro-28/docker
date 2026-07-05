@@ -71,12 +71,12 @@ body::before {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: #8a2be2;
+    color: #fff;
     text-decoration: none;
 }
 
 .back-link:hover{
-    color: #b15cff;
+    color: var(--neon-gold);
 }
 
 /* EFECTO ANIMADO AL PASAR EL CURSOR (HOVER) */
@@ -166,3 +166,35 @@ h1 {
 .reset_password { text-align: center; margin-top: 25px; }
 .reset_password a { color: #aaa; text-decoration: none; font-size: 13px; font-weight: 500; transition: 0.3s; }
 .reset_password a:hover { color: var(--neon-gold); text-shadow: 0 0 8px var(--neon-gold-glow); }
+
+.form-section p {
+    color: #fff;
+}
+.input-group label {
+    display: block;
+    color: #fff;          /* Color blanco */
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 10px;  /* Espacio entre el texto y el input */
+}
+.info-box-custom {
+    color: #fff;
+}
+
+.info-box-custom p {
+    color: #fff;
+}
+
+.info-box-custom ul {
+    color: #fff;
+    padding-left: 20px;
+}
+
+.info-box-custom li {
+    color: #fff;
+    margin-bottom: 8px;
+}
+
+.info-box-custom strong {
+    color: #fff;
+}

@@ -23,7 +23,7 @@ def generar_token_final():
         flow.redirect_uri = 'http://localhost:8080/'
 
         # --- CÓDIGO NUEVO ---
-        nuevo_codigo = "4/0AdkVLPwwufNbmg-_gWzk7p0XxRhw4IKcc9TtTx2rgCspw9HxQ805e2bc6VODWtHcxBZV1Q"
+        nuevo_codigo = "4/0AdkVLPxRurKfQEnAMbpJohy9ruxBc5ETP9ujNsK3SSBEpl46QTd6cHA4kcfKMMuurLXMZg"
         # --------------------
 
         print(f"🔄 Intercambiando código por token permanente...")

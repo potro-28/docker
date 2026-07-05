@@ -97,7 +97,16 @@ class ElementoForm(forms.ModelForm):
             if ext != '.png' and ext != '.jpg' and ext != '.jpeg':
                 raise forms.ValidationError('Solo se permiten imágenes en formato PNG, JPG o JPEG.')
         return imagen
-
+    class Meta:
+        model = Elemento
+        fields = "__all__"
+        widgets = {
+            "fecha_ingreso": forms.DateInput(attrs={"type": "date"}),
+            "nombre_categoria": forms.Select(attrs={
+                "class": "form-select input-dark",
+                "id": "id_nombre_categoria"
+            })
+        }
 
 
 # 

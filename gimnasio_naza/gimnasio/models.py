@@ -149,15 +149,6 @@ class Asistencia(models.Model):
 
 # --------------------CATEGORIA------------------
 class Categoria(models.Model):
-
-    NOMBRE_CATEGORIA = [
-        ("maquinas", "Máquinas"),
-        ("mancuernas", "Mancuernas"),
-        ("discos", "Discos"),
-        ("accesorios", "Accesorios"),
-        ("barras", "Barras"),
-    ]
-
     nombre_categoria = models.CharField(max_length=100, unique=True)
     descripcion = models.CharField(max_length=250)
 

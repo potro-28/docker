@@ -22,7 +22,7 @@
         <h1>RECUPERAR</h1>
         
         <p style="color=white">Dinos tu correo electrónico y te enviaremos un enlace para restablecer tu acceso.</p>
-
+        
         <form method="post" autocomplete="off">
             {% csrf_token %}
             
@@ -43,8 +43,8 @@
         </form>
 
         <div class="login-text">
-            <a href="{% url 'login:login' %}">
-                <i class="ri-arrow-left-s-line"></i> Volver al inicio de sesión
+            <a href="{% url 'login:login' %}" class="back-link">
+                <i class="ri-arrow-left-s-line"></i>Volver al inicio de sesión
             </a>
         </div>
     </div>

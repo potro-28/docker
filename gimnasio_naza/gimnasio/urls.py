@@ -58,6 +58,7 @@ urlpatterns = [
     path('crear-usuario-ajax/', crear_usuario_ajax,
          name='crear_usuario_ajax'),  # ✅ Solo una vez
     path('crear_nombre_categoria_ajax/', crear_nombre_categoria_ajax, name='crear_nombre_categoria_ajax'),
+    
     # ── Mantenimiento ───────────────────────────────────────────────────────────
     path('crear_mantenimiento/', MantenimientoCreateView.as_view(),
          name='crear_mantenimiento'),
@@ -73,7 +74,11 @@ urlpatterns = [
          name='exportar_mantenimiento_excel'),
     path('crear_elemento_ajax/', crear_elemento_ajax, name='crear_elemento_ajax'),
     path('crear_categoria_ajax/', crear_categoria_ajax, name='crear_categoria_ajax'),
-    
+    path(
+     'obtener_elementos_por_categoria/',
+     obtener_elementos_por_categoria,
+     name='obtener_elementos_por_categoria'
+     ),
 
     # ==============================asistencia==============================#
 

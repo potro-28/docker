@@ -149,7 +149,6 @@ class RegistrovisitantetemporalUpdateView(UpdateView):
         messages.success(self.request, 'Actualizacion de registro visitante actualizado correctamente')
         return super().form_valid(form)
     
-    
 class RegistrovisitantetemporalDeleteView(DeleteView):
     model = Registrovisitantestemporales
     template_name = 'registrovisitantetemporal/eliminar.html'
