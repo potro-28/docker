@@ -92,6 +92,7 @@ class Membresia(models.Model):
         img = qr.make_image(fill_color="black", back_color="white")
         buffer = BytesIO()
         img.save(buffer, format="PNG")
+        buffer.seek(0)
 
         nombre_archivo = f"qr_{datos_qr}.png"
         self.qr_code.save(f"qr_{nombre_archivo}.png", File(buffer), save=False)
@@ -349,25 +350,53 @@ class Pregunta(models.Model):
 
 # --------------------------------Modulo Gestión de reportes estadisticas----------------------------
 class Reportes_estadisticas(models.Model):
+
     TIPO_REPORTE_CHOICES = [
-        ("membresia", "Membresia"),
-        ("asistencia", "Asistencia"),
-        ("elemento", "Elemento"),
+        ("usuarios", "Usuarios"),
+        ("membresia", "Membresías"),
+        ("asistencia", "Asistencias"),
+        ("elemento", "Elementos"),
+        ("mantenimiento", "Mantenimientos"),
+        ("pqrs", "PQRS"),
+        ("sancion", "Sanciones"),
+        ("visitantes", "Visitantes Temporales"),
+        ("turnos", "Turnos de Entrenadores"),
+        ("certificaciones", "Certificaciones Internas"),
+        ("estadisticas", "Reportes y Estadísticas"),
     ]
+
+    TIPO_ARCHIVO = [
+        ("PDF", "PDF"),
+        ("EXCEL", "Excel"),
+    ]
+
     tipo_reporte = models.CharField(
-        max_length=20, choices=TIPO_REPORTE_CHOICES, default="membresia"
+        max_length=30,
+        choices=TIPO_REPORTE_CHOICES
     )
+
+    tipo_archivo = models.CharField(
+        max_length=10,
+        choices=TIPO_ARCHIVO
+    )
+
     descripcion = models.TextField()
-    fecha_generacion = models.DateField(default=date.today)
-    fk_usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+
+    fecha_generacion = models.DateTimeField(auto_now_add=True)
+
+    fk_usuario = models.ForeignKey(
+        Usuario,
+        on_delete=models.CASCADE
+    )
 
     def __str__(self):
-        return str(self.id)
+        return f"{self.get_tipo_reporte_display()} - {self.tipo_archivo}"
 
     class Meta:
+        db_table = "Reporte"
         verbose_name = "Reporte"
         verbose_name_plural = "Reportes"
-        db_table = "Reporte"
+        ordering = ["-fecha_generacion"]
 
 
 # --------------------------------Modulo Gestión de reportes y PQRS------------------------

@@ -7,12 +7,6 @@
     .stagger-2 { animation: revealBounce 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-delay: 0.2s; opacity: 0; }
     @keyframes revealBounce { 0% { opacity: 0; transform: translateY(30px) scale(0.97); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
 
-    .card-dash { 
-        position: relative; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(10px); 
-        border-radius: 15px; padding: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.9); 
-        border: 1px solid rgba(255,215,0,0.1); margin-bottom: 25px;
-    }
-    .card-dash::before { content: ''; position: absolute; top: 0; left: -15px; width: 20px; height: 100%; background: #ffd700; transform: skewX(-15deg); box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); }
     .header-title { color: #fff; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; margin: 0;}
     
     .btn-hero-gold { background: #ffd700; color: #000; border: none; font-weight: 900; padding: 10px 20px; font-size: 13px; text-transform: uppercase; display: inline-flex; align-items: center; gap: 8px; transform: skewX(-10deg); transition: 0.3s; text-decoration: none;}
@@ -68,11 +62,11 @@
     <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mb-4 gap-3 stagger-1">
         <h3 class="header-title"><i class="fas fa-users" style="color: #ffd700; margin-right: 10px;"></i> Listado de Atletas / Usuarios</h3>
         <div class="d-flex gap-3 flex-wrap">
-            <div class="dropdown" style="position: relative; z-index: 10;">
+            <div class="dropdown" style="position: relative; z-index: 99999 !important;" id="export-dropdown">
                 <button class="btn-hero-outline dropdown-toggle" type="button" data-bs-toggle="dropdown" style="transform: skewX(0); border-radius: 4px;">
                     <i class="fas fa-file-export me-2"></i> Exportar
                 </button>
-                <ul class="dropdown-menu dropdown-menu-dark bg-dark border-warning mt-2">
+                <ul class="dropdown-menu dropdown-menu-dark bg-dark border-warning mt-2" style="z-index: 999999 !important;">
                     <li><a class="dropdown-item fw-bold" href="{% url 'gimnasio:exportar_usuarios_excel' %}"><i class="fas fa-file-excel me-2 text-success"></i> Formato Excel</a></li>
                     <li><a class="dropdown-item fw-bold" href="{% url 'gimnasio:exportar_usuarios_pdf' %}"><i class="fas fa-file-pdf me-2 text-danger"></i> Formato PDF</a></li>
                 </ul>
@@ -216,6 +210,12 @@ $(function () {
             }
         ]
 
+    });
+
+    // Fix dropdown z-index
+    $('#export-dropdown').on('show.bs.dropdown', function() {
+        $(this).css('z-index', '999999');
+        $('.dropdown-menu').css('z-index', '999999');
     });
 
 });

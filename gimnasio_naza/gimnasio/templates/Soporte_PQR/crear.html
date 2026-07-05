@@ -19,11 +19,17 @@
         <div class="card-body p-5">
             {% for field in form.visible_fields %}
                 <div class="form-group mb-4">
-                    <label style="color: #a0a0a0; font-size: 11px; font-weight: 800; text-transform: uppercase;">{{ field.label }}:</label>
+                    <label style="color: #a0a0a0; font-size: 11px; font-weight: 800; text-transform: uppercase;">
+                        {% if field.name == 'fk_usuario' %}
+                            Usuario:
+                        {% else %}
+                            {{ field.label }}:
+                        {% endif %}
+                    </label>
                     {% if field.name == 'fk_usuario' %}
                         <div class="d-flex gap-2">
                             {{ field|add_class:'form-control input-dark' }}
-                            <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modalUsuario">+</button>
+                            
                         </div>
                     {% else %}
                         {{ field|add_class:'form-control input-dark' }}
@@ -38,59 +44,7 @@
     </form>
 </div>
 <!-- (Incluir aquí el modalUsuario previamente rediseñado) -->
-<!-- ========================= -->
-<!-- MODAL USUARIO (OSCURO)    -->
-<!-- ========================= -->
-<div class="modal fade modal-dark" id="modalUsuario" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-centered"> 
-    <div class="modal-content">
-      <div class="modal-header border-0" style="background: #000; border-bottom: 1px solid rgba(255,215,0,0.2) !important; padding: 20px 30px;">
-        <h5 class="fw-bold text-uppercase m-0" style="color: #ffd700; font-size: 16px; letter-spacing: 1px;"><i class="ri-user-add-line me-2"></i> Crear Usuario</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>  
-      <div class="modal-body p-4 p-md-5">
-        {% csrf_token %}
-        
-        <h6 class="fw-bold text-uppercase mb-3 border-bottom pb-2" style="color: #fff; border-color: rgba(255,255,255,0.05) !important; font-size: 12px;"><i class="fas fa-lock me-2" style="color: #ffd700;"></i> Datos de Acceso</h6>
-        <div class="row g-3 mb-4">
-            <div class="col-md-6"><input type="text" id="username" name="fake_user" class="form-control input-dark" placeholder="Username" autocomplete="off"></div>
-            <div class="col-md-6">
-                <div class="input-group">
-                    <input type="password" id="password" class="form-control input-dark" placeholder="Contraseña" style="border-right: none !important;">
-                    <button type="button" class="btn input-dark border-start-0" id="btnTogglePassword"><i class="ri-eye-line" id="iconPassword" style="color: #a0a0a0;"></i></button>
-                </div>
-            </div>
-        </div>
 
-        <h6 class="fw-bold text-uppercase mb-3 border-bottom pb-2" style="color: #fff; border-color: rgba(255,255,255,0.05) !important; font-size: 12px;"><i class="fas fa-id-card me-2" style="color: #ffd700;"></i> Datos Personales</h6>
-        <div class="row g-3 mb-4">
-            <div class="col-md-6"><input type="text" id="documento" class="form-control input-dark" placeholder="Documento"></div>
-            <div class="col-md-6"><input type="email" id="correo" class="form-control input-dark" placeholder="Correo"></div>
-            <div class="col-md-6"><input type="text" id="nombre" class="form-control input-dark" placeholder="Nombre"></div>
-            <div class="col-md-6"><input type="text" id="apellido" class="form-control input-dark" placeholder="Apellido"></div>
-            <div class="col-md-6"><input type="text" id="telefono" class="form-control input-dark" placeholder="Teléfono"></div>
-            <div class="col-md-6"><input type="date" id="fecha_nacimiento" class="form-control input-dark" style="color: #a0a0a0;"></div>
-            <div class="col-md-12">
-                <select id="genero" class="form-select input-dark">
-                    <option value="M">Masculino</option>
-                    <option value="F">Femenino</option>
-                </select>
-            </div>
-        </div>
-
-        <h6 class="fw-bold text-uppercase mb-3 border-bottom pb-2" style="color: #fff; border-color: rgba(255,255,255,0.05) !important; font-size: 12px;"><i class="fas fa-weight me-2" style="color: #ffd700;"></i> Datos Físicos</h6>
-        <div class="row g-3">
-            <div class="col-md-6"><input type="number" id="peso" class="form-control input-dark" placeholder="Peso"></div>
-            <div class="col-md-6"><input type="number" id="altura" class="form-control input-dark" placeholder="Altura"></div>
-        </div>
-      </div>
-
-      <div class="modal-footer border-0 p-4" style="background: rgba(0,0,0,0.5);">
-        <button class="btn fw-bold px-4" style="background: rgba(255,255,255,0.05); color: #fff; text-transform: uppercase; font-size: 12px; border: 1px solid rgba(255,255,255,0.1);" data-bs-dismiss="modal">Cancelar</button>
-        <button class="btn btn-hero-gold px-4" onclick="crearUsuario()" style="transform: skewX(0);"><span><i class="ri-save-line me-1"></i> Guardar</span></button>
-      </div>
-    </div>
-  </div>
 </div>
 {% endblock %}
 

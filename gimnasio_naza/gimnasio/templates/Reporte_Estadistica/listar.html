@@ -88,11 +88,7 @@
         transition: var(--transition); overflow: hidden;
     }
     
-    .card-dash::before, .chart-card::before {
-        content: ''; position: absolute; top: 0; left: -15px; width: 20px; height: 100%;
-        background: var(--primary-blue); transform: skewX(-15deg);
-        box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); transition: var(--transition); z-index: 0;
-    }
+    
     
     .card-dash:hover, .chart-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-hover); border-color: var(--primary-blue); }
     .card-dash:hover::before, .chart-card:hover::before { width: 25px; box-shadow: 0 0 25px rgba(255, 215, 0, 0.6); background: #fff; }
@@ -325,6 +321,12 @@
     overflow:hidden;
     transition:.35s;
     position:relative;
+    
+    border-radius: 12px;
+    padding: 5px;
+}
+.card-mini .card-body{
+    padding: 5px 5px;
 }
 
 .card-mini::before{
@@ -333,7 +335,7 @@
     left:-15px;
     top:0;
     width:20px;
-    height:100%;
+    height:140px;
     background:var(--primary-blue);
     transform:skewX(-15deg);
     transition:.35s;
@@ -368,7 +370,105 @@
     font-weight:900;
 }
 
+/*=========================================================
+    HISTORIAL DE REPORTES
+=========================================================*/
 
+.card-reportes{
+    background:var(--bg-surface);
+    border:var(--card-border);
+    border-radius:var(--border-radius-card);
+    box-shadow:var(--shadow-main);
+    overflow:hidden;
+    transition:.35s;
+    position:relative;
+}
+
+
+
+.card-reportes:hover{
+    transform:translateY(-5px);
+    border-color:var(--primary-blue);
+    box-shadow:var(--shadow-hover);
+}
+
+.card-reportes:hover::before{
+    width:25px;
+    background:#fff;
+}
+
+.card-reportes .card-header{
+    background:transparent;
+    border:none;
+    padding:22px 30px 10px;
+}
+
+.card-reportes .card-header h5{
+    color:#fff;
+    font-weight:900;
+    text-transform:uppercase;
+    margin:0;
+}
+
+.card-reportes .card-header i{
+    color:var(--primary-blue);
+    margin-right:8px;
+}
+/*=========================
+ TABLA REPORTES
+==========================*/
+
+.tabla-reportes{
+    width:100%;
+    border-collapse:collapse;
+}
+
+.tabla-reportes thead{
+    background:rgba(255,215,0,.05);
+}
+
+.tabla-reportes th{
+    color:var(--primary-blue);
+    text-transform:uppercase;
+    font-size:13px;
+    font-weight:800;
+    padding:16px;
+    border-bottom:1px solid rgba(255,215,0,.20);
+}
+
+.tabla-reportes td{
+    color:#fff;
+    padding:15px;
+    border-bottom:1px solid rgba(255,255,255,.05);
+    vertical-align:middle;
+}
+
+.tabla-reportes tbody tr{
+    transition:.30s;
+}
+
+.tabla-reportes tbody tr:hover{
+    background:rgba(255,215,0,.05);
+}
+/*=========================
+ BADGES
+==========================*/
+
+.badge-pdf{
+    background:#dc3545;
+    color:#fff;
+    padding:6px 14px;
+    border-radius:20px;
+    font-weight:800;
+}
+
+.badge-excel{
+    background:#e0bb06;
+    color:#fff;
+    padding:6px 14px;
+    border-radius:20px;
+    font-weight:800;
+}
 /*-------------------------
  SCROLL
 -------------------------*/
@@ -514,46 +614,140 @@ canvas{
     </div>
 
 </div>
-<div class="contenedor-mantenimientos">
+<div class="card-reportes mt-4">
 
-    <h4 class="titulo-mantenimiento">
-        Mantenimientos
-    </h4>
+    <div class="card-header">
+        <h5>
+            <i class="fas fa-tools"></i>
+            Mantenimientos
+        </h5>
+    </div>
 
-    <div class="row g-3 cards-mantenimiento">
+    <div class="card-body">
 
-        <div class="col-12 col-sm-6 col-lg-4">
-            <div class="card card-mini card-pendiente h-100">
-                <div class="card-body text-center">
-                    <i class="mdi mdi-wrench icon-card"></i>
-                    <h6>Pendientes</h6>
-                    <h3>{{ mant_pendientes }}</h3>
+        <div class="row g-3">
+
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="card card-mini card-pendiente h-100">
+                    <div class="card-body text-center">
+                        <i class="mdi mdi-wrench icon-card"></i>
+                        <h6>Pendientes</h6>
+                        <h3>{{ mant_pendientes }}</h3>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="col-12 col-sm-6 col-lg-4">
-            <div class="card card-mini card-proceso h-100">
-                <div class="card-body text-center">
-                    <i class="mdi mdi-cog icon-card"></i>
-                    <h6>En proceso</h6>
-                    <h3>{{ mant_proceso }}</h3>
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="card card-mini card-proceso h-100">
+                    <div class="card-body text-center">
+                        <i class="mdi mdi-cog icon-card"></i>
+                        <h6>En proceso</h6>
+                        <h3>{{ mant_proceso }}</h3>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="col-12 col-sm-6 col-lg-4">
-            <div class="card card-mini card-completado h-100">
-                <div class="card-body text-center">
-                    <i class="mdi mdi-check-circle icon-card"></i>
-                    <h6>Completados</h6>
-                    <h3>{{ mant_completados }}</h3>
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="card card-mini card-completado h-100">
+                    <div class="card-body text-center">
+                        <i class="mdi mdi-check-circle icon-card"></i>
+                        <h6>Completados</h6>
+                        <h3>{{ mant_completados }}</h3>
+                    </div>
                 </div>
             </div>
+
         </div>
 
     </div>
 
+</div>
+    <div class="card-reportes mt-4">
+
+    <div class="card-header">
+        <h5>
+            <i class="fas fa-file-alt"></i>
+            Historial de Reportes Generados
+        </h5>
+    </div>
+
+    <div class="card-body">
+
+        <div class="responsive-table">
+
+            <table class="tabla-reportes">
+
+                <thead>
+
+                    <tr>
+                        <th>#</th>
+                        <th>Tipo de Reporte</th>
+                        <th>Archivo</th>
+                        <th>Usuario</th>
+                        <th>Fecha y Hora</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                {% for reporte in object_list %}
+
+                    <tr>
+
+                        <td>{{ forloop.counter }}</td>
+
+                        <td>{{ reporte.get_tipo_reporte_display }}</td>
+
+                        <td>
+
+                            {% if reporte.tipo_archivo == "PDF" %}
+
+                                <span class="badge-pdf">
+                                    PDF
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge-excel">
+                                    EXCEL
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>{{ reporte.fk_usuario }}</td>
+
+                        <td>{{ reporte.fecha_generacion|date:"d/m/Y H:i" }}</td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+
+                        <td colspan="5" style="text-align:center;color:#bbb;padding:30px;">
+
+                            <i class="fas fa-folder-open"></i><br><br>
+
+                            Aún no se han generado reportes.
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
 </div>
 {% endblock %}
 

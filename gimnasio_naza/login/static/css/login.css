@@ -62,6 +62,22 @@ body::before {
     /* Transición suave para el hover */
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
+.login-text{
+    text-align: center;
+    margin-top: 50px;   /* Aumenta este valor para bajarlo */
+}
+
+.back-link{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #8a2be2;
+    text-decoration: none;
+}
+
+.back-link:hover{
+    color: #b15cff;
+}
 
 /* EFECTO ANIMADO AL PASAR EL CURSOR (HOVER) */
 .form-section:hover {

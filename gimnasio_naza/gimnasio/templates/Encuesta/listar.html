@@ -14,17 +14,6 @@
         overflow:hidden;
         z-index:1;
     }
-    .card-dash::before{
-        content:'';
-        position:absolute;
-        top:0;
-        left:-15px;
-        width:20px;
-        height:100%;
-        background:#ffd700;
-        transform:skewX(-15deg);
-        z-index:-1;      /* IMPORTANTE */
-    }
     .card-dash > *{
         position:relative;
         z-index:2;
@@ -111,7 +100,7 @@
               <td class="fw-bold" style="color: #6c757d;">#{{ encuesta.id }}</td>
               <td>
                 <span class="fw-bold text-white text-uppercase d-block">{{ encuesta.nombre }}</span>
-                <small class="d-md-none" style="color: #a0a0a0;">Por: {{ encuesta.fk_usuario.nombre_usuario }}</small>
+                <small class="d-md-none" style="color: #a0a0a0;">Por: {{ encuesta.usuario.nombre_usuario }}</small>
               </td>
               <td class="text-center">
                 {% if encuesta.estado == 'activa' %}

@@ -34,7 +34,11 @@ class ExportarAsistenciaPDF(DjangoView):
         
         # Generar nombre del archivo con timestamp
         nombre_archivo = f'Reporte_Asistencia_{datetime.now().strftime("%d_%m_%Y")}'
-        
+        Reportes_estadisticas.objects.create(
+            tipo_reporte="asistencia",
+            descripcion="Se generó el reporte de asistencias en PDF",
+            fk_usuario=request.user.usuario
+        )
         # Llamar funcion de exportacion a PDF
         return exportar_pdf(
             request,
@@ -66,7 +70,11 @@ class ExportarAsistenciaExcel(DjangoView):
         
         # Generar nombre del archivo con timestamp
         nombre_archivo = f'Reporte_Asistencia_{datetime.now().strftime("%d_%m_%Y")}'
-        
+        Reportes_estadisticas.objects.create(
+            tipo_reporte="asistencia",
+            descripcion="Se generó el reporte de asistencias en Excel",
+            fk_usuario=request.user.usuario
+        )
         # Llamar funcion de exportacion a PDF
         return exportar_excel(
             titulo='REPORTE DE ASISTENCIAS',
@@ -101,7 +109,12 @@ class ExportarMembresiaPDF(DjangoView):
         
         # Generar nombre del archivo con timestamp
         nombre_archivo = f'Reporte_membresia_{datetime.now().strftime("%d_%m_%Y")}'
-        
+        Reportes_estadisticas.objects.create(
+            tipo_reporte="membresia",
+            tipo_archivo="PDF",
+            descripcion="Se generó el reporte de membresías en PDF",
+            fk_usuario=request.user.usuario
+        )
         # Llamar funcion de exportacion a PDF
         return exportar_pdf(
             request,
@@ -135,7 +148,12 @@ class ExportarMembresiaExcel(DjangoView):
         
         # Generar nombre del archivo con timestamp
         nombre_archivo = f'Reporte_membresia_{datetime.now().strftime("%d_%m_%Y")}'    
-        
+        Reportes_estadisticas.objects.create(
+            tipo_reporte="membresia",
+            tipo_archivo="EXCEL",
+            descripcion="Se generó el reporte de membresías en Excel",
+            fk_usuario=request.user.usuario
+        )
         # Llamar funcion de exportacion a PDF
         return exportar_excel(
             titulo='REPORTE DE MEMBRESIAS',
@@ -167,7 +185,12 @@ class ExportarElementosPDF(DjangoView):
         # Generar nombre del archivo con timestamp
         nombre_archivo = f'Reporte_Elementos_{datetime.now().strftime("%d_%m_%Y")}'
 
-        
+        Reportes_estadisticas.objects.create(
+            tipo_reporte="elemento",
+            tipo_archivo="PDF",
+            descripcion="Se generó el reporte de elementos en PDF",
+            fk_usuario=request.user.usuario
+        )
         # Llamar funcion de exportacion a PDF
         return exportar_pdf(
             request,
@@ -197,7 +220,12 @@ class ExportarElementosExcel(DjangoView):
         
         # Generar nombre del archivo con timestamp
         nombre_archivo = f'Reporte_Elementos_{datetime.now().strftime("%d_%m_%Y")}'
-        
+        Reportes_estadisticas.objects.create(
+            tipo_reporte="elemento",
+            tipo_archivo="EXCEL",
+            descripcion="Se generó el reporte de elementos en Excel",
+            fk_usuario=request.user.usuario
+        )
         # Llamar funcion de exportacion a Excel
         return exportar_excel(
             titulo='REPORTE DE ELEMENTOS',
@@ -226,8 +254,12 @@ class ExportarUsuariosPDF(DjangoView):
         
         # Generar nombre del archivo con timestamp
         nombre_archivo = f'Reporte_Usuarios_{datetime.now().strftime("%d_%m_%Y")}'
-
-        
+        Reportes_estadisticas.objects.create(
+            tipo_reporte="usuarios",
+            tipo_archivo="PDF",
+            descripcion="Se generó el reporte de usuarios en PDF",
+            fk_usuario=request.user.usuario
+        )
         # Llamar funcion de exportacion a PDF
         return exportar_pdf(
             request,
@@ -257,7 +289,12 @@ class ExportarUsuariosExcel(DjangoView):
         
         # Generar nombre del archivo con timestamp
         nombre_archivo = f'Reporte_Usuarios_{datetime.now().strftime("%d_%m_%Y")}'
-        
+        Reportes_estadisticas.objects.create(
+            tipo_reporte="usuarios",
+            tipo_archivo="EXCEL",
+            descripcion="Se generó el reporte de usuarios en Excel",
+            fk_usuario=request.user.usuario
+        )
         # Llamar funcion de exportacion a Excel
         return exportar_excel(
             titulo='REPORTE DE USUARIOS',
@@ -276,18 +313,22 @@ class ExportarmantenimientoPDF(DjangoView):
         mantenimientos = Mantenimiento.objects.all()
         
         # Definir las columnas que se mostraran en el reporte
-        columnas = ['ID', 'Elemento_id', 'Tipo de mantenimiento', 'Fecha programada', 'Estado']
+        columnas = ['ID', 'nombre_elemento', 'Tipo de mantenimiento', 'Fecha programada', 'Estado']
         
         # Preparar los datos en  tuplas
         datos = [
-            (m.id, m.elemento_id, m.tipo_mantenimiento, m.fecha_programada, m.estado)
+            (m.id, m.nombre_elemento, m.tipo_mantenimiento, m.fecha_programada, m.estado)
             for m in mantenimientos
         ]
         
         # Generar nombre del archivo con timestamp
         nombre_archivo = f'Reporte_Mantenimiento_{datetime.now().strftime("%d_%m_%Y")}'
-
-        
+        Reportes_estadisticas.objects.create(
+            tipo_reporte="mantenimiento",
+            tipo_archivo="PDF",
+            descripcion="Se generó el reporte de mantenimientos en PDF",
+            fk_usuario=request.user.usuario
+        )
         # Llamar funcion de exportacion a PDF
         return exportar_pdf(
             request,
@@ -307,17 +348,23 @@ class ExportarMantenimientoExcel(DjangoView):
         mantenimientos = Mantenimiento.objects.all()
         
         # Definir las columnas que se mostraran en el reporte
-        columnas = ['ID', 'Elemento_id', 'Tipo de mantenimiento', 'Fecha programada', 'Estado']
+        columnas = ['ID', 'nombre elemento', 'Tipo de mantenimiento', 'Fecha programada', 'Estado']
         
         # Preparar los datos en  tuplas
         datos = [
-            (m.id, m.elemento_id, m.tipo_mantenimiento, m.fecha_programada, m.estado)
+            (m.id, str(m.nombre_elemento), m.tipo_mantenimiento, m.fecha_programada, m.estado)
             for m in mantenimientos
+            
         ]
         
         # Generar nombre del archivo con timestamp
         nombre_archivo = f'Reporte_Mantenimiento_{datetime.now().strftime("%d_%m_%Y")}'
-
+        Reportes_estadisticas.objects.create(
+            tipo_reporte="mantenimiento",
+            tipo_archivo="EXCEL",
+            descripcion="Se generó el reporte de mantenimientos en Excel",
+            fk_usuario=request.user.usuario
+        )
         # Llamar funcion de exportacion a Excel
         return exportar_excel(
             titulo='REPORTE DE MANTENIMIENTO',
@@ -346,11 +393,16 @@ class ExportarRegistrovisitantestemporalesPDF(DjangoView):
         
         # Generar nombre del archivo con timestamp
         nombre_archivo = f'Registrovisitantestemporales{datetime.now().strftime("%d_%m_%Y")}'
-        
+        Reportes_estadisticas.objects.create(
+            tipo_reporte="visitantes",
+            tipo_archivo="PDF",
+            descripcion="Se generó el reporte de visitantes temporales en PDF",
+            fk_usuario=request.user.usuario
+        )
         # Llamar funcion de exportacion a PDF
         return exportar_pdf(
             request,
-            titulo='REPORTE DE CERTIFICACIONES INTERNAS',
+            titulo='REPORTE DE REGISTRO DE VISITANTES TEMPORALES',
             columnas=columnas,
             datos=datos,
             nombre_archivo=nombre_archivo
@@ -378,7 +430,12 @@ class ExportarRegistrovisitantestemporalesExcel(DjangoView):
         
         # Generar nombre del archivo con timestamp
         nombre_archivo = f'Registrovisitantestemporales{datetime.now().strftime("%d_%m_%Y")}'
-        
+        Reportes_estadisticas.objects.create(
+            tipo_reporte="visitantes",
+            tipo_archivo="EXCEL",
+            descripcion="Se generó el reporte de visitantes temporales en Excel",
+            fk_usuario=request.user.usuario
+        )
         # Llamar funcion de exportacion a Excel
         return exportar_excel(
             titulo='REPORTE DE REGISTRO DE VISITANTES TEMPORALES',
@@ -408,7 +465,12 @@ class ExportarTurnodeentrenadorPDF(DjangoView):
         
         # Generar nombre del archivo con timestamp
         nombre_archivo = f'Turnodeentrenador {datetime.now().strftime("%d_%m_%Y")}'
-        
+        Reportes_estadisticas.objects.create(
+            tipo_reporte="turnos",
+            tipo_archivo="PDF",
+            descripcion="Se generó el reporte de turnos de entrenadores en PDF",
+            fk_usuario=request.user.usuario
+        )
         # Llamar funcion de exportacion a PDF
         return exportar_pdf(
             request,
@@ -439,7 +501,12 @@ class ExportarTurnodeentrenadorExcel(DjangoView):
         
         # Generar nombre del archivo con timestamp
         nombre_archivo = f'Turnodeentrenador{datetime.now().strftime("%d_%m_%Y")}'
-        
+        Reportes_estadisticas.objects.create(
+            tipo_reporte="turnos",
+            tipo_archivo="EXCEL",
+            descripcion="Se generó el reporte de turnos de entrenadores en Excel",
+            fk_usuario=request.user.usuario
+        )
         # Llamar funcion de exportacion a Excel
         return exportar_excel(
             titulo='REPORTE DE TURNO DE ENTRENADOR',
@@ -475,7 +542,12 @@ class ExportarCertificacioninternaPDF(DjangoView):
         
         # Generar nombre del archivo con timestamp
         nombre_archivo = f'CertificacionesInternas {datetime.now().strftime("%d_%m_%Y")}'
-        
+        Reportes_estadisticas.objects.create(
+            tipo_reporte="certificaciones",
+            tipo_archivo="PDF",
+            descripcion="Se generó el reporte de certificaciones en PDF",
+            fk_usuario=request.user.usuario
+        )
         # Llamar funcion de exportacion a PDF
         return exportar_pdf(
             request,
@@ -511,7 +583,12 @@ class ExportarCertificacioninternaExcel(DjangoView):
         
         # Generar nombre del archivo con timestamp
         nombre_archivo = f'CertificacionesInternas {datetime.now().strftime("%d_%m_%Y")}'
-        
+        Reportes_estadisticas.objects.create(
+            tipo_reporte="certificaciones",
+            tipo_archivo="EXCEL",
+            descripcion="Se generó el reporte de certificaciones en Excel",
+            fk_usuario=request.user.usuario
+        )
         # Llamar funcion de exportacion a Excel
         return exportar_excel(
             titulo='REPORTE DE CERTIFICACIONES INTERNAS',
