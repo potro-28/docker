@@ -8,11 +8,19 @@ from gimnasio.models import Usuario, Nutricion, Masa_corporal, Rutina
 from gimnasio.servicios.ia_engine import MotorRecomendacionGym
 
 @login_required
+@login_required
 def seleccion_plan_ia(request, usuario_id):
-    # Quitamos , rol='cliente' para que encuentre a tu usuario administrador ID 7
-    usuario = get_object_or_404(Usuario, id=usuario_id) 
+    # Intentamos buscar el perfil usando el id del 'User' de Django que viaja en la URL
+    try:
+        usuario = Usuario.objects.get(user_id=usuario_id)
+    except Usuario.DoesNotExist:
+        # Si no lo encuentra por el ID de la URL, usamos al usuario que tiene la sesión activa de respaldo
+        usuario = get_object_or_404(Usuario, user=request.user)
     
+    # Inicializar el motor predictivo de IA
     motor_ia = MotorRecomendacionGym()
+    
+    # Generar las dos propuestas basadas en el ID del perfil real
     planes = motor_ia.generar_recomendaciones(usuario.id)
     
     if request.method == 'POST':

@@ -40,6 +40,23 @@
     table.dataTable tbody td { padding: 15px !important; border: none !important; vertical-align: middle; color: #fff !important; background-color: transparent !important; font-size: 13px;}
     .page-item.active .page-link { background-color: #ffd700 !important; border-color: #ffd700 !important; color: #000 !important; font-weight: 900; }
     .page-item .page-link { background-color: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); color: #fff;}
+
+    /* 1. Elevamos por completo la fila superior que contiene los botones */
+.container-fluid > .d-flex.stagger-1 {
+    position: relative;
+    z-index: 99; /* Asegura que toda la cabecera flote por encima de la tabla */
+}
+
+/* 2. Forzamos al dropdown a comportarse como un elemento flotante absoluto */
+.dropdown-menu {
+    position: absolute !important;
+    z-index: 9999 !important;
+}
+
+/* 3. Permitimos que el desbordamiento vertical sea visible en el contenedor de la tabla */
+.table-responsive {
+    overflow: visible !important; /* Permite que los elementos superiores floten por encima sin ser recortados */
+}
 </style>
 
 <link rel="stylesheet" href="{% static 'lib/datatables-1.10.20/css/dataTables.bootstrap4.min.css' %}">
