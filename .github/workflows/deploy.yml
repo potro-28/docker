@@ -1,0 +1,26 @@
+name: Integración Continua
+
+on:
+  push:
+    branches: ["main", "master"]
+
+jobs:
+  testeo:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Obtener el codigo
+        uses: actions/checkout@v4
+      - name: configurar python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.13
+      - name: instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-django
+      - name: ejecutar pruebas
+        run: |
+          cd Sena
+          pytest apl/tests.py --ds=config.settings
