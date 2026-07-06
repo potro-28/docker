@@ -59,3 +59,4 @@ weasyprint==68.1
 webencodings==0.5.1
 zopfli==0.4.1
 gunicorn==23.0.0
+whitenoise==6.9.0
