@@ -15,36 +15,37 @@
 <div class="container mt-4" style="max-width: 800px;">
     <form method="post" action="." class="card-dash">
         {% csrf_token %}
-        <div class="header-neon"><h3><i class="fas fa-edit me-2"></i> {{ titulo }}</h3></div>
+        
+        {% for hidden in form.hidden_fields %}
+            {{ hidden }}
+        {% endfor %}
+
+        <div class="header-neon">
+            <h3><i class="fas fa-edit me-2"></i> {{ titulo }}</h3>
+        </div>
+        
         <div class="card-body p-5">
             {% for field in form.visible_fields %}
                 <div class="form-group mb-4">
                     <label style="color: #a0a0a0; font-size: 11px; font-weight: 800; text-transform: uppercase;">
-                        {% if field.name == 'fk_usuario' %}
-                            Usuario:
-                        {% else %}
-                            {{ field.label }}:
-                        {% endif %}
+                        {{ field.label }}:
                     </label>
-                    {% if field.name == 'fk_usuario' %}
-                        <div class="d-flex gap-2">
-                            {{ field|add_class:'form-control input-dark' }}
-                            
+                    {{ field|add_class:'form-control input-dark' }}
+                    
+                    {% if field.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ field.errors|striptags }}
                         </div>
-                    {% else %}
-                        {{ field|add_class:'form-control input-dark' }}
                     {% endif %}
                 </div>
             {% endfor %}
         </div>
+        
         <div class="card-footer border-0 p-5 pt-0 d-flex gap-3">
             <button type="submit" class="btn-hero-gold"><span>Guardar Registro</span></button>
             <a href="{% url 'gimnasio:listar_Soporte_PQRS' %}" class="btn text-white border-secondary">Cancelar</a>
         </div>
     </form>
-</div>
-<!-- (Incluir aquí el modalUsuario previamente rediseñado) -->
-
 </div>
 {% endblock %}
 

@@ -14,10 +14,6 @@
         border-radius: 15px; padding: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.9); 
         border: 1px solid rgba(255,215,0,0.1); margin-bottom: 25px;
     }
-    .card-dash::before {
-        content: ''; position: absolute; top: 0; left: -15px; width: 20px; height: 100%;
-        background: #ffd700; transform: skewX(-15deg); box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
-    }
 
     .card-header-neon { background: rgba(0,0,0,0.5); padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #ffd700; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
 
@@ -109,24 +105,110 @@
 
     zonaC.addEventListener('click', () => archivoInput.click());
     
-    // Lógica de subida AJAX (manteniendo tu funcionalidad original)
     function subirArchivo(archivo) {
-        if (!archivo.name.endsWith('.sql')) { alert('Archivo no válido'); return; }
-        const formData = new FormData();
-        formData.append('archivo', archivo);
+        // 1. Validar la extensión en el cliente primero
+        if (!archivo.name.endsWith('.sql')) { 
+            Swal.fire({
+                icon: 'error',
+                title: '<span style="color: #ffd700;">Archivo no válido</span>',
+                text: 'Por favor, selecciona o arrastra únicamente archivos con formato .sql',
+                background: '#141414',
+                confirmButtonColor: '#ffd700',
+                confirmButtonText: '<span style="color: #000; font-weight: bold;">Aceptar</span>'
+            });
+            archivoInput.value = '';
+            return; 
+        }
 
-        fetch('{% url "gimnasio:restaurar_datos" %}', {
-            method: 'POST',
-            body: formData,
-            headers: { 'X-CSRFToken': '{{ csrf_token }}' }
-        })
-        .then(r => r.json())
-        .then(data => {
-            if (data.exito) { alert('✓ ' + data.mensaje); location.reload(); } 
-            else { alert('✗ Error: ' + data.error); }
+        // 2. Ventana de confirmación previa
+        Swal.fire({
+            title: '<span style="color: #ffd700;">¿Confirmar Restauración?</span>',
+            html: `<p style="color: #fff; margin-bottom: 5px;">Estás a punto de restaurar la base de datos con el archivo:</p>
+                   <b style="color: #ffd700;">${archivo.name}</b>
+                   <p style="color: #dc3545; font-size: 0.9em; margin-top: 15px;">⚠️ ¡Atención! Los datos actuales serán reemplazados por los del respaldo.</p>`,
+            icon: 'warning',
+            showCancelButton: true,
+            background: '#141414',
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#dc3545',
+            confirmButtonText: '<span style="color: #fff; font-weight: bold;">Sí, restaurar</span>',
+            cancelButtonText: '<span style="color: #fff; font-weight: bold;">Cancelar</span>'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                
+                // 3. Mostrar pantalla de carga animada
+                Swal.fire({
+                    title: '<span style="color: #ffd700;">Restaurando base de datos...</span>',
+                    text: 'Por favor espera, no cierres la página.',
+                    background: '#141414',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    showConfirmButton: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                const formData = new FormData();
+                formData.append('archivo', archivo);
+
+                // 4. Petición AJAX sincronizada con tu archivo views.py
+                fetch('{% url "gimnasio:restaurar_datos" %}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+                })
+                .then(response => response.json()) // Convertimos la respuesta a JSON directo
+                .then(data => {
+                    // Mapeo exacto de tus llaves de Django: {'exito': True, 'mensaje': ...}
+                    if (data.exito) { 
+                        Swal.fire({
+                            icon: 'success',
+                            title: '<span style="color: #28a745;">¡Restauración Exitosa!</span>',
+                            text: data.mensaje,
+                            background: '#141414',
+                            confirmButtonColor: '#ffd700',
+                            confirmButtonText: '<span style="color: #000; font-weight: bold;">Estupendo</span>'
+                        }).then(() => {
+                            location.reload(); // Recarga solo cuando le dé al botón
+                        });
+                    } else { 
+                        // Mapeo exacto de tu llave de error: {'error': ...}
+                        Swal.fire({
+                            icon: 'error',
+                            title: '<span style="color: #dc3545;">Error de Restauración</span>',
+                            text: data.error || 'No se pudo procesar el archivo SQL.',
+                            background: '#141414',
+                            confirmButtonColor: '#ffd700',
+                            confirmButtonText: '<span style="color: #000; font-weight: bold;">Aceptar</span>'
+                        });
+                        archivoInput.value = ''; 
+                    }
+                })
+                .catch(err => {
+                    // Captura fallos críticos o errores 400/500 de Django
+                    Swal.fire({
+                        icon: 'error',
+                        title: '<span style="color: #dc3545;">Error en el Servidor</span>',
+                        text: 'Ocurrió un problema interno al procesar la restauración.',
+                        background: '#141414',
+                        confirmButtonColor: '#ffd700',
+                        confirmButtonText: '<span style="color: #000; font-weight: bold;">Aceptar</span>'
+                    });
+                    archivoInput.value = '';
+                });
+
+            } else {
+                archivoInput.value = '';
+            }
         });
     }
-    archivoInput.addEventListener('change', (e) => { if (e.target.files.length > 0) subirArchivo(e.target.files[0]); });
+
+    archivoInput.addEventListener('change', (e) => { 
+        if (e.target.files.length > 0) {
+            subirArchivo(e.target.files[0]); 
+        }
+    });
 </script>
 {% endif %}
 {% endblock %}

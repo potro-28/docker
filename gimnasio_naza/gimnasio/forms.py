@@ -908,9 +908,27 @@ class Soporte_PQRSForm(ModelForm):
             'tipo': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Ingrese el tipo de soporte pqr'}),
             'descripcion': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese la descripcion del soporte pqr'}),
             'fecha_ingreso': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'type': 'date'}),
-            'estado': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Ingrese el estado del soporte pqr', 'rows': 3, 'cols': 3}),
-            'fk_usuario': forms.Select(attrs={'class': 'form-control'})
+            
+            # ===== CAMPOS OCULTOS =====
+            'estado': forms.HiddenInput(),
+            'fk_usuario': forms.HiddenInput()
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        hoy = timezone.localdate()
+        
+        # Fecha de ingreso automática y protegida
+        self.fields['fecha_ingreso'].initial = hoy.strftime('%Y-%m-%d')
+        self.fields['fecha_ingreso'].widget.attrs['min'] = hoy.strftime('%Y-%m-%d')
+        
+        # ===== LA SOLUCIÓN =====
+        # Evitamos que el formulario rechace el envío por venir vacío desde el HTML
+        self.fields['fk_usuario'].required = False
+        
+        # Valores iniciales para el estado al crear un nuevo registro
+        if not self.instance.pk:
+            self.fields['estado'].initial = 'pendiente'
 
     def clean_descripcion(self):
         descripcion = self.cleaned_data['descripcion'].strip()
@@ -924,6 +942,7 @@ class Soporte_PQRSForm(ModelForm):
             raise forms.ValidationError("No se permiten números repetidos excesivamente")
         if re.search(r'([a-zA-Z])\1{3,}', descripcion.lower()):
             raise forms.ValidationError("No se permiten letras repetidas excesivamente")
+        
         palabras = descripcion.split()
         for palabra in palabras:
             palabra_lower = palabra.lower()
@@ -948,12 +967,6 @@ class Soporte_PQRSForm(ModelForm):
                     if patron in palabra_lower:
                         raise forms.ValidationError("La descripción contiene texto inválido")
         return descripcion
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        hoy = timezone.localdate()
-        self.fields['fecha_ingreso'].initial = hoy.strftime('%Y-%m-%d')
-        self.fields['fecha_ingreso'].widget.attrs['min'] = hoy.strftime('%Y-%m-%d')
 
     def clean_fecha_ingreso(self):
         fecha_ingreso = self.cleaned_data.get('fecha_ingreso')
@@ -1105,7 +1118,16 @@ class SancionesForm(forms.ModelForm):
         widgets = {
             'fecha_inicio': forms.DateInput(attrs={'type': 'date'}),
             'fecha_fin': forms.DateInput(attrs={'type': 'date'}),
+            
+            # ===== OPCIÓN 2: CAMPO OCULTO CON VALOR POR DEFECTO =====
+            'estado': forms.HiddenInput(attrs={'value': 'activa'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Forzamos el valor inicial por si se renderiza en un formulario de creación vacío
+        if not self.instance.pk:
+            self.fields['estado'].initial = 'activa'
 
     def clean_motivo_sancion(self):
         motivo = self.cleaned_data.get('motivo_sancion')
@@ -1124,41 +1146,37 @@ class SancionesForm(forms.ModelForm):
             raise forms.ValidationError("La duración no puede ser mayor a 365 días.")
         return duracion
 
+    # ===== MÉTODO CLEAN UNIFICADO Y CORREGIDO =====
     def clean(self):
         cleaned_data = super().clean()
         duracion = cleaned_data.get('duracion_sancion')
         usuario = cleaned_data.get('fk_usuario')
         tipo = cleaned_data.get('tipo_sancion')
         estado = cleaned_data.get('estado')
+
+        # 1. Cálculo automático de fechas basándose en la duración
         fecha_inicio = date.today()
         cleaned_data['fecha_inicio'] = fecha_inicio
+        
         if duracion:
             fecha_fin = fecha_inicio + timedelta(days=duracion)
             cleaned_data['fecha_fin'] = fecha_fin
-        if usuario and tipo and estado == 'activa':
-            queryset = Sancion.objects.filter(fk_usuario=usuario, tipo_sancion=tipo, estado='activa')
-            if self.instance.pk:
-                queryset = queryset.exclude(pk=self.instance.pk)
-            if queryset.exists():
-                raise forms.ValidationError("Este usuario ya tiene una sanción activa de este tipo.")
-        return cleaned_data
+        else:
+            fecha_fin = cleaned_data.get('fecha_fin')
 
-    def clean(self):
-        cleaned_data = super().clean()
-        fecha_inicio = cleaned_data.get('fecha_inicio')
-        fecha_fin = cleaned_data.get('fecha_fin')
-        usuario = cleaned_data.get('fk_usuario')
-        tipo = cleaned_data.get('tipo_sancion')
-        estado = cleaned_data.get('estado')
+        # 2. Validación de coherencia de fechas (por seguridad)
         if fecha_inicio and fecha_fin:
             if fecha_fin <= fecha_inicio:
                 raise forms.ValidationError("La fecha de fin debe ser mayor que la fecha de inicio.")
+
+        # 3. Validación de duplicados para sanciones activas del mismo tipo
         if usuario and tipo and estado == 'activa':
             queryset = Sancion.objects.filter(fk_usuario=usuario, tipo_sancion=tipo, estado='activa')
             if self.instance.pk:
                 queryset = queryset.exclude(pk=self.instance.pk)
             if queryset.exists():
                 raise forms.ValidationError("Este usuario ya tiene una sanción activa de este tipo.")
+
         return cleaned_data
 
 class RegistrovisitantetemporalForm(forms.ModelForm):

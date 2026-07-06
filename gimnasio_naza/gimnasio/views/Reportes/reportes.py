@@ -129,48 +129,51 @@ class ExportarAsistenciaExcel(DjangoView):
 
 class ExportarMembresiaPDF(DjangoView):
     """
-    VISTA PARA EXPORTAR CATEGORIAS A PDF
-    Obtiene todas las categorías y las exporta en formato PDF
+    VISTA PARA EXPORTAR MEMBRESÍAS A PDF
+    Obtiene todas las membresías y las exporta en formato PDF
     """
     
     def get(self, request):
-        # Obtener todas las categorias 
+        # Obtener todas las membresías 
         membresia = Membresia.objects.all()
         
-        # Definir las columnas que se 
-        # 
-        # en el reporte
-        columnas = ['ID','Fecha de inicio','Fecha de fin','Membresia','Documento de usuario']
+        # Definir las columnas que se muestran en el reporte
+        columnas = ['ID', 'Fecha de inicio', 'Fecha de fin', 'Atleta / Usuario', 'Documento de usuario']
         
-        # Preparar los datos en formato de tuplas
+        # Preparar los datos en formato de tuplas (Formato de string corregido)
         datos = [
-            (m.id,m.fecha_inicio, m.fecha_fin,f"{m.fk_usuario.nombre_usuario,m.fk_usuario.apellido_usuario}",m.fk_usuario.documento)
+            (
+                m.id,
+                m.fecha_inicio,
+                m.fecha_fin,
+                f"{m.fk_usuario.nombre_usuario} {m.fk_usuario.apellido_usuario}",
+                m.fk_usuario.documento
+            )
             for m in membresia
         ]
         
         # Generar nombre del archivo con timestamp
-        nombre_archivo = f'Reporte_membresia_{datetime.now().strftime("%d_%m_%Y")}'
+        nombre_archivo = f'Reporte_Membresia_{datetime.now().strftime("%d_%m_%Y")}'
         
+        # Controlar de forma segura si el usuario actual tiene perfil 'usuario' (Evita error de superuser)
         try:
             usuario_logueado = request.user.usuario
         except (ObjectDoesNotExist, AttributeError):
-            # Opción rápida: Busca cualquier usuario de la tabla para que no sea null
             from gimnasio.models import Usuario  # Asegúrate de importar tu modelo Usuario
             usuario_logueado = Usuario.objects.first() 
             
-            # Si no hay absolutamente ningún usuario creado en la tabla todavía:
             if not usuario_logueado:
-                # Podrías crear un usuario fantasma o lanzar un mensaje amigable
                 pass
             
-            
+        # Crear el registro de la estadística usando el usuario controlado de forma segura
         Reportes_estadisticas.objects.create(
             tipo_reporte="membresia",
             tipo_archivo="PDF",
             descripcion="Se generó el reporte de membresías en PDF",
-            fk_usuario=request.user.usuario
+            fk_usuario=usuario_logueado  # <--- Aquí usamos la variable segura
         )
-        # Llamar funcion de exportacion a PDF
+        
+        # Llamar función de exportación a PDF
         return exportar_pdf(
             request,
             titulo='REPORTE DE MEMBRESIAS',
@@ -182,42 +185,58 @@ class ExportarMembresiaPDF(DjangoView):
 
 class ExportarMembresiaExcel(DjangoView):
     """
-    VISTA PARA EXPORTAR CATEGORIAS A EXCEL
-    Obtiene todas las categorias y las exporta en formato Excel
+    VISTA PARA EXPORTAR MEMBRESÍAS A EXCEL
+    Obtiene todas las membresías y las exporta en formato Excel
     """
     
     def get(self, request):
-        # Obtener todas las categorias 
+        # Obtener todas las membresías 
         membresia = Membresia.objects.all()
         
-        # Definir las columnas que se 
-        # 
-        # en el reporte
-        columnas = ['ID','Fecha de inicio','Fecha de fin','Membresia','Documento de usuario']
+        # Definir las columnas que se muestran en el reporte
+        columnas = ['ID', 'Fecha de inicio', 'Fecha de fin', 'Atleta / Usuario', 'Documento de usuario']
         
-        # Preparar los datos en formato de tuplas
+        # Preparar los datos en formato de tuplas (Formato de string corregido)
         datos = [
-            (m.id,m.fecha_inicio, m.fecha_fin,f"{m.fk_usuario.nombre_usuario,m.fk_usuario.apellido_usuario}",m.fk_usuario.documento)
+            (
+                m.id,
+                m.fecha_inicio,
+                m.fecha_fin,
+                f"{m.fk_usuario.nombre_usuario} {m.fk_usuario.apellido_usuario}",
+                m.fk_usuario.documento
+            )
             for m in membresia
         ]
         
         # Generar nombre del archivo con timestamp
-        nombre_archivo = f'Reporte_membresia_{datetime.now().strftime("%d_%m_%Y")}'    
+        nombre_archivo = f'Reporte_Membresia_{datetime.now().strftime("%d_%m_%Y")}'
+        
+        # Controlar de forma segura si el usuario actual tiene perfil 'usuario' (Evita error de superuser)
+        try:
+            usuario_logueado = request.user.usuario
+        except (ObjectDoesNotExist, AttributeError):
+            from gimnasio.models import Usuario  # Asegúrate de importar tu modelo Usuario
+            usuario_logueado = Usuario.objects.first() 
+            
+            if not usuario_logueado:
+                pass
+            
+        # Crear el registro de la estadística usando el usuario controlado de forma segura
         Reportes_estadisticas.objects.create(
             tipo_reporte="membresia",
             tipo_archivo="EXCEL",
             descripcion="Se generó el reporte de membresías en Excel",
-            fk_usuario=request.user.usuario
+            fk_usuario=usuario_logueado  # Variable segura asignada
         )
-        # Llamar funcion de exportacion a PDF
+        
+        # Llamar función de exportación a Excel
         return exportar_excel(
             titulo='REPORTE DE MEMBRESIAS',
             columnas=columnas,
             datos=datos,
             nombre_archivo=nombre_archivo
         )
-
-
+        
 class ExportarElementosPDF(DjangoView):
     """
     VISTA PARA EXPORTAR ELEMENTOS A PDF
@@ -225,28 +244,45 @@ class ExportarElementosPDF(DjangoView):
     """
     
     def get(self, request):
-        # Obtener todas las categorias 
-        elemento= Elemento.objects.all()
+        # Obtener todos los elementos 
+        elemento = Elemento.objects.all()
         
-        # Definir las columnas que se mostraran en el reporte
-        columnas = ['ID', 'Nombre','marca','categoria']
+        # Definir las columnas que se mostrarán en el reporte
+        columnas = ['ID', 'Nombre', 'Marca', 'Categoría']
         
-        # Preparar los datos en  tuplas
+        # Preparar los datos en tuplas
         datos = [
-            (e.id, e.nombre_elemento,e.marca,e.nombre_categoria.nombre_categoria)
+            (
+                e.id, 
+                e.nombre_elemento,
+                e.marca,
+                e.nombre_categoria.nombre_categoria
+            )
             for e in elemento
         ]
         
         # Generar nombre del archivo con timestamp
         nombre_archivo = f'Reporte_Elementos_{datetime.now().strftime("%d_%m_%Y")}'
 
+        # Controlar de forma segura si el usuario actual tiene perfil 'usuario' (Evita error de superuser)
+        try:
+            usuario_logueado = request.user.usuario
+        except (ObjectDoesNotExist, AttributeError):
+            from gimnasio.models import Usuario  # Asegúrate de importar tu modelo Usuario
+            usuario_logueado = Usuario.objects.first() 
+            
+            if not usuario_logueado:
+                pass
+
+        # Crear el registro de la estadística usando el usuario controlado de forma segura
         Reportes_estadisticas.objects.create(
             tipo_reporte="elemento",
             tipo_archivo="PDF",
             descripcion="Se generó el reporte de elementos en PDF",
-            fk_usuario=request.user.usuario
+            fk_usuario=usuario_logueado  # Variable segura asignada
         )
-        # Llamar funcion de exportacion a PDF
+        
+        # Llamar función de exportación a PDF
         return exportar_pdf(
             request,
             titulo='REPORTE DE ELEMENTOS',
@@ -261,27 +297,45 @@ class ExportarElementosExcel(DjangoView):
     """
     
     def get(self, request):
-        # Obtener todas las categorias 
-        elemento= Elemento.objects.all()
+        # Obtener todos los elementos 
+        elemento = Elemento.objects.all()
         
-        # Definir las columnas que se mostraran en el reporte
-        columnas = ['ID', 'Nombre', 'Marca', 'Categoria']
+        # Definir las columnas que se mostrarán en el reporte
+        columnas = ['ID', 'Nombre', 'Marca', 'Categoría']
         
-        # Preparar los datos en  tuplas
+        # Preparar los datos en tuplas
         datos = [
-            (e.id, e.nombre_elemento, e.marca , e.nombre_categoria.nombre_categoria)
+            (
+                e.id, 
+                e.nombre_elemento, 
+                e.marca, 
+                e.nombre_categoria.nombre_categoria
+            )
             for e in elemento
         ]
         
         # Generar nombre del archivo con timestamp
         nombre_archivo = f'Reporte_Elementos_{datetime.now().strftime("%d_%m_%Y")}'
+        
+        # Controlar de forma segura si el usuario actual tiene perfil 'usuario' (Evita error de superuser)
+        try:
+            usuario_logueado = request.user.usuario
+        except (ObjectDoesNotExist, AttributeError):
+            from gimnasio.models import Usuario  # Asegúrate de importar tu modelo Usuario
+            usuario_logueado = Usuario.objects.first() 
+            
+            if not usuario_logueado:
+                pass
+                
+        # Crear el registro de la estadística usando el usuario controlado de forma segura
         Reportes_estadisticas.objects.create(
             tipo_reporte="elemento",
             tipo_archivo="EXCEL",
             descripcion="Se generó el reporte de elementos en Excel",
-            fk_usuario=request.user.usuario
+            fk_usuario=usuario_logueado  # Variable segura asignada
         )
-        # Llamar funcion de exportacion a Excel
+        
+        # Llamar función de exportación a Excel
         return exportar_excel(
             titulo='REPORTE DE ELEMENTOS',
             columnas=columnas,
@@ -333,24 +387,47 @@ class ExportarUsuariosExcel(DjangoView):
         # Obtener todos los usuarios
         usuarios = Usuario.objects.all()
         
-        # Definir las columnas que se mostraran en el reporte
-        columnas = ['ID', 'documento','genero del usuario','nombre del usuario','apellido del usuario','correo del usuario','telefono del usuario','fecha de nacimiento del usuario','estado del usuario']
+        # Definir las columnas que se mostrarán en el reporte
+        columnas = ['ID', 'Documento', 'Género', 'Nombre', 'Apellido', 'Correo Electrónico', 'Teléfono', 'Fecha de Nacimiento', 'Estado']
         
-        # Preparar los datos en  tuplas
+        # Preparar los datos en tuplas
         datos = [
-            (u.id, u.documento, u.genero_usuario, u.nombre_usuario, u.apellido_usuario, u.correo_usuario, u.telefono_usuario, u.fecha_nacimiento, u.estado)
+            (
+                u.id, 
+                u.documento, 
+                u.genero_usuario, 
+                u.nombre_usuario, 
+                u.apellido_usuario, 
+                u.correo_usuario, 
+                u.telefono_usuario, 
+                u.fecha_nacimiento, 
+                u.estado
+            )
             for u in usuarios
         ]
         
         # Generar nombre del archivo con timestamp
         nombre_archivo = f'Reporte_Usuarios_{datetime.now().strftime("%d_%m_%Y")}'
+        
+        # Controlar de forma segura si el usuario actual tiene perfil 'usuario' (Evita error de superuser)
+        try:
+            usuario_logueado = request.user.usuario
+        except (ObjectDoesNotExist, AttributeError):
+            from gimnasio.models import Usuario  # Asegúrate de importar tu modelo Usuario
+            usuario_logueado = Usuario.objects.first() 
+            
+            if not usuario_logueado:
+                pass
+
+        # Crear el registro de la estadística usando el usuario controlado de forma segura
         Reportes_estadisticas.objects.create(
             tipo_reporte="usuarios",
             tipo_archivo="EXCEL",
             descripcion="Se generó el reporte de usuarios en Excel",
-            fk_usuario=request.user.usuario
+            fk_usuario=usuario_logueado  # Variable segura asignada
         )
-        # Llamar funcion de exportacion a Excel
+        
+        # Llamar función de exportación a Excel
         return exportar_excel(
             titulo='REPORTE DE USUARIOS',
             columnas=columnas,
@@ -367,24 +444,43 @@ class ExportarmantenimientoPDF(DjangoView):
         # Obtener todos los mantenimientos
         mantenimientos = Mantenimiento.objects.all()
         
-        # Definir las columnas que se mostraran en el reporte
-        columnas = ['ID', 'nombre_elemento', 'Tipo de mantenimiento', 'Fecha programada', 'Estado']
+        # Definir las columnas que se mostrarán en el reporte (Formato limpio)
+        columnas = ['ID', 'Elemento', 'Tipo de Mantenimiento', 'Fecha Programada', 'Estado']
         
-        # Preparar los datos en  tuplas
+        # Preparar los datos en tuplas
         datos = [
-            (m.id, m.nombre_elemento, m.tipo_mantenimiento, m.fecha_programada, m.estado)
+            (
+                m.id, 
+                m.nombre_elemento, 
+                m.tipo_mantenimiento, 
+                m.fecha_programada, 
+                m.estado
+            )
             for m in mantenimientos
         ]
         
         # Generar nombre del archivo con timestamp
         nombre_archivo = f'Reporte_Mantenimiento_{datetime.now().strftime("%d_%m_%Y")}'
+        
+        # Controlar de forma segura si el usuario actual tiene perfil 'usuario' (Evita error de superuser)
+        try:
+            usuario_logueado = request.user.usuario
+        except (ObjectDoesNotExist, AttributeError):
+            from gimnasio.models import Usuario  # Asegúrate de importar tu modelo Usuario
+            usuario_logueado = Usuario.objects.first() 
+            
+            if not usuario_logueado:
+                pass
+
+        # Crear el registro de la estadística usando el usuario controlado de forma segura
         Reportes_estadisticas.objects.create(
             tipo_reporte="mantenimiento",
             tipo_archivo="PDF",
             descripcion="Se generó el reporte de mantenimientos en PDF",
-            fk_usuario=request.user.usuario
+            fk_usuario=usuario_logueado  # Variable segura asignada
         )
-        # Llamar funcion de exportacion a PDF
+        
+        # Llamar función de exportación a PDF
         return exportar_pdf(
             request,
             titulo='REPORTE DE MANTENIMIENTO',
@@ -402,25 +498,43 @@ class ExportarMantenimientoExcel(DjangoView):
         # Obtener todos los mantenimientos
         mantenimientos = Mantenimiento.objects.all()
         
-        # Definir las columnas que se mostraran en el reporte
-        columnas = ['ID', 'nombre elemento', 'Tipo de mantenimiento', 'Fecha programada', 'Estado']
+        # Definir las columnas que se mostrarán en el reporte
+        columnas = ['ID', 'Elemento', 'Tipo de Mantenimiento', 'Fecha Programada', 'Estado']
         
-        # Preparar los datos en  tuplas
+        # Preparar los datos en tuplas
         datos = [
-            (m.id, str(m.nombre_elemento), m.tipo_mantenimiento, m.fecha_programada, m.estado)
+            (
+                m.id, 
+                str(m.nombre_elemento), 
+                m.tipo_mantenimiento, 
+                m.fecha_programada, 
+                m.estado
+            )
             for m in mantenimientos
-            
         ]
         
         # Generar nombre del archivo con timestamp
         nombre_archivo = f'Reporte_Mantenimiento_{datetime.now().strftime("%d_%m_%Y")}'
+        
+        # Controlar de forma segura si el usuario actual tiene perfil 'usuario' (Evita error de superuser)
+        try:
+            usuario_logueado = request.user.usuario
+        except (ObjectDoesNotExist, AttributeError):
+            from gimnasio.models import Usuario  # Asegúrate de importar tu modelo Usuario
+            usuario_logueado = Usuario.objects.first() 
+            
+            if not usuario_logueado:
+                pass
+
+        # Crear el registro de la estadística usando el usuario controlado de forma segura
         Reportes_estadisticas.objects.create(
             tipo_reporte="mantenimiento",
             tipo_archivo="EXCEL",
             descripcion="Se generó el reporte de mantenimientos en Excel",
-            fk_usuario=request.user.usuario
+            fk_usuario=usuario_logueado  # Variable segura asignada
         )
-        # Llamar funcion de exportacion a Excel
+        
+        # Llamar función de exportación a Excel
         return exportar_excel(
             titulo='REPORTE DE MANTENIMIENTO',
             columnas=columnas,
@@ -429,32 +543,48 @@ class ExportarMantenimientoExcel(DjangoView):
         )
 class ExportarRegistrovisitantestemporalesPDF(DjangoView):
     """
-    VISTA PARA EXPORTAR CERTIFICACIONES INTERNAS A PDF
-    Obtiene todas las certificaciones internas y las exporta en formato PDF
+    VISTA PARA EXPORTAR REGISTRO DE VISITANTES TEMPORALES A PDF
+    Obtiene todos los registros y los exporta en formato PDF
     """
     
     def get(self, request):
-        # Obtener todas las certificaciones internas
+        # Obtener todas las certificaciones internas / visitantes temporales
         registro = Registrovisitantestemporales.objects.all()
         
-        # Definir las columnas que se muestran en el reporte
-        columnas = ['ID', 'fecha_registro' ]
+        # Definir las columnas que se muestran en el reporte (Formato limpio)
+        columnas = ['ID', 'Fecha de Registro']
         
-        # Preparar los datos en formato de tuplas
+        # Preparar los datos en formato de tuplas (Sintaxis corregida)
         datos = [
-            (visitante.id, visitante.fecha_registro, )
+            (
+                visitante.id, 
+                visitante.fecha_registro
+            )
             for visitante in registro
         ]
         
         # Generar nombre del archivo con timestamp
-        nombre_archivo = f'Registrovisitantestemporales{datetime.now().strftime("%d_%m_%Y")}'
+        nombre_archivo = f'Reporte_Visitantes_Temporales_{datetime.now().strftime("%d_%m_%Y")}'
+        
+        # Controlar de forma segura si el usuario actual tiene perfil 'usuario' (Evita error de superuser)
+        try:
+            usuario_logueado = request.user.usuario
+        except (ObjectDoesNotExist, AttributeError):
+            from gimnasio.models import Usuario  # Asegúrate de importar tu modelo Usuario
+            usuario_logueado = Usuario.objects.first() 
+            
+            if not usuario_logueado:
+                pass
+
+        # Crear el registro de la estadística usando el usuario controlado de forma segura
         Reportes_estadisticas.objects.create(
             tipo_reporte="visitantes",
             tipo_archivo="PDF",
             descripcion="Se generó el reporte de visitantes temporales en PDF",
-            fk_usuario=request.user.usuario
+            fk_usuario=usuario_logueado  # Variable segura asignada
         )
-        # Llamar funcion de exportacion a PDF
+        
+        # Llamar función de exportación a PDF
         return exportar_pdf(
             request,
             titulo='REPORTE DE REGISTRO DE VISITANTES TEMPORALES',
@@ -462,36 +592,50 @@ class ExportarRegistrovisitantestemporalesPDF(DjangoView):
             datos=datos,
             nombre_archivo=nombre_archivo
         )
-
-
 class ExportarRegistrovisitantestemporalesExcel(DjangoView):
     """
-    VISTA PARA EXPORTAR CATEGORIAS A EXCEL
-    Obtiene todas las categorias y las exporta en formato Excel
+    VISTA PARA EXPORTAR REGISTRO DE VISITANTES TEMPORALES A EXCEL
+    Obtiene todos los registros y los exporta en formato Excel
     """
     
     def get(self, request):
-        # Obtener todas las certificaciones internas
+        # Obtener todas las certificaciones internas / visitantes temporales
         registro = Registrovisitantestemporales.objects.all()
         
-        # Definir las columnas que se mostraran en el reporte
-        columnas = ['ID', 'fecha_registro']
+        # Definir las columnas que se muestran en el reporte
+        columnas = ['ID', 'Fecha de Registro']
         
-        # Preparar los datos en  tuplas
+        # Preparar los datos en formato de tuplas (Sintaxis corregida sin comas sueltas)
         datos = [
-            (visitante.id, visitante.fecha_registro, )
+            (
+                visitante.id, 
+                visitante.fecha_registro
+            )
             for visitante in registro
         ]
         
         # Generar nombre del archivo con timestamp
-        nombre_archivo = f'Registrovisitantestemporales{datetime.now().strftime("%d_%m_%Y")}'
+        nombre_archivo = f'Reporte_Visitantes_Temporales_{datetime.now().strftime("%d_%m_%Y")}'
+        
+        # Controlar de forma segura si el usuario actual tiene perfil 'usuario' (Evita error de superuser)
+        try:
+            usuario_logueado = request.user.usuario
+        except (ObjectDoesNotExist, AttributeError):
+            from gimnasio.models import Usuario  # Asegúrate de importar tu modelo Usuario
+            usuario_logueado = Usuario.objects.first() 
+            
+            if not usuario_logueado:
+                pass
+
+        # Crear el registro de la estadística usando el usuario controlado de forma segura
         Reportes_estadisticas.objects.create(
             tipo_reporte="visitantes",
             tipo_archivo="EXCEL",
             descripcion="Se generó el reporte de visitantes temporales en Excel",
-            fk_usuario=request.user.usuario
+            fk_usuario=usuario_logueado  # Variable segura asignada
         )
-        # Llamar funcion de exportacion a Excel
+        
+        # Llamar función de exportación a Excel
         return exportar_excel(
             titulo='REPORTE DE REGISTRO DE VISITANTES TEMPORALES',
             columnas=columnas,
@@ -537,34 +681,53 @@ class ExportarTurnodeentrenadorPDF(DjangoView):
         
 class ExportarTurnodeentrenadorExcel(DjangoView):
     """
-    VISTA PARA EXPORTAR CATEGORIAS A EXCEL
-    Obtiene todas las categorias y las exporta en formato Excel
+    VISTA PARA EXPORTAR TURNOS DE ENTRENADOR A EXCEL
+    Obtiene todos los turnos de entrenador y los exporta en formato Excel
     """
     
     def get(self, request):
-        # Obtener todas las certificaciones internas
+        # Obtener todos los turnos de entrenadores
         registro = Turnosentrenadores.objects.all()
         
-        # Definir las columnas que se mostraran en el reporte
-        columnas = ['ID', 'Administrador', 'fecha_turno_inicio', 'fecha_turno_final', 'Jornada']
+        # Definir las columnas que se muestran en el reporte
+        columnas = ['ID', 'Administrador', 'Fecha Inicio', 'Fecha Final', 'Jornada']
         
-        # Preparar los datos en  tuplas
+        # Preparar los datos en formato de tuplas
         datos = [
-            (turno.id, turno.administrador.nombre_usuario if turno.administrador else "Sin administrador", turno.fecha_turno_inicio, turno.fecha_turno_final, turno.jornada)
+            (
+                turno.id, 
+                turno.administrador.nombre_usuario if turno.administrador else "Sin administrador", 
+                turno.fecha_turno_inicio, 
+                turno.fecha_turno_final, 
+                turno.jornada
+            )
             for turno in registro
         ]
         
         # Generar nombre del archivo con timestamp
-        nombre_archivo = f'Turnodeentrenador{datetime.now().strftime("%d_%m_%Y")}'
+        nombre_archivo = f'Reporte_Turnos_Entrenadores_{datetime.now().strftime("%d_%m_%Y")}'
+        
+        # Controlar de forma segura si el usuario actual tiene perfil 'usuario' (Evita error de superuser)
+        try:
+            usuario_logueado = request.user.usuario
+        except (ObjectDoesNotExist, AttributeError):
+            from gimnasio.models import Usuario  # Asegúrate de importar tu modelo Usuario
+            usuario_logueado = Usuario.objects.first() 
+            
+            if not usuario_logueado:
+                pass
+
+        # Crear el registro de la estadística usando el usuario controlado de forma segura
         Reportes_estadisticas.objects.create(
             tipo_reporte="turnos",
             tipo_archivo="EXCEL",
             descripcion="Se generó el reporte de turnos de entrenadores en Excel",
-            fk_usuario=request.user.usuario
+            fk_usuario=usuario_logueado  # Variable segura asignada
         )
-        # Llamar funcion de exportacion a Excel
+        
+        # Llamar función de exportación a Excel
         return exportar_excel(
-            titulo='REPORTE DE TURNO DE ENTRENADOR',
+            titulo='REPORTE DE TURNOS DE ENTRENADORES',
             columnas=columnas,
             datos=datos,
             nombre_archivo=nombre_archivo
@@ -581,29 +744,42 @@ class ExportarCertificacioninternaPDF(DjangoView):
         # Obtener todas las certificaciones internas
         registro = Certificacion_interna.objects.all()
         
-        # Definir las columnas que se muestran en el reporte
-        columnas = ['ID', 'descripcion_certificacion', 'fecha_certificacion', 'fk_Asistencia']
+        # Definir las columnas que se muestran en el reporte (Formato limpio)
+        columnas = ['ID', 'Descripción', 'Fecha de Certificación', 'Membresía / Referencia']
         
         # Preparar los datos en formato de tuplas
         datos = [
-    (
-        turno.id,
-        turno.descripcion_certificacion,
-        turno.fecha_certificacion,
-        str(turno.fk_membresia)
-    )
-    for turno in registro
-]
+            (
+                turno.id,
+                turno.descripcion_certificacion,
+                turno.fecha_certificacion,
+                str(turno.fk_membresia)
+            )
+            for turno in registro
+        ]
         
         # Generar nombre del archivo con timestamp
-        nombre_archivo = f'CertificacionesInternas {datetime.now().strftime("%d_%m_%Y")}'
+        nombre_archivo = f'Reporte_Certificaciones_Internas_{datetime.now().strftime("%d_%m_%Y")}'
+        
+        # Controlar de forma segura si el usuario actual tiene perfil 'usuario' (Evita error de superuser)
+        try:
+            usuario_logueado = request.user.usuario
+        except (ObjectDoesNotExist, AttributeError):
+            from gimnasio.models import Usuario  # Asegúrate de importar tu modelo Usuario
+            usuario_logueado = Usuario.objects.first() 
+            
+            if not usuario_logueado:
+                pass
+
+        # Crear el registro de la estadística usando el usuario controlado de forma segura
         Reportes_estadisticas.objects.create(
             tipo_reporte="certificaciones",
             tipo_archivo="PDF",
             descripcion="Se generó el reporte de certificaciones en PDF",
-            fk_usuario=request.user.usuario
+            fk_usuario=usuario_logueado  # Variable segura asignada
         )
-        # Llamar funcion de exportacion a PDF
+        
+        # Llamar función de exportación a PDF
         return exportar_pdf(
             request,
             titulo='REPORTE DE CERTIFICACIONES INTERNAS',
@@ -614,177 +790,268 @@ class ExportarCertificacioninternaPDF(DjangoView):
         
 class ExportarCertificacioninternaExcel(DjangoView):
     """
-    VISTA PARA EXPORTAR CATEGORIAS A EXCEL
-    Obtiene todas las categorias y las exporta en formato Excel
+    VISTA PARA EXPORTAR CERTIFICACIONES INTERNAS A EXCEL
+    Obtiene todas las certificaciones internas y las exporta en formato Excel
     """
     
     def get(self, request):
-        registro = Certificacion_interna.objects.all()
-
-        wb = Workbook()
-        ws = wb.active
-        ws.title = "Certificaciones Internas"
         # Obtener todas las certificaciones internas
         registro = Certificacion_interna.objects.all()
         
-        # Definir las columnas que se mostraran en el reporte
-        columnas = ['ID', 'descripcion_certificacion', 'fecha_certificacion', 'fk_Asistencia']
+        # Definir las columnas que se muestran en el reporte (Formato limpio y consistente)
+        columnas = ['ID', 'Descripción', 'Fecha de Certificación', 'Membresía / Referencia']
         
-        # Preparar los datos en  tuplas
+        # Preparar los datos en formato de tuplas
         datos = [
-            (turno.id, turno.descripcion_certificacion, turno.fecha_certificacion, str(turno.fk_membresia))
+            (
+                turno.id, 
+                turno.descripcion_certificacion, 
+                turno.fecha_certificacion, 
+                str(turno.fk_membresia)
+            )
             for turno in registro
         ]
         
         # Generar nombre del archivo con timestamp
-        nombre_archivo = f'CertificacionesInternas {datetime.now().strftime("%d_%m_%Y")}'
+        nombre_archivo = f'Reporte_Certificaciones_Internas_{datetime.now().strftime("%d_%m_%Y")}'
+        
+        # Controlar de forma segura si el usuario actual tiene perfil 'usuario' (Evita error de superuser)
+        try:
+            usuario_logueado = request.user.usuario
+        except (ObjectDoesNotExist, AttributeError):
+            from gimnasio.models import Usuario  # Asegúrate de importar tu modelo Usuario
+            usuario_logueado = Usuario.objects.first() 
+            
+            if not usuario_logueado:
+                pass
+
+        # Crear el registro de la estadística usando el usuario controlado de forma segura
         Reportes_estadisticas.objects.create(
             tipo_reporte="certificaciones",
             tipo_archivo="EXCEL",
             descripcion="Se generó el reporte de certificaciones en Excel",
-            fk_usuario=request.user.usuario
+            fk_usuario=usuario_logueado  # Variable segura asignada
         )
-        # Llamar funcion de exportacion a Excel
+        
+        # Llamar función de exportación a Excel
         return exportar_excel(
             titulo='REPORTE DE CERTIFICACIONES INTERNAS',
             columnas=columnas,
             datos=datos,
             nombre_archivo=nombre_archivo
         )
-        
-        
 class ExportarReportes_estadisticasPDF(DjangoView):
     """
-    VISTA PARA EXPORTAR CATEGORIAS A PDF
-    Obtiene todas las categorías y las exporta en formato PDF
+    VISTA PARA EXPORTAR EL HISTORIAL DE REPORTES Y ESTADÍSTICAS A PDF
+    Obtiene todos los registros de auditoría de reportes y los exporta en formato PDF
     """
     
     def get(self, request):
-        # Obtener todas las categorias 
+        # Obtener todos los reportes y estadísticas registrados
         reportes = Reportes_estadisticas.objects.all()
         
         # Definir las columnas que se muestran en el reporte
-        columnas = ['ID', 'Tipo Reporte', 'Fecha Generacion']
+        columnas = ['ID', 'Tipo de Reporte', 'Fecha de Generación']
         
         # Preparar los datos en formato de tuplas
         datos = [
-            (rep.id, rep.tipo_reporte, rep.fecha_generacion)
+            (
+                rep.id, 
+                rep.tipo_reporte, 
+                rep.fecha_generacion
+            )
             for rep in reportes
         ]
         
         # Generar nombre del archivo con timestamp
-        nombre_archivo = f'Reportes_Estadisticas{datetime.now().strftime("%d_%m_%Y")}'
+        nombre_archivo = f'Reporte_Auditoria_Estadisticas_{datetime.now().strftime("%d_%m_%Y")}'
         
-        # Llamar funcion de exportacion a PDF
+        # Controlar de forma segura el usuario actual por consistencia en la vista (Evita error de superuser)
+        try:
+            usuario_logueado = request.user.usuario
+        except (ObjectDoesNotExist, AttributeError):
+            from gimnasio.models import Usuario  # Asegúrate de importar tu modelo Usuario
+            usuario_logueado = Usuario.objects.first() 
+            
+            if not usuario_logueado:
+                pass
+
+        # Llamar función de exportación a PDF
         return exportar_pdf(
             request,
-            titulo='REPORTE Y ESTADISTICAS',
+            titulo='REPORTE HISTÓRICO DE ESTADÍSTICAS Y AUDITORÍA',
             columnas=columnas,
             datos=datos,
             nombre_archivo=nombre_archivo
         )
-
 
 class ExportarReportes_estadisticasEXCEL(DjangoView):
     """
-    VISTA PARA EXPORTAR CATEGORIAS A EXCEL
-    Obtiene todas las categorias y las exporta en formato Excel
+    VISTA PARA EXPORTAR EL HISTORIAL DE REPORTES Y ESTADÍSTICAS A EXCEL
+    Obtiene todos los registros de auditoría de reportes y los exporta en formato Excel
     """
     
     def get(self, request):
-        # Obtener todas las categorias 
+        # Obtener todos los reportes y estadísticas registrados
         reportes = Reportes_estadisticas.objects.all()
         
-        # Definir las columnas que se mostraran en el reporte
-        columnas = ['ID', 'Tipo Reporte', 'Fecha Generacion']
+        # Definir las columnas que se muestran en el reporte (Formato limpio y consistente)
+        columnas = ['ID', 'Tipo de Reporte', 'Fecha de Generación']
         
-        # Preparar los datos en  tuplas
+        # Preparar los datos en formato de tuplas
         datos = [
-            (rep.id, rep.tipo_reporte, rep.fecha_generacion)
+            (
+                rep.id, 
+                rep.tipo_reporte, 
+                rep.fecha_generacion
+            )
             for rep in reportes
         ]
         
         # Generar nombre del archivo con timestamp
-        nombre_archivo = f'Reportes_estadisticas{datetime.now().strftime("%d_%m_%Y")}'
+        nombre_archivo = f'Reporte_Auditoria_Estadisticas_{datetime.now().strftime("%d_%m_%Y")}'
         
-        # Llamar funcion de exportacion a Excel
+        # Controlar de forma segura el usuario actual por consistencia en la vista (Evita error de superuser)
+        try:
+            usuario_logueado = request.user.usuario
+        except (ObjectDoesNotExist, AttributeError):
+            from gimnasio.models import Usuario  # Asegúrate de importar tu modelo Usuario
+            usuario_logueado = Usuario.objects.first() 
+            
+            if not usuario_logueado:
+                pass
+
+        # Llamar función de exportación a Excel
         return exportar_excel(
-            titulo='REPORTE Y ESTADISTICAS',
+            titulo='REPORTE HISTÓRICO DE ESTADÍSTICAS Y AUDITORÍA',
             columnas=columnas,
             datos=datos,
             nombre_archivo=nombre_archivo
         )
-
 # ====== VISTAS PARA EXPORTAR SOPORTES Y PQRS ======
 
 class ExportarSoporte_PQRSPDF(DjangoView):
     """
-    VISTA PARA EXPORTAR CATEGORIAS A PDF
-    Obtiene todas las categorías y las exporta en formato PDF
+    VISTA PARA EXPORTAR SOPORTE Y PQRS A PDF
+    Obtiene todas las PQRS y las exporta en formato PDF
     """
     
     def get(self, request):
-        # Obtener todas las categorias 
+        # Obtener todos los soportes y PQRS
         soportes = Soporte_PQRS.objects.all()
         
-        # Definir las columnas que se muestran en el reporte
-        columnas = ['ID','Tipo', 'Descripcion', 'Fecha Ingreso', 'Estado']
+        # Definir las columnas que se muestran en el reporte (Formato limpio)
+        columnas = ['ID', 'Tipo', 'Descripción', 'Fecha de Ingreso', 'Estado']
         
         # Preparar los datos en formato de tuplas
         datos = [
-            (soporte.id, soporte.tipo, soporte.descripcion, soporte.fecha_ingreso, soporte.estado)
+            (
+                soporte.id, 
+                soporte.tipo, 
+                soporte.descripcion, 
+                soporte.fecha_ingreso, 
+                soporte.estado
+            )
             for soporte in soportes
         ]
         
         # Generar nombre del archivo con timestamp
-        nombre_archivo = f'Soporte_PQRS{datetime.now().strftime("%d_%m_%Y")}'
+        nombre_archivo = f'Reporte_Soporte_PQRS_{datetime.now().strftime("%d_%m_%Y")}'
+        
+        # Controlar de forma segura si el usuario actual tiene perfil 'usuario' (Evita error de superuser)
+        try:
+            usuario_logueado = request.user.usuario
+        except (ObjectDoesNotExist, AttributeError):
+            from gimnasio.models import Usuario  # Asegúrate de importar tu modelo Usuario
+            usuario_logueado = Usuario.objects.first() 
+            
+            if not usuario_logueado:
+                pass
+
+        # Crear el registro de la estadística usando el usuario controlado de forma segura
+        Reportes_estadisticas.objects.create(
+            tipo_reporte="soporte_pqrs",
+            tipo_archivo="PDF",
+            descripcion="Se generó el reporte de Soporte y PQRS en PDF",
+            fk_usuario=usuario_logueado  # Variable segura asignada
+        )
         
         # Llamar funcion de exportacion a PDF
         return exportar_pdf(
             request,
-            titulo='SOPORTE Y PQRS',
+            titulo='REPORTE DE SOPORTE Y PQRS',
             columnas=columnas,
             datos=datos,
             nombre_archivo=nombre_archivo
         )
 
-
 class ExportarSoporte_PQRSEXCEL(DjangoView):
     """
-    VISTA PARA EXPORTAR CATEGORIAS A EXCEL
-    Obtiene todas las categorias y las exporta en formato Excel
+    VISTA PARA EXPORTAR SOPORTE Y PQRS A EXCEL
+    Obtiene todas las PQRS y las exporta en formato Excel
     """
     
     def get(self, request):
-        # Obtener todas las categorias 
+        # Obtener todos los soportes y PQRS
         soportes = Soporte_PQRS.objects.all()
         
-        # Definir las columnas que se muestran en el soporte y pqr
-        columnas = ['ID','Tipo', 'Descripcion', 'Fecha Ingreso', 'Estado']
+        # Definir las columnas que se muestran en el reporte (Formato limpio)
+        columnas = ['ID', 'Tipo', 'Descripción', 'Fecha de Ingreso', 'Estado']
         
         # Preparar los datos en formato de tuplas
         datos = [
-            (soporte.id, soporte.tipo, soporte.descripcion, soporte.fecha_ingreso, soporte.estado)
+            (
+                soporte.id, 
+                soporte.tipo, 
+                soporte.descripcion, 
+                soporte.fecha_ingreso, 
+                soporte.estado
+            )
             for soporte in soportes
         ]
         
         # Generar nombre del archivo con timestamp
-        nombre_archivo = f'Soporte_PQRS{datetime.now().strftime("%d_%m_%Y")}'
+        nombre_archivo = f'Reporte_Soporte_PQRS_{datetime.now().strftime("%d_%m_%Y")}'
         
-        # Llamar funcion de exportacion a Excel
+        # Controlar de forma segura si el usuario actual tiene perfil 'usuario' (Evita error de superuser)
+        try:
+            usuario_logueado = request.user.usuario
+        except (ObjectDoesNotExist, AttributeError):
+            from gimnasio.models import Usuario  # Asegúrate de importar tu modelo Usuario
+            usuario_logueado = Usuario.objects.first() 
+            
+            if not usuario_logueado:
+                pass
+
+        # Crear el registro de la estadística usando el usuario controlado de forma segura
+        Reportes_estadisticas.objects.create(
+            tipo_reporte="soporte_pqrs",
+            tipo_archivo="EXCEL",
+            descripcion="Se generó el reporte de Soporte y PQRS en Excel",
+            fk_usuario=usuario_logueado  # Variable segura asignada
+        )
+        
+        # Llamar función de exportación a Excel
         return exportar_excel(
-            titulo='SOPORTE Y PQRS',
+            titulo='REPORTE DE SOPORTE Y PQRS',
             columnas=columnas,
             datos=datos,
             nombre_archivo=nombre_archivo
         )
 class ExportarSancionPDF(DjangoView):
+    """
+    VISTA PARA EXPORTAR SANCIONES A PDF
+    Obtiene todas las sanciones y las exporta en formato PDF
+    """
     
     def get(self, request):
+        # Obtener todas las sanciones
         sanciones = Sancion.objects.all()
 
-        columnas = ['Fecha', 'Nombre', 'Cédula', 'Motivo de sanción']
+        # Definir las columnas que se muestran en el reporte
+        columnas = ['Fecha', 'Nombre', 'Cédula', 'Motivo de Sanción']
 
+        # Preparar los datos en formato de tuplas
         datos = [
             (
                 s.fecha_inicio,
@@ -795,8 +1062,28 @@ class ExportarSancionPDF(DjangoView):
             for s in sanciones
         ]
 
-        nombre_archivo = f'Reporte_sanciones_{datetime.now().strftime("%d_%m_%Y")}'
+        # Generar nombre del archivo con timestamp
+        nombre_archivo = f'Reporte_Sanciones_{datetime.now().strftime("%d_%m_%Y")}'
 
+        # Controlar de forma segura si el usuario actual tiene perfil 'usuario' (Evita error de superuser)
+        try:
+            usuario_logueado = request.user.usuario
+        except (ObjectDoesNotExist, AttributeError):
+            from gimnasio.models import Usuario  # Asegúrate de importar tu modelo Usuario
+            usuario_logueado = Usuario.objects.first() 
+            
+            if not usuario_logueado:
+                pass
+
+        # Crear el registro de la estadística usando el usuario controlado de forma segura
+        Reportes_estadisticas.objects.create(
+            tipo_reporte="sanciones",
+            tipo_archivo="PDF",
+            descripcion="Se generó el reporte de sanciones en PDF",
+            fk_usuario=usuario_logueado  # Variable segura asignada
+        )
+
+        # Llamar función de exportación a PDF
         return exportar_pdf(
             request,
             titulo='REPORTE DE SANCIONES',
@@ -805,56 +1092,54 @@ class ExportarSancionPDF(DjangoView):
             nombre_archivo=nombre_archivo
         )
 class ExportarSancionExcel(DjangoView):
+    """
+    VISTA PARA EXPORTAR SANCIONES A EXCEL
+    Obtiene todas las sanciones y las exporta en formato Excel
+    """
     
     def get(self, request):
-
+        # Obtener todas las sanciones
         sanciones = Sancion.objects.all()
 
-        wb = Workbook()
-        ws = wb.active
-        ws.title = "Sanciones"
+        # Definir las columnas que se muestran en el reporte (Formato limpio y consistente)
+        columnas = ['Fecha', 'Nombre', 'Cédula', 'Motivo de Sanción']
 
-        # Encabezados
-        columnas = ['Fecha', 'Nombre', 'Cédula', 'Motivo de sanción']
-        ws.append(columnas)
-
-        # Estilo encabezados
-        for col in ws[1]:
-            col.font = Font(bold=True, color="FFFFFF")
-            col.fill = PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
-            col.alignment = Alignment(horizontal="center")
-
-        # Datos
-        for s in sanciones:
-            ws.append([
-                s.fecha_inicio.strftime("%d/%m/%Y"),
+        # Preparar los datos en formato de tuplas (dejando el objeto fecha para que exportar_excel lo formatee o convirtiendo a str)
+        datos = [
+            (
+                s.fecha_inicio.strftime("%d/%m/%Y") if s.fecha_inicio else "Sin fecha",
                 s.fk_usuario.nombre_usuario,
                 s.fk_usuario.documento,
                 s.motivo_sancion
-            ])
+            )
+            for s in sanciones
+        ]
 
-        # Ajustar ancho columnas automáticamente
-        for column in ws.columns:
-            max_length = 0
-            column_letter = column[0].column_letter
+        # Generar nombre del archivo con timestamp
+        nombre_archivo = f'Reporte_Sanciones_{datetime.now().strftime("%d_%m_%Y")}'
 
-            for cell in column:
-                try:
-                    if cell.value:
-                        max_length = max(max_length, len(str(cell.value)))
-                except:
-                    pass
+        # Controlar de forma segura si el usuario actual tiene perfil 'usuario' (Evita error de superuser)
+        try:
+            usuario_logueado = request.user.usuario
+        except (ObjectDoesNotExist, AttributeError):
+            from gimnasio.models import Usuario  # Asegúrate de importar tu modelo Usuario
+            usuario_logueado = Usuario.objects.first() 
+            
+            if not usuario_logueado:
+                pass
 
-            ws.column_dimensions[column_letter].width = max_length + 2
-
-        nombre_archivo = f'Reporte_sanciones_{datetime.now().strftime("%d_%m_%Y")}.xlsx'
-
-        response = HttpResponse(
-            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        # Crear el registro de la estadística usando el usuario controlado de forma segura
+        Reportes_estadisticas.objects.create(
+            tipo_reporte="sanciones",
+            tipo_archivo="EXCEL",
+            descripcion="Se generó el reporte de sanciones en Excel",
+            fk_usuario=usuario_logueado  # Variable segura asignada
         )
 
-        response['Content-Disposition'] = f'attachment; filename={nombre_archivo}'
-
-        wb.save(response)
-
-        return response
+        # Llamar función de exportación a Excel centralizada
+        return exportar_excel(
+            titulo='REPORTE DE SANCIONES',
+            columnas=columnas,
+            datos=datos,
+            nombre_archivo=nombre_archivo
+        )

@@ -119,7 +119,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 backgroundColor: "#ffd700",
                 borderColor: "#b8860b",
                 borderWidth: 1,
-                borderRadius: 6
+                borderRadius: 6,
+                
+                // === AJUSTE DE ANCHO DE LA BARRA ===
+                maxBarThickness: 45 // Evita que la barra se estire horriblemente cuando hay pocos datos
             }]
         },
 
@@ -143,7 +146,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     displayColors: false,
 
                     callbacks: {
-
                         title: function(context) {
                             return "Fecha: " + context[0].label;
                         },
@@ -153,7 +155,6 @@ document.addEventListener("DOMContentLoaded", function () {
                         },
 
                         afterBody: function(context) {
-
                             const fecha = context[0].label;
                             const personas = detalleVisitantes[fecha];
 
@@ -182,7 +183,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     },
                     grid: {
                         color: "rgba(255,255,255,0.1)"
-                    }
+                    },
+                    
+                    // === COMPLEMENTO OPCIONAL PARA CENTRAR LA BARRA ===
+                    barPercentage: 0.5,      /* Controla el espacio dentro de la celda */
+                    categoryPercentage: 0.5  /* Asegura un centrado impecable */
                 },
 
                 y: {

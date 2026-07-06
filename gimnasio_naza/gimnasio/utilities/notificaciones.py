@@ -133,7 +133,7 @@ class NotificacionManager:
         
         Si tienes alguna pregunta, no dudes en contactarnos.
         
-        ¡A entrenar! 💪
+        ¡A entrenar! 
         
         Saludos cordiales,
         Equipo Gimnasio Nazareth
@@ -192,7 +192,7 @@ class NotificacionManager:
             """Envía alerta cuando la membresía está próxima a vencer"""
 
             usuario = membresia.fk_usuario
-            asunto = f'⏰ Tu membresía vence en {dias_faltantes} día{"s" if dias_faltantes != 1 else ""}'
+            asunto = f' Tu membresía vence en {dias_faltantes} día{"s" if dias_faltantes != 1 else ""}'
 
             cuerpo = f"""
             Hola {usuario.nombre_usuario},
@@ -207,8 +207,8 @@ class NotificacionManager:
             Acércate a nuestras instalaciones para renovar tu membresía en cualquier momento.
             
             Contacto:
-            📞 Teléfono: [Tu número aquí]
-            📧 Email: {NotificacionManager.EMAIL_FROM}
+             Teléfono: [Tu número aquí]
+             Email: {NotificacionManager.EMAIL_FROM}
             
             Saludos cordiales,
             Equipo Gimnasio Nazareth
