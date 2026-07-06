@@ -22,5 +22,5 @@ jobs:
           pip install pytest pytest-django
       - name: ejecutar pruebas
         run: |
-          cd Sena
+          cd gimnasio_naza
           pytest apl/tests.py --ds=config.settings
