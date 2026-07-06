@@ -23,4 +23,4 @@ jobs:
       - name: ejecutar pruebas
         run: |
           cd gimnasio_naza
-          pytest apl/tests.py --ds=config.settings
+          pytest gimnasio/tests.py --ds=config.settings
