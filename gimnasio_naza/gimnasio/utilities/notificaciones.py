@@ -10,6 +10,7 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from gimnasio.models import Notificacion
 import logging
+from django.core.mail import get_connection
 from django.core.mail import EmailMultiAlternatives
 logger = logging.getLogger(__name__)
 
@@ -60,19 +61,23 @@ class NotificacionManager:
             else:
                     message = cuerpo
                     html_message = None
+          
+            connection = get_connection(timeout=15)
+
             email = EmailMultiAlternatives(
-                    subject=asunto,
-                    body=message,
-                    from_email=NotificacionManager.EMAIL_FROM,
-                    to=[usuario.correo_usuario],
-                )
+                subject=asunto,
+                body=message,
+                from_email=NotificacionManager.EMAIL_FROM,
+                to=[usuario.correo_usuario],
+                connection=connection,
+            )
 
             if usar_html and html_message:
-                    email.attach_alternative(html_message, "text/html")
-
+                email.attach_alternative(html_message, "text/html")
 
             if archivo_adjunto:
-                    email.attach_file(archivo_adjunto)
+                email.attach_file(archivo_adjunto)
+
             email.send()
 
             notificacion = Notificacion.objects.filter(
